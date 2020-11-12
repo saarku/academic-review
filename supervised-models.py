@@ -22,6 +22,7 @@ for dim in dimensions:
     if unigrams_flag:
         x_unigram_train, y_train, x_unigram_test, y_test = builder.build_unigram_features(dim)
         all_features_train.append(x_unigram_train)
+        print(x_unigram_train.shape)
         all_features_test.append(x_unigram_test)
         model_name += '.uni'
 
