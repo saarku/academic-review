@@ -33,11 +33,9 @@ class FeatureBuilder:
         return x_train_tf_idf, y_train, x_test_tf_idf, y_test
 
     def build_topic_features(self, dimension_id, topics_train_dir, topics_test_dir):
-        x_train = get_topics_vec(topics_train_dir)
-        x_test = get_topics_vec(topics_test_dir)
-        train_data, y_train = self.modify_topics_to_dimension(x_train, self.train_labels, dimension_id)
-        test_data, y_test = self.modify_topics_to_dimension(x_test, self.test_labels, dimension_id)
-        return train_data, y_train, test_data, y_test
+        x_train, y_train = get_topics_vec(topics_train_dir, self.train_labels, dimension_id)
+        x_test, y_test = get_topics_vec(topics_test_dir, self.test_labels, dimension_id)
+        return x_train, y_train, x_test, y_test
 
     @staticmethod
     def build_labels(ids_dir, grades_dir):

@@ -3,24 +3,28 @@ from gensim.models.ldamodel import LdaModel
 from sklearn.feature_extraction.text import CountVectorizer
 
 
-def get_topics_vec(dists_dir):
+def get_topics_vec(dists_dir, labels, dimension_id):
     """ Read topic distributions from a file and construct a sparse matrix.
 
     :param dists_dir: a file with the distributions.
     :return: csr_matrix.
     """
     topic_vectors = []
+    modified_grades = []
     with open(dists_dir, 'r') as input_file:
-        for line in input_file:
-            args = line.rstrip('\n').rstrip(']').lstrip('[').split('),')
-            single_vec = []
-            for a in args:
-                index = int(a.split(',')[0].split('(')[1])
-                number = float(a.split(',')[1].rstrip(')'))
-                single_vec += [(index, number)]
-            topic_vectors += [single_vec]
+        for i, line in enumerate(input_file):
+            grade = labels[i, dimension_id]
+            if grade > 0:
+                modified_grades.append(grade)
+                args = line.rstrip('\n').rstrip(']').lstrip('[').split('),')
+                single_vec = []
+                for a in args:
+                    index = int(a.split(',')[0].split('(')[1])
+                    number = float(a.split(',')[1].rstrip(')'))
+                    single_vec += [(index, number)]
+                topic_vectors += [single_vec]
         num_topics = len(topic_vectors[0])
-    return to_sparse(topic_vectors, (len(topic_vectors), num_topics))
+    return to_sparse(topic_vectors, (len(topic_vectors), num_topics)), modified_grades
 
 
 class TopicModels:

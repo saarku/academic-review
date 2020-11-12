@@ -30,8 +30,8 @@ for dim in dimensions:
         x_topics_train, y_train, x_topics_test, y_test = builder.build_topic_features(dim,
                                                                                       topic_model_dir + '.train',
                                                                                       topic_model_dir + '.test')
-        all_features_train.append(x_topics_train.todense())
-        all_features_test.append(x_topics_test.todense())
+        all_features_train.append(x_topics_train)
+        all_features_test.append(x_topics_test)
         model_name += '.topic' + str(topic_num)
 
     train_features = sp.hstack(tuple(all_features_train), format='csr')
