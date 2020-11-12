@@ -5,6 +5,7 @@ from nltk.tokenize import word_tokenize
 from nltk import stem
 import numpy as np
 from scipy.sparse import csr_matrix
+from topic_models import get_topics_vec
 
 
 def to_sparse(vectors, shape):
@@ -92,8 +93,8 @@ class FeatureBuilder:
         return x_train_tf_idf, y_train, x_test_tf_idf, y_test
 
     def build_topic_features(self, dimension_id, topics_train_dir, topics_test_dir):
-        x_train = self.get_topics_vec(topics_train_dir)
-        x_test = self.get_topics_vec(topics_test_dir)
+        x_train = get_topics_vec(topics_train_dir)
+        x_test = get_topics_vec(topics_test_dir)
         train_data, y_train = self.modify_topics_to_dimension(x_train, self.train_labels, dimension_id)
         test_data, y_test = self.modify_topics_to_dimension(x_test, self.test_labels, dimension_id)
         return train_data, y_train, test_data, y_test

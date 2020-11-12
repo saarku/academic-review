@@ -5,7 +5,6 @@ from math import sqrt
 import scipy.sparse as sp
 import joblib
 from scipy.stats import kendalltau
-from topic_models import get_topics_vec
 
 data_dir = '/home/skuzi2/iclr17_dataset'
 dimensions = [1, 2, 3, 5, 6]
