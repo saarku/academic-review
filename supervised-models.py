@@ -3,7 +3,7 @@ from feature_builder import FeatureBuilder
 from sklearn.metrics import mean_squared_error
 from math import sqrt
 import scipy.sparse as sp
-from sklearn.externals import joblib
+import joblib
 from scipy.stats import kendalltau
 
 data_dir = '/home/skuzi2/iclr17_dataset'
