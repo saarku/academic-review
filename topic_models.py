@@ -1,4 +1,4 @@
-from feature_builder import to_sparse, from_sparse, pre_process_text
+from utils import to_sparse, from_sparse, pre_process_text
 from gensim.models.ldamodel import LdaModel
 from sklearn.feature_extraction.text import CountVectorizer
 
