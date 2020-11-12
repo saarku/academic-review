@@ -22,8 +22,7 @@ for dim in dimensions:
     if unigrams_flag:
         x_unigram_train, y_train, x_unigram_test, y_test = builder.build_unigram_features(dim)
         all_features_train.append(x_unigram_train)
-        print(type(x_unigram_train))
-        print(x_unigram_train.shape)
+
         all_features_test.append(x_unigram_test)
         model_name += '.uni'
 
@@ -33,14 +32,13 @@ for dim in dimensions:
                                                                                       topic_model_dir + '.train',
                                                                                       topic_model_dir + '.test')
         all_features_train.append(x_topics_train)
-        print(type(x_topics_train))
-        print(x_topics_train.shape)
+
         all_features_test.append(x_topics_test)
         model_name += '.topic' + str(topic_num)
 
     train_features = sp.hstack(tuple(all_features_train), format='csr')
     test_features = sp.hstack(tuple(all_features_test), format='csr')
-    clf = MLPRegressor(solver='sgd', max_iter=500).fit(train_features, y_train)
+    clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(train_features, y_train)
     grades = clf.predict(test_features)
     error = sqrt(mean_squared_error(y_test, grades))
     kendall, _ = kendalltau(y_test, grades)
