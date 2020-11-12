@@ -8,8 +8,8 @@ from scipy.stats import kendalltau
 
 data_dir = '/home/skuzi2/iclr17_dataset'
 dimensions = [1, 2, 3, 5, 6]
-topic_model_dims = [5]
-unigrams_flag = False
+topic_model_dims = []
+unigrams_flag = True
 
 builder = FeatureBuilder(data_dir)
 topics_dir = '/home/skuzi2/iclr17_dataset/lda_models/'
@@ -30,7 +30,6 @@ for dim in dimensions:
         x_topics_train, y_train, x_topics_test, y_test = builder.build_topic_features(dim,
                                                                                       topic_model_dir + '.train',
                                                                                       topic_model_dir + '.test')
-        print(x_topics_train.shape)
         all_features_train.append(x_topics_train)
         all_features_test.append(x_topics_test)
         model_name += '.topic' + str(topic_num)
