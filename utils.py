@@ -18,7 +18,7 @@ def to_sparse(vectors, shape):
             rows += [i]
             cols += [col]
             data += [point]
-    return csr_matrix((data, (rows, cols)), shape=shape).toarray()
+    return csr_matrix((data, (rows, cols)), shape=shape)
 
 
 def pre_process_text(text):
