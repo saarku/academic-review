@@ -38,7 +38,7 @@ for dim in dimensions:
 
     train_features = sp.hstack(tuple(all_features_train), format='csr')
     test_features = sp.hstack(tuple(all_features_test), format='csr')
-    clf = MLPRegressor(solver='sgd').fit(train_features, y_train)
+    clf = MLPRegressor(solver='sgd', max_iter=500).fit(train_features, y_train)
     grades = clf.predict(test_features)
     error = sqrt(mean_squared_error(y_test, grades))
     kendall, _ = kendalltau(y_test, grades)
