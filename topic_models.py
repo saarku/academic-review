@@ -76,5 +76,6 @@ def main():
     tm.generate_topic_dists('/home/skuzi2/iclr17_dataset/lda_models/20_topics/lda_20',
                             '/home/skuzi2/iclr17_dataset/lda_models/20_topics/20_topics')
 
+
 if __name__ == '__main__':
     main()

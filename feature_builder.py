@@ -98,8 +98,6 @@ class FeatureBuilder:
         test_data, y_test = self.modify_topics_to_dimension(x_test, self.test_labels, dimension_id)
         return train_data, y_train, test_data, y_test
 
-
-
     @staticmethod
     def build_labels(ids_dir, grades_dir):
         """ Gather the labels for a specific data set.
@@ -158,15 +156,3 @@ class FeatureBuilder:
                 modified_grades.append(grade)
                 indexes.append(i)
         return topics_matrix[indexes, :], modified_grades
-
-
-def main():
-    data_dir = '/Users/saarkuzi/iclr17_dataset'
-    builder = FeatureBuilder(data_dir)
-    #builder.learn_lda(100, 'lda_100')
-    builder.generate_topic_dists('/Users/saarkuzi/iclr17_dataset/lda_models/100_topics/lda_100',
-                                 '/Users/saarkuzi/iclr17_dataset/lda_models/100_topics/100_topics')
-
-
-if __name__ == '__main__':
-    main()
