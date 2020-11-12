@@ -30,8 +30,8 @@ for dim in dimensions:
     for topic_num in topic_model_dims:
         topic_model_dir = topics_dir + '/' + str(topic_num) + '_topics/' + str(topic_num) + '_topics'
         x_topics_train, y_train, x_topics_test, y_test = builder.build_topic_features(dim,
-                                                                                      topics_dir + '.train',
-                                                                                      topics_dir + '.test')
+                                                                                      topic_model_dir + '.train',
+                                                                                      topic_model_dir + '.test')
         all_features_train.append(x_topics_train)
         all_features_test.append(x_topics_test)
         model_name += '.topic' + str(topic_num)
