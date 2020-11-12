@@ -8,7 +8,7 @@ from scipy.stats import kendalltau
 
 data_dir = '/home/skuzi2/iclr17_dataset'
 dimensions = [1, 2, 3, 5, 6]
-topic_model_dims = []
+topic_model_dims = [5]
 unigrams_flag = True
 
 builder = FeatureBuilder(data_dir)
@@ -22,6 +22,7 @@ for dim in dimensions:
     if unigrams_flag:
         x_unigram_train, y_train, x_unigram_test, y_test = builder.build_unigram_features(dim)
         all_features_train.append(x_unigram_train)
+        print(type(x_unigram_train))
         print(x_unigram_train.shape)
         all_features_test.append(x_unigram_test)
         model_name += '.uni'
@@ -32,6 +33,8 @@ for dim in dimensions:
                                                                                       topic_model_dir + '.train',
                                                                                       topic_model_dir + '.test')
         all_features_train.append(x_topics_train)
+        print(type(x_topics_train))
+        print(x_topics_train.shape)
         all_features_test.append(x_topics_test)
         model_name += '.topic' + str(topic_num)
 
