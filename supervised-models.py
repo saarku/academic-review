@@ -16,7 +16,7 @@ topics_dir = '/home/skuzi2/iclr17_dataset/lda_models/'
 
 
 for dim in dimensions:
-    model_name = dim
+    model_name = str(dim)
     all_features_train = []
     all_features_test = []
     if unigrams_flag:
