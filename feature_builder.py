@@ -1,27 +1,28 @@
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-from sklearn.feature_selection import SelectKBest
-from sklearn.feature_selection import chi2
-from gensim.models.ldamodel import LdaModel
+
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk import stem
 import numpy as np
 from scipy.sparse import csr_matrix
 
-def create_sparse_martix(vecs, shape):
-    rows = []
-    cols = []
-    data = []
 
-    for i in range(len(vecs)):
-        for tup in vecs[i]:
-            col = tup[0]
-            point = tup[1]
+def to_sparse(vectors, shape):
+    """ Initializing a sparse matrix with a set of vectors.
+
+    :param vectors: (list) the list of vectors.
+    :param shape: (tuple) the required shape of the matrix.
+    :return: csr_matrix.
+    """
+    rows, cols, data = [], [], []
+    for i in range(len(vectors)):
+        for tup in vectors[i]:
+            col, point = tup[0], tup[1]
             rows += [i]
             cols += [col]
             data += [point]
-
     return csr_matrix((data, (rows, cols)), shape=shape).toarray()
+
 
 def pre_process_text(text):
     """ Pre-process text including tokenization, stemming, and stopwords removal.
@@ -40,13 +41,16 @@ def pre_process_text(text):
     return " ".join(filtered_text[0:text_len])
 
 
-def get_sparse_vectors(sparse_matrix, filter_list=None):
-    data = sparse_matrix.data
-    indices = sparse_matrix.indices
-    indptr = sparse_matrix.indptr
+def from_sparse(sparse_matrix, filter_list=None):
+    """ Extract vectors from a sparse matrix.
+
+    :param sparse_matrix: (csr_matrix).
+    :param filter_list: (list).
+    :return: String. The processed text.
+    """
+    data, indices, indptr = sparse_matrix.data, sparse_matrix.indices, sparse_matrix.indptr
     if filter_list is None:
         filter_list = []
-
     mat = []
     for row_id in range(len(indptr)-1):
         vec = []
@@ -94,44 +98,7 @@ class FeatureBuilder:
         test_data, y_test = self.modify_topics_to_dimension(x_test, self.test_labels, dimension_id)
         return train_data, y_train, test_data, y_test
 
-    def learn_lda(self, num_topics, output_dir):
-        count_vector = CountVectorizer()
-        train_data = count_vector.fit_transform(self.train_lines)
-        train_data = get_sparse_vectors(train_data)
-        lda = LdaModel(train_data, num_topics=num_topics)
-        lda.save(output_dir)
 
-    def generate_topic_dists(self, topics_dir, output_dir):
-        lda_model = LdaModel.load(topics_dir)
-        count_vector_lda = CountVectorizer()
-        count_vector_lda.fit(self.train_lines)
-        x_train_lda_counts = count_vector_lda.transform(self.train_lines)
-        x_test_lda_counts = count_vector_lda.transform(self.test_lines)
-        train_vectors = get_sparse_vectors(x_train_lda_counts)
-        test_vectors = get_sparse_vectors(x_test_lda_counts)
-        lda_train_file = open(output_dir + '.train', 'w+')
-        lda_test_file = open(output_dir + '.test', 'w+')
-        for lda_vector in train_vectors:
-            lda_train_file.write(str(lda_model.get_document_topics(lda_vector, minimum_probability=0.0)) + '\n')
-        for lda_vector in test_vectors:
-            lda_test_file.write(str(lda_model.get_document_topics(lda_vector, minimum_probability=0.0)) + '\n')
-        lda_train_file.close()
-        lda_test_file.close()
-
-    @staticmethod
-    def get_topics_vec(dists_dir):
-        topic_vectors = []
-        with open(dists_dir, 'r') as input_file:
-            for line in input_file:
-                args = line.rstrip('\n').rstrip(']').lstrip('[').split('),')
-                single_vec = []
-                for a in args:
-                    index = int(a.split(',')[0].split('(')[1])
-                    number = float(a.split(',')[1].rstrip(')'))
-                    single_vec += [(index, number)]
-                topic_vectors += [single_vec]
-            num_topics = len(topic_vectors[0])
-        return create_sparse_martix(topic_vectors, (len(topic_vectors), num_topics))
 
     @staticmethod
     def build_labels(ids_dir, grades_dir):

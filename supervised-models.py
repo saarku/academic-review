@@ -21,6 +21,9 @@ for dim in dimensions:
     error = sqrt(mean_squared_error(y_test, grades))
     print(str(dim) + ',' + str(error))
 
+# test_dataset = sp.hstack(tuple([x_test_counts, x_test_tf_idf]), format='csr')
+
+
 '''
 for dim in dimensions:
     builder = FeatureBuilder(data_dir)
