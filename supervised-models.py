@@ -8,7 +8,7 @@ from scipy.stats import kendalltau
 
 data_dir = '/home/skuzi2/iclr17_dataset'
 dimensions = [1, 2, 3, 5, 6]
-topic_model_dims = [10]
+topic_model_dims = [20]
 unigrams_flag = False
 
 builder = FeatureBuilder(data_dir)
