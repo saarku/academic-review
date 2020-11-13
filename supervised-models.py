@@ -8,15 +8,16 @@ from scipy.stats import kendalltau
 
 data_dir = '/home/skuzi2/iclr17_dataset'
 dimensions = [1, 2, 3, 5, 6]
-topic_model_dims = [20]
-unigrams_flag = False
+topic_model_dims = []
+unigrams_flag = True
 
 builder = FeatureBuilder(data_dir)
 topics_dir = '/home/skuzi2/iclr17_dataset/lda_models/'
+model_name = '/home/skuzi2/iclr17_dataset/models/'
 
 
 for dim in dimensions:
-    model_name = str(dim)
+    model_name += str(dim)
     all_features_train = []
     all_features_test = []
     if unigrams_flag:
