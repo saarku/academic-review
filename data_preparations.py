@@ -87,6 +87,30 @@ def aggregated_scores_v2():
                         print(x + ": " + str(data['reviews'][i][x]))
 
 
+def split_to_paragraphs(full_data_dir):
+    """ Split the full reviews into paragraphs.
+
+    :param full_data_dir: (string) directory for the file with reviews.
+    :return: None. Outputs the paragraphs to files.
+    """
+
+    ids = open(full_data_dir + '.ids', 'r').readlines()
+    texts = open(full_data_dir + '.text', 'r').readlines()
+
+    new_id_file = open(full_data_dir + '.paragraphs.ids', 'w')
+    new_text_file = open(full_data_dir + '.paragraphs.text', 'w')
+
+    for i in range(len(texts)):
+        t = texts[i].rstrip('\n').split()
+        num_words = len(t)//3
+        new_text_file.write(' '.join(t[0:num_words]) + '\n')
+        new_text_file.write(' '.join(t[num_words:2*num_words]) + '\n')
+        new_text_file.write(' '.join(t[2*num_words:]) + '\n')
+        new_id_file.write(ids[i]*3)
+
+    new_id_file.close()
+    new_text_file.close()
+
 
 
 def main():
@@ -95,11 +119,10 @@ def main():
 
     # transform_json_to_line_format(input_folder_dir, output_file_dir)
 
-    aggregate_scores('/Users/saarkuzi/iclr17_dataset/annotation_fixed.tsv',
-                      '/Users/saarkuzi/iclr17_dataset/annotation_aggregated.tsv')
+    #aggregate_scores('/Users/saarkuzi/iclr17_dataset/annotation_fixed.tsv',
+    #                  '/Users/saarkuzi/iclr17_dataset/annotation_aggregated.tsv')
 
-    # check that the grades are correct
+    split_to_paragraphs('/Users/saarkuzi/iclr17_dataset/test.val')
 
-    aggregated_scores_v2()
 if __name__ == '__main__':
     main()
