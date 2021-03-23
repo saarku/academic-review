@@ -30,8 +30,8 @@ def get_topics_vec(dists_dir, labels, dimension_id):
 class TopicModels:
 
     def __init__(self, data_dir):
-        train_data_dir = data_dir + '/train.text'
-        test_data_dir = data_dir + '/test.val.text'
+        train_data_dir = data_dir + '/train.paragraphs.text'
+        test_data_dir = data_dir + '/test.val.paragraphs.text'
         self.train_lines = [pre_process_text(line) for line in open(train_data_dir, 'r').read().split('\n')][0:-1]
         self.test_lines = [pre_process_text(line) for line in open(test_data_dir, 'r').read().split('\n')][0:-1]
 
@@ -74,11 +74,15 @@ class TopicModels:
 
 def main():
     data_dir = '/home/skuzi2/iclr17_dataset'
+    num_topics = 5
+
     tm = TopicModels(data_dir)
 
-    tm.learn_lda(20, '/home/skuzi2/iclr17_dataset/lda_models/20_topics/lda_20')
-    tm.generate_topic_dists('/home/skuzi2/iclr17_dataset/lda_models/20_topics/lda_20',
-                            '/home/skuzi2/iclr17_dataset/lda_models/20_topics/20_topics')
+    tm.learn_lda(num_topics, '/home/skuzi2/iclr17_dataset/lda_models/' + str(num_topics) + '_topics/lda_para_' +
+                 str(num_topics))
+    tm.generate_topic_dists('/home/skuzi2/iclr17_dataset/lda_models/' + str(num_topics) + '_topics/lda_para_' +
+                            str(num_topics), '/home/skuzi2/iclr17_dataset/lda_models/' + str(num_topics) +
+                            '_topics/' + str(num_topics) + '_para_topics')
 
 
 if __name__ == '__main__':
