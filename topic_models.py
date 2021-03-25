@@ -15,7 +15,6 @@ def get_topics_vec(dists_dir, labels, dimension_id, num_paragraphs):
     distributions = open(dists_dir, 'r').readlines()
     for i in range(0, len(distributions), num_paragraphs):
         single_vec = {}
-        print(i)
         for j in range(num_paragraphs):
             args = distributions[i+j].rstrip('\n').rstrip(']').lstrip('[').split('),')
             for a in args:

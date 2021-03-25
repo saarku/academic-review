@@ -31,7 +31,7 @@ for dim in dimensions:
     for topic_num in topic_model_dims:
         for paragraphs in num_paragraphs:
 
-            if paragraphs == '3':
+            if paragraphs == 3:
                 topic_model_dir = topics_dir + '/' + str(topic_num) + '_topics/' + str(topic_num) + '_para_topics'
             else:
                 topic_model_dir = topics_dir + '/' + str(topic_num) + '_topics/' + str(topic_num) + '_topics'
