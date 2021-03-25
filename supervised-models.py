@@ -8,7 +8,8 @@ from scipy.stats import kendalltau
 
 data_dir = '/home/skuzi2/iclr17_dataset'
 dimensions = [1, 2, 3, 5, 6]
-topic_model_dims = [5,20]
+topic_model_dims = [5]
+num_paragraphs = [1, 3]
 unigrams_flag = True
 
 builder = FeatureBuilder(data_dir)
@@ -28,17 +29,24 @@ for dim in dimensions:
         model_name += '.uni'
 
     for topic_num in topic_model_dims:
-        topic_model_dir = topics_dir + '/' + str(topic_num) + '_topics/' + str(topic_num) + '_topics'
-        x_topics_train, y_train, x_topics_test, y_test = builder.build_topic_features(dim,
-                                                                                      topic_model_dir + '.train',
-                                                                                      topic_model_dir + '.test')
-        all_features_train.append(x_topics_train)
+        for paragraphs in num_paragraphs:
 
-        all_features_test.append(x_topics_test)
-        model_name += '.topic' + str(topic_num)
+            if paragraphs == '3':
+                topic_model_dir = topics_dir + '/' + str(topic_num) + '_topics/' + str(topic_num) + '_para_topics'
+            else:
+                topic_model_dir = topics_dir + '/' + str(topic_num) + '_topics/' + str(topic_num) + '_topics'
+
+            x_topics_train, y_train, x_topics_test, y_test = builder.build_topic_features(dim,
+                                                                                          topic_model_dir + '.train',
+                                                                                          topic_model_dir + '.test',
+                                                                                          num_paragraphs)
+            all_features_train.append(x_topics_train)
+            all_features_test.append(x_topics_test)
+            model_name += '.topic' + str(topic_num) + 'para' + str(num_paragraphs)
 
     train_features = sp.hstack(tuple(all_features_train), format='csr')
     test_features = sp.hstack(tuple(all_features_test), format='csr')
+    print(train_features.shape)
     clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(train_features, y_train)
     grades = clf.predict(test_features)
     error = sqrt(mean_squared_error(y_test, grades))

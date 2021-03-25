@@ -3,27 +3,35 @@ from gensim.models.ldamodel import LdaModel
 from sklearn.feature_extraction.text import CountVectorizer
 
 
-def get_topics_vec(dists_dir, labels, dimension_id):
+def get_topics_vec(dists_dir, labels, dimension_id, num_paragraphs):
     """ Read topic distributions from a file and construct a sparse matrix.
 
     :param dists_dir: a file with the distributions.
+    :param dimension_id: the dimension for grading.
+    :param num_paragraphs: number of paragraphs.
     :return: csr_matrix.
     """
+    all_topic_vectors = []
+    distributions = open(dists_dir, 'r').readlines()
+    for i in range(0, len(distributions), num_paragraphs):
+        single_vec = {}
+        for j in range(num_paragraphs):
+            args = distributions[i+j].rstrip('\n').rstrip(']').lstrip('[').split('),')
+            for a in args:
+                index = int(a.split(',')[0].split('(')[1])
+                number = float(a.split(',')[1].rstrip(')'))
+                single_vec[index] = max(single_vec.get(index, 0), number)
+        single_vec = list(single_vec.items())
+        all_topic_vectors.append(single_vec)
+
     topic_vectors = []
     modified_grades = []
-    with open(dists_dir, 'r') as input_file:
-        for i, line in enumerate(input_file):
-            grade = labels[i, dimension_id]
-            if grade > 0:
-                modified_grades.append(grade)
-                args = line.rstrip('\n').rstrip(']').lstrip('[').split('),')
-                single_vec = []
-                for a in args:
-                    index = int(a.split(',')[0].split('(')[1])
-                    number = float(a.split(',')[1].rstrip(')'))
-                    single_vec += [(index, number)]
-                topic_vectors += [single_vec]
-        num_topics = len(topic_vectors[0])
+    for i, vector in enumerate(all_topic_vectors):
+        grade = labels[i, dimension_id]
+        if grade > 0:
+            modified_grades.append(grade)
+            topic_vectors.append(vector)
+    num_topics = len(topic_vectors[0])
     return to_sparse(topic_vectors, (len(topic_vectors), num_topics)), modified_grades
 
 
