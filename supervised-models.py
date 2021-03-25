@@ -10,7 +10,7 @@ data_dir = '/home/skuzi2/iclr17_dataset'
 dimensions = [1, 2, 3, 5, 6]
 topic_model_dims = [5]
 num_paragraphs = [1]
-unigrams_flag = True
+unigrams_flag = False
 
 builder = FeatureBuilder(data_dir)
 topics_dir = '/home/skuzi2/iclr17_dataset/lda_models/'
