@@ -83,8 +83,8 @@ def main():
 
     for dim in [1, 2, 3, 5, 6]:
         for mode in ['pos', 'neg']:
-            for granularity in ['.', '.paragraphs']:
-                data_dir = '../iclr17_dataset/train.' + str(dim) + '.' + mode + granularity + '.text'
+            for granularity in ['.', '.paragraphs.']:
+                data_dir = '../iclr17_dataset/train.' + str(dim) + '.' + mode + granularity + 'text'
                 model_dir = '../iclr17_dataset/lda_models/5_topics/lda.' + str(dim) + '.' + mode + granularity + '_5'
                 print(data_dir)
                 tm = TopicModels(data_dir, data_dir)
