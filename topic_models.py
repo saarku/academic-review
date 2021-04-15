@@ -73,13 +73,22 @@ class TopicModels:
 
 
 def main():
-    data_dir = sys.argv[1]
-    vocab_data_dir = sys.argv[2]
-    output_dir = sys.argv[3]
+    'python topic_models.py ../iclr17_dataset/train.1.neg.text ../iclr17_dataset/train.1.neg.text ../iclr17_dataset/lda_models/5_topics/lda.1.neg_5'
+
+    #data_dir = '../iclr17_dataset/'
+    #topics_dir = '../iclr17_dataset/lda_models/5_topics/lda.1.neg_5'
+    #vocab_data_dir = sys.argv[2]
+    #output_dir = sys.argv[3]
     num_topics = 5
 
-    tm = TopicModels(data_dir, vocab_data_dir)
-    tm.learn_lda(num_topics, output_dir)
+    for dim in [1, 2, 3, 5, 6]:
+        for mode in ['pos', 'neg']:
+            for granularity in ['.', '.paragraphs']:
+                data_dir = '../iclr17_dataset/train.' + str(dim) + '.' + mode + granularity + '.text'
+                model_dir = '../iclr17_dataset/lda_models/5_topics/lda.' + str(dim) + '.' + mode + granularity + '_5'
+                print(data_dir)
+                tm = TopicModels(data_dir, data_dir)
+                tm.learn_lda(num_topics, model_dir)
 
     #tm.generate_topic_dists('/home/skuzi2/iclr17_dataset/lda_models/' + str(num_topics) + '_topics/lda_para_' +
     #                        str(num_topics), '/home/skuzi2/iclr17_dataset/lda_models/' + str(num_topics) +
