@@ -1,7 +1,7 @@
 from utils import to_sparse, from_sparse, pre_process_text
 from gensim.models.ldamodel import LdaModel
 from sklearn.feature_extraction.text import CountVectorizer
-
+import sys
 
 def get_topics_vec(dists_dir, labels, dimension_id, num_paragraphs):
     """ Read topic distributions from a file and construct a sparse matrix.
@@ -37,11 +37,9 @@ def get_topics_vec(dists_dir, labels, dimension_id, num_paragraphs):
 
 class TopicModels:
 
-    def __init__(self, data_dir):
-        train_data_dir = data_dir + '/train.paragraphs.text'
-        test_data_dir = data_dir + '/test.val.paragraphs.text'
-        self.train_lines = [pre_process_text(line) for line in open(train_data_dir, 'r').read().split('\n')][0:-1]
-        self.test_lines = [pre_process_text(line) for line in open(test_data_dir, 'r').read().split('\n')][0:-1]
+    def __init__(self, data_dir, vocabulary_data_dir):
+        self.data_lines = [pre_process_text(line) for line in open(data_dir, 'r').read().split('\n')][0:-1]
+        self.vocab_lines = [pre_process_text(line) for line in open(vocabulary_data_dir, 'r').read().split('\n')][0:-1]
 
     def learn_lda(self, num_topics, output_dir):
         """ Learn an LDA topic model.
@@ -51,7 +49,7 @@ class TopicModels:
         :return: None.
         """
         count_vector = CountVectorizer()
-        train_data = count_vector.fit_transform(self.train_lines)
+        train_data = count_vector.fit_transform(self.data_lines)
         train_data = from_sparse(train_data)
         lda = LdaModel(train_data, num_topics=num_topics)
         lda.save(output_dir)
@@ -65,32 +63,27 @@ class TopicModels:
         """
         lda_model = LdaModel.load(topic_model_dir)
         count_vector_lda = CountVectorizer()
-        count_vector_lda.fit(self.train_lines)
-        x_train_lda_counts = count_vector_lda.transform(self.train_lines)
-        x_test_lda_counts = count_vector_lda.transform(self.test_lines)
-        train_vectors = from_sparse(x_train_lda_counts)
-        test_vectors = from_sparse(x_test_lda_counts)
-        lda_train_file = open(output_dir + '.train', 'w+')
-        lda_test_file = open(output_dir + '.test', 'w+')
-        for lda_vector in train_vectors:
-            lda_train_file.write(str(lda_model.get_document_topics(lda_vector, minimum_probability=0.0)) + '\n')
-        for lda_vector in test_vectors:
-            lda_test_file.write(str(lda_model.get_document_topics(lda_vector, minimum_probability=0.0)) + '\n')
-        lda_train_file.close()
-        lda_test_file.close()
+        count_vector_lda.fit(self.vocab_lines)
+        x_lda_counts = count_vector_lda.transform(self.data_lines)
+        x_vectors = from_sparse(x_lda_counts)
+        lda_file = open(output_dir, 'w+')
+        for lda_vector in x_vectors:
+            lda_file.write(str(lda_model.get_document_topics(lda_vector, minimum_probability=0.0)) + '\n')
+        lda_file.close()
 
 
 def main():
-    data_dir = '/home/skuzi2/iclr17_dataset'
+    data_dir = sys.argv[1]
+    vocab_data_dir = sys.argv[2]
+    output_dir = sys.argv[3]
     num_topics = 5
 
-    tm = TopicModels(data_dir)
+    tm = TopicModels(data_dir, vocab_data_dir)
+    tm.learn_lda(num_topics, output_dir)
 
-    tm.learn_lda(num_topics, '/home/skuzi2/iclr17_dataset/lda_models/' + str(num_topics) + '_topics/lda_para_' +
-                 str(num_topics))
-    tm.generate_topic_dists('/home/skuzi2/iclr17_dataset/lda_models/' + str(num_topics) + '_topics/lda_para_' +
-                            str(num_topics), '/home/skuzi2/iclr17_dataset/lda_models/' + str(num_topics) +
-                            '_topics/' + str(num_topics) + '_para_topics')
+    #tm.generate_topic_dists('/home/skuzi2/iclr17_dataset/lda_models/' + str(num_topics) + '_topics/lda_para_' +
+    #                        str(num_topics), '/home/skuzi2/iclr17_dataset/lda_models/' + str(num_topics) +
+    #                        '_topics/' + str(num_topics) + '_para_topics')
 
 
 if __name__ == '__main__':

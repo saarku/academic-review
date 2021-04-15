@@ -1,6 +1,7 @@
 import os
 import json
-
+from collections import defaultdict
+import numpy as np
 
 def transform_json_to_line_format(input_folder_dir, output_file_dir):
     """ Transfer a folder with json files to a single file with line per article.
@@ -112,17 +113,66 @@ def split_to_paragraphs(full_data_dir):
     new_text_file.close()
 
 
+def write_split_to_file(assignments_list, data_dict, output_dir):
+    ids_file = open(output_dir + '.ids', 'w')
+    text_file = open(output_dir + '.text', 'w')
+    counter = 0
+
+    for tup in assignments_list:
+        counter += 1
+        for line in data_dict[tup[0]]:
+
+            ids_file.write(tup[0] + '\n')
+            text_file.write(line + '\n')
+    ids_file.close()
+    text_file.close()
+
+
+def split_by_grade(input_data_dir, grades_dir, dimensions):
+    data_lines = [line.rstrip('\n') for line in open(input_data_dir + '.text', 'r').readlines()]
+    data_ids = [line.rstrip('\n') for line in open(input_data_dir + '.ids', 'r').readlines()]
+    data_dict = defaultdict(list)
+
+    for i in range(len(data_ids)):
+        data_dict[data_ids[i]].append(data_lines[i])
+
+    grades_dict = defaultdict(dict)
+    grade_lines = [line.rstrip('\n').split('\t') for line in open(grades_dir, 'r').readlines()]
+
+    for grade in grade_lines:
+        if grade[0] not in data_dict: continue
+        for i in range(1, len(grade)):
+            if grade[i] != '-':
+                grades_dict[grade[0]][i-1] = float(grade[i])
+
+    for dim in dimensions:
+        assignments = []
+        for assignment_id in grades_dict:
+            if dim in grades_dict[assignment_id]:
+                assignments.append((assignment_id, grades_dict[assignment_id][dim]))
+
+        assignments = sorted(assignments, key=lambda x: x[1])
+        neg_assignments = assignments[:len(assignments)//2]
+        pos_assignments = assignments[len(assignments)//2:]
+
+        write_split_to_file(neg_assignments, data_dict, input_data_dir + '.' + str(dim) + '.neg')
+        write_split_to_file(pos_assignments, data_dict, input_data_dir + '.' + str(dim) + '.pos')
+
 
 def main():
-    input_folder_dir = '/Users/saarkuzi/iclr17_dataset/test'
+    input_folder_dir = '/Users/saarkuzi/iclr17_dataset/train.paragraphs'
     output_file_dir = '/Users/saarkuzi/iclr17_dataset/test'
+    grades_dir = '/Users/saarkuzi/iclr17_dataset/annotation_aggregated.tsv'
 
     # transform_json_to_line_format(input_folder_dir, output_file_dir)
 
     #aggregate_scores('/Users/saarkuzi/iclr17_dataset/annotation_fixed.tsv',
     #                  '/Users/saarkuzi/iclr17_dataset/annotation_aggregated.tsv')
 
-    split_to_paragraphs('/Users/saarkuzi/iclr17_dataset/test.val')
+    #split_to_paragraphs('/Users/saarkuzi/iclr17_dataset/test.val')
+
+    split_by_grade(input_folder_dir, grades_dir, [1, 2, 3, 5, 6])
+
 
 if __name__ == '__main__':
     main()
