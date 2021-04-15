@@ -81,6 +81,7 @@ def main():
     #output_dir = sys.argv[3]
     num_topics = 5
 
+    '''
     for dim in [1, 2, 3, 5, 6]:
         for mode in ['pos', 'neg']:
             for granularity in ['.', '.paragraphs.']:
@@ -89,11 +90,23 @@ def main():
                 print(data_dir)
                 tm = TopicModels(data_dir, data_dir)
                 tm.learn_lda(num_topics, model_dir)
+    '''
 
-    #tm.generate_topic_dists('/home/skuzi2/iclr17_dataset/lda_models/' + str(num_topics) + '_topics/lda_para_' +
-    #                        str(num_topics), '/home/skuzi2/iclr17_dataset/lda_models/' + str(num_topics) +
-    #                        '_topics/' + str(num_topics) + '_para_topics')
+    for dim in ['1', '2', '3', '5', '6']:
+        for mode in ['pos', 'neg']:
+            for granularity in ['1', '3']:
+                train_data_dir = '../iclr17_dataset/data_splits/dim.all.mod.neu.para.'+granularity+'.train.text'
+                test_data_dir = '../iclr17_dataset/data_splits/dim.all.mod.neu.para.'+granularity+'.test.val.text'
+                vocab_dir = '../iclr17_dataset/data_splits/dim.'+dim+'.mod.'+mode+'.para.'+granularity+'.train.text'
+                model_dir = '../iclr17_dataset/lda_models/5_topics/dim.'+dim+'.mod.'+mode+'.para.'+granularity+'.num.5/model'
+                vectors_dir = '../iclr17_dataset/lda_vectors/5_topics/dim.'+dim+'.mod.'+mode+'.para.'+granularity+'.num.5'
+                print(model_dir)
 
+                tm = TopicModels(train_data_dir, vocab_dir)
+                tm.generate_topic_dists(model_dir, vectors_dir + '.train')
+
+                tm = TopicModels(test_data_dir, vocab_dir)
+                tm.generate_topic_dists(model_dir, vectors_dir + '.test.val')
 
 if __name__ == '__main__':
     main()
