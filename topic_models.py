@@ -2,6 +2,8 @@ from utils import to_sparse, from_sparse, pre_process_text
 from gensim.models.ldamodel import LdaModel
 from sklearn.feature_extraction.text import CountVectorizer
 import sys
+import os
+
 
 def get_topics_vec(dists_dir, labels, dimension_id, num_paragraphs):
     """ Read topic distributions from a file and construct a sparse matrix.
@@ -73,40 +75,46 @@ class TopicModels:
 
 
 def main():
-    'python topic_models.py ../iclr17_dataset/train.1.neg.text ../iclr17_dataset/train.1.neg.text ../iclr17_dataset/lda_models/5_topics/lda.1.neg_5'
 
-    #data_dir = '../iclr17_dataset/'
-    #topics_dir = '../iclr17_dataset/lda_models/5_topics/lda.1.neg_5'
-    #vocab_data_dir = sys.argv[2]
-    #output_dir = sys.argv[3]
-    num_topics = 5
+    topics = 5
+    modes = ['pos', 'neg']
+    modes = ['neg']
+    #dimensions = {'1': modes, '2': modes, '3': modes, '4': modes, '5': modes, '6': modes, 'all': ['neu']}
+    dimensions = {'5': modes}
+    paragraphs = ['1', '3']
+    paragraphs = ['3']
+    base_dir = '../iclr17_dataset/'
 
-    '''
-    for dim in [1, 2, 3, 5, 6]:
-        for mode in ['pos', 'neg']:
-            for granularity in ['.', '.paragraphs.']:
-                data_dir = '../iclr17_dataset/train' + granularity + str(dim) + '.' + mode + '.text'
-                model_dir = '../iclr17_dataset/lda_models/5_topics/lda.' + str(dim) + '.' + mode + granularity + '_5'
-                print(data_dir)
-                tm = TopicModels(data_dir, data_dir)
-                tm.learn_lda(num_topics, model_dir)
-    '''
+    learn_flag = True
+    infer_flag = False
 
-    for dim in ['5']:
-        for mode in ['pos', 'neg']:
-            for granularity in ['1', '3']:
-                train_data_dir = '../iclr17_dataset/data_splits/dim.all.mod.neu.para.'+granularity+'.train.text'
-                test_data_dir = '../iclr17_dataset/data_splits/dim.all.mod.neu.para.'+granularity+'.test.val.text'
-                vocab_dir = '../iclr17_dataset/data_splits/dim.'+dim+'.mod.'+mode+'.para.'+granularity+'.train.text'
-                model_dir = '../iclr17_dataset/lda_models/5_topics/dim.'+dim+'.mod.'+mode+'.para.'+granularity+'.num.5/model'
-                vectors_dir = '../iclr17_dataset/lda_vectors/5_topics/dim.'+dim+'.mod.'+mode+'.para.'+granularity+'.num.5'
-                print(model_dir)
+    if learn_flag:
+        for dim in dimensions:
+            for mode in dimensions[dim]:
+                for para in paragraphs:
+                    data_dir = base_dir + 'data_splits/dim.{}.mod.{}.para.{}.train.text'.format(dim, mode, para)
+                    model_dir = base_dir + 'lda_models/{}_topics/'.format(topics)
+                    model_dir += 'dim.{}.mod.{}.para.{}.num.{}/'.format(dim, mode, para, topics)
+                    os.mkdir(model_dir) if not os.path.exists(model_dir) else None
+                    tm = TopicModels(data_dir, data_dir)
+                    tm.learn_lda(topics, model_dir)
 
-                tm = TopicModels(train_data_dir, vocab_dir)
-                tm.generate_topic_dists(model_dir, vectors_dir + '.train')
+    if infer_flag:
+        for dim in dimensions:
+            for mode in dimensions[dim]:
+                for para in paragraphs:
+                    train_data_dir = base_dir + '/data_splits/dim.all.mod.neu.para.{}.train.text'.format(para)
+                    test_data_dir = base_dir + '/data_splits/dim.all.mod.neu.para.{}.test.val.text'.format(para)
+                    vocab_dir = base_dir + '/data_splits/dim.{}.mod.{}.para.{}.train.text'.format(dim, mode, para)
+                    model_dir, vectors_dir = base_dir + '/lda_models/', base_dir + '/lda_vectors/'
+                    model_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}/model'.format(topics, dim, mode, para, topics)
+                    vectors_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(topics, dim, mode, para, topics)
 
-                tm = TopicModels(test_data_dir, vocab_dir)
-                tm.generate_topic_dists(model_dir, vectors_dir + '.test.val')
+                    tm = TopicModels(train_data_dir, vocab_dir)
+                    tm.generate_topic_dists(model_dir, vectors_dir + '.train')
+                    tm = TopicModels(test_data_dir, vocab_dir)
+                    tm.generate_topic_dists(model_dir, vectors_dir + '.test.val')
+
 
 if __name__ == '__main__':
     main()
