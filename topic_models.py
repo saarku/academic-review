@@ -85,8 +85,8 @@ def main():
     paragraphs = ['3']
     base_dir = '../iclr17_dataset/'
 
-    learn_flag = True
-    infer_flag = False
+    learn_flag = False
+    infer_flag = True
 
     if learn_flag:
         for dim in dimensions:
@@ -109,6 +109,7 @@ def main():
                     model_dir, vectors_dir = base_dir + '/lda_models/', base_dir + '/lda_vectors/'
                     model_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}/model'.format(topics, dim, mode, para, topics)
                     vectors_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(topics, dim, mode, para, topics)
+                    print(vectors_dir)
 
                     tm = TopicModels(train_data_dir, vocab_dir)
                     tm.generate_topic_dists(model_dir, vectors_dir + '.train')
