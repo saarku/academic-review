@@ -7,42 +7,41 @@ import joblib
 from scipy.stats import kendalltau
 
 data_dir = '/home/skuzi2/iclr17_dataset'
-dimensions = [1, 2, 3, 5, 6]
+test_dimensions = [1, 2, 3, 5, 6]
+modes = ['pos', 'neg']
+dimension_features = {'1': modes, '2': modes, '3': modes, '4': modes, '5': modes, '6': modes, 'all': ['neu']}
 topic_model_dims = [5]
 num_paragraphs = [1, 3]
 unigrams_flag = False
 
 builder = FeatureBuilder(data_dir)
-topics_dir = '/home/skuzi2/iclr17_dataset/lda_models/'
+topics_dir = '/home/skuzi2/iclr17_dataset/lda_vectors/'
 model_name = '/home/skuzi2/iclr17_dataset/models/'
 
 
-for dim in dimensions:
+for dim in test_dimensions:
     model_name += str(dim)
     all_features_train = []
     all_features_test = []
+
     if unigrams_flag:
         x_unigram_train, y_train, x_unigram_test, y_test = builder.build_unigram_features(dim)
         all_features_train.append(x_unigram_train)
-
         all_features_test.append(x_unigram_test)
         model_name += '.uni'
 
-    for topic_num in topic_model_dims:
-        for paragraphs in num_paragraphs:
+    for topics in topic_model_dims:
+        for para_num in num_paragraphs:
+            for dim_feat in dimension_features:
+                for mode in dimension_features[dim_feat]:
 
-            if paragraphs == 3:
-                topic_model_dir = topics_dir + '/' + str(topic_num) + '_topics/' + str(topic_num) + '_para_topics'
-            else:
-                topic_model_dir = topics_dir + '/' + str(topic_num) + '_topics/' + str(topic_num) + '_topics'
-
-            x_topics_train, y_train, x_topics_test, y_test = builder.build_topic_features(dim,
-                                                                                          topic_model_dir + '.train',
-                                                                                          topic_model_dir + '.test',
-                                                                                          paragraphs)
-            all_features_train.append(x_topics_train)
-            all_features_test.append(x_topics_test)
-            model_name += '.topic' + str(topic_num) + 'para' + str(paragraphs)
+                    vec_dir = topics_dir
+                    vec_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(topics, dim_feat, mode, para_num, topics)
+                    output = builder.build_topic_features(dim, vec_dir + '.train', vec_dir + '.test.val', para_num)
+                    x_topics_train, y_train, x_topics_test, y_test = output[0], output[1], output[2], output[3]
+                    all_features_train.append(x_topics_train)
+                    all_features_test.append(x_topics_test)
+                    model_name += '.topic.{}.para.{}'.format(topics, para_num)
 
     train_features = sp.hstack(tuple(all_features_train), format='csr')
     test_features = sp.hstack(tuple(all_features_test), format='csr')
