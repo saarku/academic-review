@@ -92,7 +92,7 @@ def main():
                 tm.learn_lda(num_topics, model_dir)
     '''
 
-    for dim in ['1', '2', '3', '5', '6']:
+    for dim in ['6']:
         for mode in ['pos', 'neg']:
             for granularity in ['1', '3']:
                 train_data_dir = '../iclr17_dataset/data_splits/dim.all.mod.neu.para.'+granularity+'.train.text'
