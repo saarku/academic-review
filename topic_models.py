@@ -97,7 +97,7 @@ def main():
                     model_dir += 'dim.{}.mod.{}.para.{}.num.{}/'.format(dim, mode, para, topics)
                     os.mkdir(model_dir) if not os.path.exists(model_dir) else None
                     tm = TopicModels(data_dir, data_dir)
-                    tm.learn_lda(topics, model_dir)
+                    tm.learn_lda(topics, model_dir + '/model')
 
     if infer_flag:
         for dim in dimensions:
