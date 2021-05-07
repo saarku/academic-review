@@ -31,17 +31,17 @@ for dim in test_dimensions:
         model_name += '.uni'
 
     for topics in topic_model_dims:
-        for para_num in num_paragraphs:
+        for para in num_paragraphs:
             for dim_feat in dimension_features:
                 for mode in dimension_features[dim_feat]:
 
                     vec_dir = topics_dir
-                    vec_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(topics, dim_feat, mode, para_num, topics)
-                    output = builder.build_topic_features(dim, vec_dir + '.train', vec_dir + '.test.val', para_num)
+                    vec_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(topics, dim_feat, mode, para, topics)
+                    output = builder.build_topic_features(dim, vec_dir + '.train', vec_dir + '.test.val', para)
                     x_topics_train, y_train, x_topics_test, y_test = output[0], output[1], output[2], output[3]
                     all_features_train.append(x_topics_train)
                     all_features_test.append(x_topics_test)
-                    model_name += '.topic.{}.para.{}'.format(topics, para_num)
+                    model_name += '.topic.{}.para.{}'.format(topics, para)
 
     train_features = sp.hstack(tuple(all_features_train), format='csr')
     test_features = sp.hstack(tuple(all_features_test), format='csr')
