@@ -56,9 +56,7 @@ for dim in test_dimensions:
             counter += 1
             clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(all_features_train[i], y_train)
             aspect_grades = clf.predict(all_features_test[i])
-            print(aspect_grades.shape)
-            print(grades.shape)
-            print('-----------------')
+            aspect_grades = np.reshape(aspect_grades, (-1, 1))
             grades += aspect_grades
         grades /= counter
 
