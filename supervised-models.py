@@ -55,7 +55,11 @@ for dim in test_dimensions:
         for i in range(len(all_features_train)):
             counter += 1
             clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(all_features_train[i], y_train)
-            grades += clf.predict(all_features_test[i])
+            aspect_grades = clf.predict(all_features_test[i])
+            print(aspect_grades.shape)
+            print(grades.shape)
+            print('-----------------')
+            grades += aspect_grades
         grades /= counter
 
     error = sqrt(mean_squared_error(y_test, grades))
