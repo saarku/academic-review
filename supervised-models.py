@@ -19,10 +19,8 @@ unigrams_flag = False
 builder = FeatureBuilder(data_dir)
 
 
-
-
 for dim in test_dimensions:
-    model_name += str(dim)
+    model_name = 'dim.' + str(dim)
     all_features_train = []
     all_features_test = []
 
@@ -43,7 +41,7 @@ for dim in test_dimensions:
                     x_topics_train, y_train, x_topics_test, y_test = output[0], output[1], output[2], output[3]
                     all_features_train.append(x_topics_train)
                     all_features_test.append(x_topics_test)
-                    model_name += '.topic.{}.para.{}'.format(topics, para)
+    model_name += '.topics'
 
     train_features = sp.hstack(tuple(all_features_train), format='csr')
     test_features = sp.hstack(tuple(all_features_test), format='csr')
