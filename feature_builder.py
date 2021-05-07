@@ -9,11 +9,11 @@ class FeatureBuilder:
     def __init__(self, data_dir):
         self.count_vector = CountVectorizer(min_df=5)
         self.tf_idf_transformer = TfidfTransformer()
-        train_data_dir = data_dir + '/train.text'
-        test_data_dir = data_dir + '/test.val.text'
-        grades_dir = data_dir + '/annotation_aggregated.tsv'
-        self.train_labels = self.build_labels(data_dir + '/train.ids', grades_dir)
-        self.test_labels = self.build_labels(data_dir + '/test.val.ids', grades_dir)
+        train_data_dir = data_dir + '/data_splits/dim.all.mod.neu.para.1.train.text'
+        test_data_dir = data_dir + '/data_splits/dim.all.mod.neu.para.1.test.val.text'
+        grades_dir = data_dir + '/annotations/annotation_aggregated.tsv'
+        self.train_labels = self.build_labels(data_dir + '/data_splits/dim.all.mod.neu.para.1.train.ids', grades_dir)
+        self.test_labels = self.build_labels(data_dir + '/data_splits/dim.all.mod.neu.para.1.test.val.ids', grades_dir)
         self.train_lines = [pre_process_text(line) for line in open(train_data_dir, 'r').read().split('\n')][0:-1]
         self.test_lines = [pre_process_text(line) for line in open(test_data_dir, 'r').read().split('\n')][0:-1]
 
