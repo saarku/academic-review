@@ -11,9 +11,10 @@ topics_dir = data_dir + '/lda_vectors/'
 model_name = data_dir + '/models/'
 test_dimensions = [1, 2, 3, 5, 6]
 modes = ['pos', 'neg']
-dimension_features = {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes, 'all': ['neu']}
+#dimension_features = {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes, 'all': ['neu']}
+dimension_features = {'all': ['neu']}
 topic_model_dims = [5]
-num_paragraphs = [1, 3]
+num_paragraphs = [1]
 unigrams_flag = False
 
 builder = FeatureBuilder(data_dir)
