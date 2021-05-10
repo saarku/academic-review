@@ -104,5 +104,5 @@ class FeatureBuilder:
         sorted_grades = sorted(grades_dict, key=grades_dict.get, reverse=True)
         grades = np.zeros(grades.shape)
         for i in range(len(sorted_grades)):
-            grades[sorted_grades[i][0], 0] = 1 / float(i+1)
+            grades[sorted_grades[i], 0] = 1 / float(i+1)
         return grades
