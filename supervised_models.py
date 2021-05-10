@@ -132,7 +132,7 @@ def main():
     neg_features = {'1': neg_modes, '2': neg_modes, '3': neg_modes, '5': neg_modes, '6': neg_modes}
     neutral_features = {'all': ['neu']}
     features = [dimension_features, pos_features, neg_features, neutral_features]
-    features = []
+    features = [neutral_features]
 
     combination_methods = ['feature_comb']#, 'score_comb', 'rank_comb']
     num_paragraphs = [[1]] #[[1], [3], [1, 3]]
