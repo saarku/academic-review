@@ -27,7 +27,7 @@ topic_model_dims = [5]
 num_paragraphs = [1]
 
 unigrams_flag = False
-feature_comb_flag = True
+feature_comb_flag = False
 
 builder = FeatureBuilder(data_dir)
 output_performance = ''
