@@ -24,6 +24,7 @@ class SVMRank:
         os.system(command)
         predictions = [i.rstrip('\n').split('\t')[-1] for i in open(predictions_dir, 'r').readlines()]
         os.system('rm ' + predictions_dir)
+        os.system('rm ' + test_dir)
         return np.reshape(np.asarray(predictions, dtype=float), (-1, 1))
 
     @staticmethod

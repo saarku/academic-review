@@ -151,10 +151,11 @@ def main():
                         for algo in algorithms:
                             for log in log_options:
                                 for kl in kl_options:
-                                    output = single_experiment(test_dimensions, data_dir, uni, combination,
-                                                               topic_dims, para, feature, algo, log, soft_options, kl)
-                                    output_file.write(output)
-                                    output_file.flush()
+                                    for soft in soft_options:
+                                        output = single_experiment(test_dimensions, data_dir, uni, combination,
+                                                                   topic_dims, para, feature, algo, log, soft, kl)
+                                        output_file.write(output)
+                                        output_file.flush()
 
 
 if __name__ == '__main__':
