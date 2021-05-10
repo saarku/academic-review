@@ -134,14 +134,14 @@ def main():
     features = [dimension_features, pos_features, neg_features, neutral_features]
 
 
-    combination_methods = ['feature_comb']#, 'score_comb', 'rank_comb']
+    combination_methods = ['score_comb']#, 'score_comb', 'rank_comb']
     num_paragraphs = [[1], [3], [1, 3]]
     algorithms = ['regression', 'ranking']
-    unigrams, log_options, soft_options, kl_options = [False], [True, False], [True], [True, False]
+    unigrams, log_options, soft_options, kl_options = [False], [True, False], [True,False], [True, False]
 
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',dimension_features,algorithm,log,softmax,rmse,kendall\n'
-    output_file = open('report_feature_comb.txt', 'w+')
+    output_file = open('report_score_comb.txt', 'w+')
     output_file.write(header)
 
     for combination in combination_methods:
