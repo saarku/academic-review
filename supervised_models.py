@@ -27,7 +27,7 @@ topic_model_dims = [5]
 num_paragraphs = [1]
 
 unigrams_flag = False
-feature_comb_flag = False
+feature_comb_flag = True
 
 builder = FeatureBuilder(data_dir)
 
@@ -58,7 +58,8 @@ for dim in test_dimensions:
         train_features = sp.hstack(tuple(all_features_train), format='csr')
         test_features = sp.hstack(tuple(all_features_test), format='csr')
         #clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(train_features, y_train)
-        clf = SVMRank().fit(train_features, y_train, model_name, 0.01)
+        clf = SVMRank()
+        clf.fit(train_features, y_train, model_name, 0.01)
         grades = clf.predict(test_features)
     else:
         grades = np.zeros((all_features_test[0].shape[0], 1))
@@ -66,7 +67,8 @@ for dim in test_dimensions:
         for i in range(len(all_features_train)):
             counter += 1
             #clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(all_features_train[i], y_train)
-            clf = SVMRank().fit(all_features_train[i], y_train, model_name, 0.01)
+            clf = SVMRank()
+            clf.fit(all_features_train[i], y_train, model_name, 0.01)
             aspect_grades = clf.predict(all_features_test[i])
             aspect_grades = np.reshape(aspect_grades, (-1, 1))
             grades += aspect_grades
