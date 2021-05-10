@@ -12,8 +12,8 @@ from scipy.special import softmax
 '''
 TODO:
 0. SVM rank
-1. Feature normalization
-2. Score normalization
+1. Feature normalization 
+2. Score normalization (soft-max or not?)
 3. Why do we have negative kendall?
 4. Saving models
 '''

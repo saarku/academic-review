@@ -3,6 +3,7 @@ from gensim.models.ldamodel import LdaModel
 from sklearn.feature_extraction.text import CountVectorizer
 import sys
 import os
+import numpy as np
 
 
 def get_topics_vec(dists_dir, labels, dimension_id, num_paragraphs):
@@ -73,6 +74,37 @@ class TopicModels:
             lda_file.write(str(lda_model.get_document_topics(lda_vector, minimum_probability=0.0)) + '\n')
         lda_file.close()
 
+    def generate_topic_kl(self, topic_model_dir, output_dir):
+        """ Generate topic representation (with kl-divergence) for training/test data.
+
+        :param topic_model_dir: (string) directory of the topic model.
+        :param output_dir: (string).
+        :return: None.
+        """
+        lda_file = open(output_dir, 'w+')
+        lda_model = LdaModel.load(topic_model_dir)
+        count_vector_lda = CountVectorizer()
+        count_vector_lda.fit(self.vocab_lines)
+        x_lda_counts = count_vector_lda.transform(self.data_lines)
+        x_vectors = from_sparse(x_lda_counts)
+        all_topics = lda_model.get_topics()
+
+        for doc_vec in x_vectors:
+            doc_vec = dict(doc_vec)
+            normalizer = sum(doc_vec.values())
+            for term in doc_vec: doc_vec[term] /= normalizer
+            doc_topics = []
+
+            for topic_id in range(all_topics.shape[0]):
+                kl_score = 0
+                for term in doc_vec:
+                    if all_topics[topic_id, term] > 0:
+                        kl_score += doc_vec[term] * np.log(doc_vec[term]/all_topics[topic_id, term])
+                doc_topics.append((topic_id, kl_score))
+
+            lda_file.write(str(doc_topics) + '\n')
+        lda_file.close()
+
 
 def main():
 
@@ -80,9 +112,9 @@ def main():
     modes = ['pos', 'neg']
     modes = ['neg']
     #dimensions = {'1': modes, '2': modes, '3': modes, '4': modes, '5': modes, '6': modes, 'all': ['neu']}
-    dimensions = {'5': modes}
+    dimensions = {'all': ['neu']}
     paragraphs = ['1', '3']
-    paragraphs = ['3']
+    paragraphs = ['1']
     base_dir = '../iclr17_dataset/'
 
     learn_flag = False
@@ -112,9 +144,9 @@ def main():
                     print(vectors_dir)
 
                     tm = TopicModels(train_data_dir, vocab_dir)
-                    tm.generate_topic_dists(model_dir, vectors_dir + '.train')
+                    tm.generate_topic_kl(model_dir, vectors_dir + '.kl.train')
                     tm = TopicModels(test_data_dir, vocab_dir)
-                    tm.generate_topic_dists(model_dir, vectors_dir + '.test.val')
+                    tm.generate_topic_kl(model_dir, vectors_dir + '.kl.test.val')
 
 
 if __name__ == '__main__':
