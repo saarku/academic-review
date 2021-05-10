@@ -130,18 +130,19 @@ def main():
     dimension_features = {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes, 'all': ['neu']}
     pos_features = {'1': pos_modes, '2': pos_modes, '3': pos_modes, '5': pos_modes, '6': pos_modes}
     neg_features = {'1': neg_modes, '2': neg_modes, '3': neg_modes, '5': neg_modes, '6': neg_modes}
+    pos_neg_features = {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes}
     neutral_features = {'all': ['neu']}
-    features = [dimension_features, pos_features, neg_features, neutral_features]
+    features = [pos_neg_features]
 
 
-    combination_methods = ['rank_comb']#, 'score_comb', 'rank_comb']
+    combination_methods = ['rank_comb', 'score_comb', 'rank_comb']#, 'score_comb', 'rank_comb']
     num_paragraphs = [[1], [3], [1, 3]]
     algorithms = ['regression', 'ranking']
     unigrams, log_options, soft_options, kl_options = [False], [True, False], [True,False], [True, False]
 
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',dimension_features,algorithm,log,softmax,rmse,kendall\n'
-    output_file = open('report_rank_comb.txt', 'w+')
+    output_file = open('report_aspect_guided.txt', 'w+')
     output_file.write(header)
 
     for combination in combination_methods:
