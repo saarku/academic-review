@@ -23,12 +23,13 @@ topics_dir = data_dir + '/lda_vectors/'
 model_name = data_dir + '/models/'
 test_dimensions = [1, 2, 3, 5, 6]
 modes = ['pos', 'neg']
-dimension_features = {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes, 'all': ['neu']}
+#dimension_features = {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes, 'all': ['neu']}
+dimension_features = {'all': ['neu']}
 topic_model_dims = [5]
 num_paragraphs = [1]
 
 unigrams_flag = False
-feature_comb_flag = False
+feature_comb_flag = True
 
 builder = FeatureBuilder(data_dir)
 output_performance = ''
@@ -49,7 +50,7 @@ for dim in test_dimensions:
             for dim_feat in dimension_features:
                 for mode in dimension_features[dim_feat]:
                     vec_dir = topics_dir
-                    vec_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(topics, dim_feat, mode, para, topics)
+                    vec_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}.kl'.format(topics, dim_feat, mode, para, topics)
                     output = builder.build_topic_features(dim, vec_dir + '.train', vec_dir + '.test.val', para)
                     x_topics_train, y_train, x_topics_test, y_test = output[0], output[1], output[2], output[3]
                     all_features_train.append(x_topics_train)
