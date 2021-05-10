@@ -7,6 +7,7 @@ import joblib
 from scipy.stats import kendalltau
 import numpy as np
 from svm_rank import SVMRank
+from scipy.special import softmax
 
 '''
 TODO:
@@ -72,7 +73,7 @@ for dim in test_dimensions:
             clf.fit(all_features_train[i], y_train, model_name, 0.01)
             aspect_grades = clf.predict(all_features_test[i])
             aspect_grades = np.reshape(aspect_grades, (-1, 1))
-            grades += aspect_grades
+            grades += softmax(aspect_grades)
         grades /= counter
 
     error = sqrt(mean_squared_error(y_test, grades))
