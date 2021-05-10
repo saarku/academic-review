@@ -26,7 +26,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
     builder = FeatureBuilder(data_dir)
     topics_dir, models_dir = data_dir + '/lda_vectors/', data_dir + '/models/'
     modes = set()
-    for i in dimension_features: modes.union(set(dimension_features[i].values()))
+    for i in dimension_features: modes.union(set(dimension_features[i]))
     modes = '_'.join([str(i) for i in modes])
 
     for dim in test_dimensions:
