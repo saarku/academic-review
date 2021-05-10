@@ -30,7 +30,7 @@ unigrams_flag = False
 feature_comb_flag = True
 
 builder = FeatureBuilder(data_dir)
-output = ''
+output_performance = ''
 
 for dim in test_dimensions:
     model_name = 'dim.' + str(dim)
@@ -77,6 +77,6 @@ for dim in test_dimensions:
 
     error = sqrt(mean_squared_error(y_test, grades))
     kendall, _ = kendalltau(y_test, grades)
-    output += str(dim) + ',' + str(error) + ',' + str(kendall) + '\n'
+    output_performance += str(dim) + ',' + str(error) + ',' + str(kendall) + '\n'
     #joblib.dump(clf, model_name + '.joblib')
-print(output)
+print(output_performance)
