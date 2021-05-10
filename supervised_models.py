@@ -74,6 +74,7 @@ for dim in test_dimensions:
             grades += aspect_grades
         grades /= counter
 
+    print(grades)
     error = sqrt(mean_squared_error(y_test, grades))
     kendall, _ = kendalltau(y_test, grades)
     print(str(dim) + ',' + str(error) + ',' + str(kendall))
