@@ -91,7 +91,6 @@ class TopicModels:
 
         for doc_vec in x_vectors:
             doc_vec = dict(doc_vec)
-            print(doc_vec)
             normalizer = sum(doc_vec.values())
             for term in doc_vec: doc_vec[term] /= normalizer
             doc_topics = []
@@ -100,7 +99,6 @@ class TopicModels:
                 kl_score = 0
                 for term in doc_vec:
                     if all_topics[topic_id, term] > 0:
-                        print('{},{}'.format(doc_vec[term], all_topics[topic_id, term]))
                         kl_score += doc_vec[term] * np.log(doc_vec[term]/all_topics[topic_id, term])
                 doc_topics.append((topic_id, kl_score))
 
@@ -112,11 +110,8 @@ def main():
 
     topics = 5
     modes = ['pos', 'neg']
-    modes = ['neg']
-    #dimensions = {'1': modes, '2': modes, '3': modes, '4': modes, '5': modes, '6': modes, 'all': ['neu']}
-    dimensions = {'all': ['neu']}
+    dimensions = {'1': modes, '2': modes, '3': modes, '4': modes, '5': modes, '6': modes, 'all': ['neu']}
     paragraphs = ['1', '3']
-    paragraphs = ['1']
     base_dir = '../iclr17_dataset/'
 
     learn_flag = False
