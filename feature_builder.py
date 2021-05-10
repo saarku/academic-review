@@ -17,11 +17,10 @@ class FeatureBuilder:
         self.train_lines = [pre_process_text(line) for line in open(train_data_dir, 'r').read().split('\n')][0:-1]
         self.test_lines = [pre_process_text(line) for line in open(test_data_dir, 'r').read().split('\n')][0:-1]
 
-    def build_unigram_features(self, dimension_id, log_transform=False):
+    def build_unigram_features(self, dimension_id):
         """ Build unigram features for a specific grading dimension.
 
         :param dimension_id: (int) id for the ranking dimension.
-        :param log_transform: (bool) whether to log transform features.
         :return: train/test features and labels.
         """
         train_data, y_train = self.modify_data_to_dimension(self.train_lines, self.train_labels, dimension_id)
@@ -31,18 +30,11 @@ class FeatureBuilder:
         x_train_tf_idf = self.tf_idf_transformer.fit_transform(x_train_counts)
         x_test_tf_idf = self.tf_idf_transformer.transform(x_test_counts)
         y_train = np.asarray(y_train, dtype=float)
-        if log_transform:
-            x_train_tf_idf = np.log(x_train_tf_idf + 1)
-            x_test_tf_idf = np.log(x_test_tf_idf + 1)
         return x_train_tf_idf, y_train, x_test_tf_idf, y_test
 
-    def build_topic_features(self, dimension_id, topics_train_dir, topics_test_dir, num_paragraphs,
-                             log_transform=False):
+    def build_topic_features(self, dimension_id, topics_train_dir, topics_test_dir, num_paragraphs):
         x_train, y_train = get_topics_vec(topics_train_dir, self.train_labels, dimension_id, num_paragraphs)
         x_test, y_test = get_topics_vec(topics_test_dir, self.test_labels, dimension_id, num_paragraphs)
-        if log_transform:
-            x_train = np.log(1 + x_train)
-            x_test = np.log(1 + x_test)
         return x_train, y_train, x_test, y_test
 
     @staticmethod

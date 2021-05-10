@@ -51,8 +51,7 @@ for dim in test_dimensions:
                 for mode in dimension_features[dim_feat]:
                     vec_dir = topics_dir
                     vec_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}.kl'.format(topics, dim_feat, mode, para, topics)
-                    output = builder.build_topic_features(dim, vec_dir + '.train', vec_dir + '.test.val', para,
-                                                          log_transform=True)
+                    output = builder.build_topic_features(dim, vec_dir + '.train', vec_dir + '.test.val', para)
                     x_topics_train, y_train, x_topics_test, y_test = output[0], output[1], output[2], output[3]
                     all_features_train.append(x_topics_train)
                     all_features_test.append(x_topics_test)
@@ -63,6 +62,8 @@ for dim in test_dimensions:
         test_features = sp.hstack(tuple(all_features_test), format='csr')
         #clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(train_features, y_train)
         clf = SVMRank()
+        train_features = np.log(1 + train_features.todense())
+        test_features = np.log(1 + test_features.todense())
         clf.fit(train_features, y_train, model_name, 0.01)
         grades = clf.predict(test_features)
     else:
@@ -72,8 +73,10 @@ for dim in test_dimensions:
             counter += 1
             #clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(all_features_train[i], y_train)
             clf = SVMRank()
-            clf.fit(all_features_train[i], y_train, model_name, 0.01)
-            aspect_grades = clf.predict(all_features_test[i])
+            train_features = np.log(1 + all_features_train[i].todense())
+            test_features = np.log(1 + all_features_test[i].todense())
+            clf.fit(train_features, y_train, model_name, 0.01)
+            aspect_grades = clf.predict(test_features)
             aspect_grades = np.reshape(aspect_grades, (-1, 1))
             grades += softmax(aspect_grades)
         grades /= counter
