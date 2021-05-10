@@ -16,6 +16,7 @@ TODO:
 2. Score normalization (soft-max or not?)
 3. Why do we have negative kendall?
 4. Saving models
+5. kl divergence
 '''
 
 data_dir = '/home/skuzi2/iclr17_dataset'
@@ -23,13 +24,13 @@ topics_dir = data_dir + '/lda_vectors/'
 model_name = data_dir + '/models/'
 test_dimensions = [1, 2, 3, 5, 6]
 modes = ['pos', 'neg']
-#dimension_features = {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes, 'all': ['neu']}
-dimension_features = {'all': ['neu']}
+dimension_features = {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes, 'all': ['neu']}
+#dimension_features = {'all': ['neu']}
 topic_model_dims = [5]
 num_paragraphs = [1]
 
 unigrams_flag = False
-feature_comb_flag = True
+feature_comb_flag = False
 
 builder = FeatureBuilder(data_dir)
 output_performance = ''
@@ -79,14 +80,21 @@ for dim in test_dimensions:
             train_features = np.log(1 + train_features.todense())
             test_features = np.log(1 + test_features.todense())
 
+
             clf.fit(train_features, y_train, model_name, 0.01)
             aspect_grades = clf.predict(test_features)
             aspect_grades = np.reshape(aspect_grades, (-1, 1))
-            grades += softmax(aspect_grades)
+
+
+
+            #grades += softmax(aspect_grades)
+
+            grades += FeatureBuilder.grades_to_ranks(aspect_grades)
         grades /= counter
 
     error = sqrt(mean_squared_error(y_test, grades))
     kendall, _ = kendalltau(y_test, grades)
     output_performance += str(dim) + ',' + str(error) + ',' + str(kendall) + '\n'
     #joblib.dump(clf, model_name + '.joblib')
+
 print(output_performance)

@@ -95,3 +95,14 @@ class FeatureBuilder:
                 modified_grades.append(grade)
                 indexes.append(i)
         return topics_matrix[indexes, :], modified_grades
+
+    @staticmethod
+    def grades_to_ranks(grades):
+        grades_dict = {}
+        for i in range(grades.shape[0]):
+            grades_dict[i] = grades[i, 0]
+        sorted_grades = sorted(grades_dict, key=grades_dict.get, reverse=True)
+        grades = np.zeros(grades.shape)
+        for i in range(len(sorted_grades)):
+            grades[sorted_grades[0], 0] = 1 / float(i+1)
+        return grades
