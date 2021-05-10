@@ -62,8 +62,8 @@ for dim in test_dimensions:
         test_features = sp.hstack(tuple(all_features_test), format='csr')
         #clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(train_features, y_train)
         clf = SVMRank()
-        train_features = np.log(1 + train_features.todense())
-        test_features = np.log(1 + test_features.todense())
+        #train_features = np.log(1 + train_features.todense())
+        #test_features = np.log(1 + test_features.todense())
         clf.fit(train_features, y_train, model_name, 0.01)
         grades = clf.predict(test_features)
     else:
@@ -73,8 +73,12 @@ for dim in test_dimensions:
             counter += 1
             #clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(all_features_train[i], y_train)
             clf = SVMRank()
-            train_features = np.log(1 + all_features_train[i].todense())
-            test_features = np.log(1 + all_features_test[i].todense())
+            train_features = all_features_train[i]
+            test_features = all_features_test[i]
+
+            train_features = np.log(1 + train_features.todense())
+            test_features = np.log(1 + test_features.todense())
+
             clf.fit(train_features, y_train, model_name, 0.01)
             aspect_grades = clf.predict(test_features)
             aspect_grades = np.reshape(aspect_grades, (-1, 1))
