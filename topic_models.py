@@ -91,6 +91,7 @@ class TopicModels:
 
         for doc_vec in x_vectors:
             doc_vec = dict(doc_vec)
+            print(doc_vec)
             normalizer = sum(doc_vec.values())
             for term in doc_vec: doc_vec[term] /= normalizer
             doc_topics = []
@@ -99,6 +100,7 @@ class TopicModels:
                 kl_score = 0
                 for term in doc_vec:
                     if all_topics[topic_id, term] > 0:
+                        print('{},{}'.format(doc_vec[term], all_topics[topic_id, term]))
                         kl_score += doc_vec[term] * np.log(doc_vec[term]/all_topics[topic_id, term])
                 doc_topics.append((topic_id, kl_score))
 
