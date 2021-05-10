@@ -51,7 +51,8 @@ for dim in test_dimensions:
                 for mode in dimension_features[dim_feat]:
                     vec_dir = topics_dir
                     vec_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}.kl'.format(topics, dim_feat, mode, para, topics)
-                    output = builder.build_topic_features(dim, vec_dir + '.train', vec_dir + '.test.val', para)
+                    output = builder.build_topic_features(dim, vec_dir + '.train', vec_dir + '.test.val', para,
+                                                          log_transform=True)
                     x_topics_train, y_train, x_topics_test, y_test = output[0], output[1], output[2], output[3]
                     all_features_train.append(x_topics_train)
                     all_features_test.append(x_topics_test)
