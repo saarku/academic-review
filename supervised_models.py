@@ -10,6 +10,7 @@ from svm_rank import SVMRank
 
 '''
 TODO:
+0. SVM rank
 1. Feature normalization
 2. Score normalization
 3. Why do we have negative kendall?

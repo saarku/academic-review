@@ -11,7 +11,8 @@ class SVMRank:
 
     def fit(self, training_data, training_labels, model_dir, c, kernel=0):
         training_dir = self.create_svm_data(training_data, labels=training_labels)
-        command = self.svm_dir + 'svm_rank_learn -c ' + c + ' -t ' + str(kernel) + ' ' + training_dir + ' ' + model_dir
+        command = self.svm_dir + 'svm_rank_learn -c ' + str(c) + ' -t ' + str(kernel) + ' ' + training_dir + ' '
+        command += model_dir
         os.system(command)
         os.system('rm ' + training_dir)
         self.model_dir = model_dir
