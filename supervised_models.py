@@ -4,24 +4,25 @@ from sklearn.metrics import mean_squared_error
 from math import sqrt
 import scipy.sparse as sp
 import joblib
-from scipy.stats import kendalltau
+from scipy.stats import kendalltau, pearsonr
 import numpy as np
 from svm_rank import SVMRank
 from scipy.special import softmax
+from sklearn.preprocessing import MinMaxScaler
 
 '''
 TODO:
-0. SVM rank
-1. Feature normalization 
-2. Score normalization (soft-max or not?)
-3. Why do we have negative kendall?
-4. Saving models
-5. kl divergence
+1. Check the results
+2. Try 10 topics
+3. Add a second data set
+4. Check the data format of svm-rank
+5. Check the aspect-guided topics
+6. Future work: add a second model for score combination
 '''
 
 
 def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, topic_model_dims, num_paragraphs,
-                      dimension_features, algorithm, log_transform, softmax_flag, kl_flag):
+                      dimension_features, algorithm):
     output_performance = ''
     builder = FeatureBuilder(data_dir)
     topics_dir, models_dir = data_dir + '/lda_vectors/', data_dir + '/models/'
@@ -30,8 +31,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
     modes = '_'.join([str(i) for i in modes])
 
     for dim in test_dimensions:
-        model_dir = models_dir + 'dim.' + str(dim) + '.algo.' + algorithm + '.log.' + str(log_transform).lower()
-        model_dir += '.soft.' + str(softmax_flag).lower() + '.kl.' + str(kl_flag).lower()
+        model_dir = models_dir + 'dim.' + str(dim) + '.algo.' + algorithm
         all_features_train, all_features_test, feature_names, y_train, y_test = [], [], [], [], []
 
         if unigrams_flag:
@@ -47,7 +47,6 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                     for mode in dimension_features[dim_feat]:
                         vec_dir = topics_dir
                         vec_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(topics, dim_feat, mode, para, topics)
-                        if kl_flag: vec_dir += '.kl'
                         output = builder.build_topic_features(dim, vec_dir + '.train', vec_dir + '.test.val', para)
                         x_topics_train, y_train, x_topics_test, y_test = output[0], output[1], output[2], output[3]
                         all_features_train.append(x_topics_train)
@@ -63,9 +62,10 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             model_dir += '.mode.' + '_'.join([str(i) for i in modes])
             model_dir += '.uni.' + str(unigrams_flag).lower()
 
-            if log_transform:
-                train_features = np.log(1 + train_features.todense())
-                test_features = np.log(1 + test_features.todense())
+            transformer = MinMaxScaler()
+            transformer.fit(train_features.todense())
+            train_features = transformer.transform(train_features.todense())
+            test_features = transformer.transform(test_features.todense())
 
             if algorithm == 'regression':
                 clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(train_features, y_train)
@@ -88,9 +88,10 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
 
                 train_features = all_features_train[i]
                 test_features = all_features_test[i]
-                if log_transform:
-                    train_features = np.log(1 + train_features.todense())
-                    test_features = np.log(1 + test_features.todense())
+                transformer = MinMaxScaler()
+                transformer.fit(train_features.todense())
+                train_features = transformer.transform(train_features.todense())
+                test_features = transformer.transform(test_features.todense())
 
                 if algorithm == 'regression':
                     clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(train_features, y_train)
@@ -104,20 +105,18 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
 
                 if combination_method == 'rank_comb':
                     aspect_grades = FeatureBuilder.grades_to_ranks(aspect_grades)
-                if softmax_flag:
-                    aspect_grades = softmax(aspect_grades)
                 grades += aspect_grades
             grades /= counter
 
         error = sqrt(mean_squared_error(y_test, grades))
         kendall, _ = kendalltau(y_test, grades)
-        output_performance += '{},{},{},{},{},{},{},{},{},{},{}\n'.format(dim, unigrams_flag,
-                                                                          combination_method,
+        pearson, _ = pearsonr(y_test, grades)
+
+        output_performance += '{},{},{},{},{},{},{},{},{},{},{}\n'.format(dim, unigrams_flag, combination_method,
                                                                           '_'.join([str(i) for i in topic_model_dims]),
                                                                           '_'.join([str(i) for i in num_paragraphs]),
                                                                           '_'.join([str(i) for i in dimension_features]),
-                                                                          algorithm, log_transform, softmax_flag, error,
-                                                                          kendall)
+                                                                          algorithm, modes, error, kendall, pearson)
     return output_performance
 
 
@@ -132,17 +131,15 @@ def main():
     neg_features = {'1': neg_modes, '2': neg_modes, '3': neg_modes, '5': neg_modes, '6': neg_modes}
     pos_neg_features = {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes}
     neutral_features = {'all': ['neu']}
-    features = [pos_neg_features]
+    features = [pos_neg_features, pos_features, neg_features, neutral_features, dimension_features]
 
-
-    combination_methods = ['rank_comb', 'score_comb', 'rank_comb']#, 'score_comb', 'rank_comb']
+    combination_methods = ['feature_comb', 'score_comb']
     num_paragraphs = [[1], [3], [1, 3]]
-    algorithms = ['regression', 'ranking']
-    unigrams, log_options, soft_options, kl_options = [False], [True, False], [True,False], [True, False]
-
+    algorithms = ['regression']
+    unigrams = [False, True]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
-    header += ',dimension_features,algorithm,log,softmax,rmse,kendall\n'
-    output_file = open('report_aspect_guided.txt', 'w+')
+    header += ',dimension_features,algorithm,log,softmax,rmse,kendall,pearson\n'
+    output_file = open('report.txt', 'w+')
     output_file.write(header)
 
     for combination in combination_methods:
@@ -151,13 +148,10 @@ def main():
                 for para in num_paragraphs:
                     for feature in features:
                         for algo in algorithms:
-                            for log in log_options:
-                                for kl in kl_options:
-                                    for soft in soft_options:
-                                        output = single_experiment(test_dimensions, data_dir, uni, combination,
-                                                                   topic_dims, para, feature, algo, log, soft, kl)
-                                        output_file.write(output)
-                                        output_file.flush()
+                            output = single_experiment(test_dimensions, data_dir, uni, combination, topic_dims, para,
+                                                       feature, algo)
+                            output_file.write(output)
+                            output_file.flush()
 
 
 if __name__ == '__main__':
