@@ -108,13 +108,13 @@ class TopicModels:
 
 def main():
 
-    topics = 5
+    topics = 10
     modes = ['pos', 'neg']
-    dimensions = {'5': modes, '6': modes, 'all': ['neu']}
+    dimensions = {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes, 'all': ['neu']}
     paragraphs = ['1', '3']
     base_dir = '../iclr17_dataset/'
 
-    learn_flag = False
+    learn_flag = True
     infer_flag = True
 
     if learn_flag:
@@ -141,9 +141,9 @@ def main():
                     print(vectors_dir)
 
                     tm = TopicModels(train_data_dir, vocab_dir)
-                    tm.generate_topic_kl(model_dir, vectors_dir + '.kl.train')
+                    tm.generate_topic_dists(model_dir, vectors_dir + '.train')
                     tm = TopicModels(test_data_dir, vocab_dir)
-                    tm.generate_topic_kl(model_dir, vectors_dir + '.kl.test.val')
+                    tm.generate_topic_dists(model_dir, vectors_dir + '.test.val')
 
 
 if __name__ == '__main__':
