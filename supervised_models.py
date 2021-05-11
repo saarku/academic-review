@@ -85,7 +85,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             for i in range(len(all_features_train)):
                 args = feature_names[i].split('_')
                 single_model_dir = model_dir
-                single_model_dir += '.topics.' + args[0] + '.para.' + args[1] + 'dims' + args[2] + '.mode.' + args[3]
+                single_model_dir += '.topics.' + args[0] + '.para.' + args[1] + '.dims.' + args[2] + '.mode.' + args[3]
                 single_model_dir += '.uni.' + args[4]
                 counter += 1
 

@@ -3,6 +3,7 @@ import json
 from collections import defaultdict
 import numpy as np
 
+
 def transform_json_to_line_format(input_folder_dir, output_file_dir):
     """ Transfer a folder with json files to a single file with line per article.
 

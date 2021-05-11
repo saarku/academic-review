@@ -114,7 +114,7 @@ def main():
     paragraphs = ['1', '3']
     base_dir = '../iclr17_dataset/'
 
-    learn_flag = True
+    learn_flag = False
     infer_flag = True
 
     if learn_flag:
