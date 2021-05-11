@@ -39,7 +39,6 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             x_unigram_train, y_train, x_unigram_test, y_test = builder.build_unigram_features(dim)
             all_features_train.append(x_unigram_train)
             all_features_test.append(x_unigram_test)
-            feature_names.append('uni')
             feature_names.append(str(0) + '_' + str(0) + '_' + str(0) + '_' + str(0) + '_true')
 
         for topics in topic_model_dims:
@@ -85,7 +84,6 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             for i in range(len(all_features_train)):
                 args = feature_names[i].split('_')
                 single_model_dir = model_dir
-                print(args)
                 single_model_dir += '.topics.' + args[0] + '.para.' + args[1] + '.dims.' + args[2] + '.mode.' + args[3]
                 single_model_dir += '.uni.' + args[4]
                 counter += 1
