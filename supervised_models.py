@@ -153,10 +153,10 @@ def main():
     combination_methods = ['model_comb']
     num_paragraphs = [[1], [3], [1, 3]]
     algorithms = ['regression']
-    unigrams = [False, True]
+    unigrams = [True]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',dimension_features,algorithm,log,softmax,rmse,kendall,pearson\n'
-    output_file = open('report_model_comb.txt', 'w+')
+    output_file = open('report_model_comb_uni.txt', 'w+')
     output_file.write(header)
 
     for combination in combination_methods:
