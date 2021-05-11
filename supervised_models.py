@@ -149,13 +149,13 @@ def main():
     neutral_features = {'all': ['neu']}
     features = [pos_neg_features, pos_features, neg_features, neutral_features, dimension_features]
 
-    combination_methods = ['model_comb']
+    combination_methods = ['model_comb', 'feature_comb', 'score_comb']
     num_paragraphs = [[1], [3], [1, 3]]
     algorithms = ['regression']
-    unigrams = [True]
+    unigrams = [True, False]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',dimension_features,algorithm,log,softmax,rmse,kendall,pearson\n'
-    output_file = open('report_model_comb_uni.txt', 'w+')
+    output_file = open('report.txt', 'w+')
     output_file.write(header)
 
     for combination in combination_methods:
