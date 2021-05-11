@@ -9,6 +9,7 @@ import numpy as np
 from svm_rank import SVMRank
 from scipy.special import softmax
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.linear_model import LinearRegression
 
 '''
 TODO:
@@ -78,6 +79,8 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
 
         else:
             grades = np.zeros((all_features_test[0].shape[0], 1))
+            all_test_grades = []
+            all_train_grades = []
             counter = 0
             for i in range(len(all_features_train)):
                 args = feature_names[i].split('_')
@@ -103,10 +106,24 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 aspect_grades = clf.predict(test_features)
                 aspect_grades = np.reshape(aspect_grades, (-1, 1))
 
+                aspect_train_grades = clf.predict(train_features)
+                aspect_train_grades = np.reshape(aspect_train_grades, (-1, 1))
+
                 if combination_method == 'rank_comb':
                     aspect_grades = FeatureBuilder.grades_to_ranks(aspect_grades)
+
                 grades += aspect_grades
-            grades /= counter
+                all_test_grades.append(aspect_grades)
+                all_train_grades.append(aspect_train_grades)
+
+            if combination_method == 'model_comb':
+                all_train_grades = np.hstack(all_train_grades)
+                all_test_grades = np.hstack(all_test_grades)
+                lr = LinearRegression().fit(all_train_grades, y_train)
+                grades = lr.predict(all_test_grades)
+
+            else:
+                grades /= counter
 
         error = sqrt(mean_squared_error(y_test, grades))
         kendall, _ = kendalltau(y_test, grades)
@@ -133,13 +150,13 @@ def main():
     neutral_features = {'all': ['neu']}
     features = [pos_neg_features, pos_features, neg_features, neutral_features, dimension_features]
 
-    combination_methods = ['feature_comb', 'score_comb']
+    combination_methods = ['model_comb']
     num_paragraphs = [[1], [3], [1, 3]]
     algorithms = ['regression']
     unigrams = [False, True]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',dimension_features,algorithm,log,softmax,rmse,kendall,pearson\n'
-    output_file = open('report.txt', 'w+')
+    output_file = open('report_model_comb.txt', 'w+')
     output_file.write(header)
 
     for combination in combination_methods:
