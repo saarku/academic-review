@@ -67,8 +67,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             test_features = transformer.transform(test_features.todense())
 
             if algorithm == 'regression':
-                #clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(train_features, y_train)
-                clf = DecisionTreeRegressor()
+                clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(train_features, y_train)
                 clf.fit(train_features, y_train)
                 joblib.dump(clf, model_dir)
             else:
@@ -97,9 +96,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 test_features = transformer.transform(test_features.todense())
 
                 if algorithm == 'regression':
-                    #clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(train_features, y_train)
-                    clf = DecisionTreeRegressor()
-                    clf.fit(train_features, y_train)
+                    clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(train_features, y_train)
                     joblib.dump(clf, single_model_dir)
                 else:
                     clf = SVMRank()
@@ -131,9 +128,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 t.fit(all_train_grades)
                 all_train_grades = t.transform(all_train_grades)
                 all_test_grades = t.transform(all_test_grades)
-                c = DecisionTreeRegressor()
-                lr = c.fit(all_train_grades, y_train)
-                #lr = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(all_train_grades, y_train)
+                lr = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(all_train_grades, y_train)
                 grades = lr.predict(all_test_grades)
             else:
                 grades /= float(counter)
@@ -162,13 +157,13 @@ def main():
     neutral_features = {'all': ['neu']}
     features = [pos_neg_features, neutral_features, dimension_features]
 
-    combination_methods = ['model_comb_non_linear', 'feature_comb']
+    combination_methods = ['score_comb']
     num_paragraphs = [[1], [3], [1, 3]]
     algorithms = ['regression']
     unigrams = [False]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',dimension_features,algorithm,modes,rmse,kendall,pearson\n'
-    output_file = open('report_dt.txt', 'w+')
+    output_file = open('score_comb.txt', 'w+')
     output_file.write(header)
 
     for combination in combination_methods:
