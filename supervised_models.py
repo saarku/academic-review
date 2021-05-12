@@ -120,7 +120,6 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 all_test_grades = np.hstack(all_test_grades)
                 lr = LinearRegression().fit(all_train_grades, y_train)
                 grades = lr.predict(all_test_grades)
-
             else:
                 grades /= counter
 
@@ -149,13 +148,13 @@ def main():
     neutral_features = {'all': ['neu']}
     features = [pos_neg_features, pos_features, neg_features, neutral_features, dimension_features]
 
-    combination_methods = ['model_comb', 'feature_comb', 'score_comb']
+    combination_methods = ['score_comb']
     num_paragraphs = [[1], [3], [1, 3]]
     algorithms = ['regression']
     unigrams = [True, False]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',dimension_features,algorithm,log,softmax,rmse,kendall,pearson\n'
-    output_file = open('report.txt', 'w+')
+    output_file = open('report_score_comb.txt', 'w+')
     output_file.write(header)
 
     for combination in combination_methods:
