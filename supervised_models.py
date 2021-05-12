@@ -124,7 +124,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             elif combination_method == 'model_comb_non_linear':
                 all_train_grades = np.hstack(all_train_grades)
                 all_test_grades = np.hstack(all_test_grades)
-                lr = MLPRegressor().fit(all_train_grades, y_train)
+                lr = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(all_train_grades, y_train)
                 grades = lr.predict(all_test_grades)
             else:
                 grades /= float(counter)
