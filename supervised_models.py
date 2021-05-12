@@ -125,6 +125,8 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
 
         error = sqrt(mean_squared_error(y_test, grades))
         kendall, _ = kendalltau(y_test, grades)
+        print(y_test.shape)
+        print(grades.shape)
         pearson, _ = pearsonr(y_test, grades)
         print(pearson)
 
