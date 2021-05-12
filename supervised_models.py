@@ -124,6 +124,10 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             elif combination_method == 'model_comb_non_linear':
                 all_train_grades = np.hstack(all_train_grades)
                 all_test_grades = np.hstack(all_test_grades)
+                t = MinMaxScaler()
+                t.fit(all_train_grades)
+                all_train_grades = t.transform(all_train_grades)
+                all_test_grades = t.transform(all_test_grades)
                 lr = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(all_train_grades, y_train)
                 grades = lr.predict(all_test_grades)
             else:
@@ -153,7 +157,7 @@ def main():
     neutral_features = {'all': ['neu']}
     features = [pos_neg_features, neutral_features, dimension_features]
 
-    combination_methods = ['model_comb_non_linear', 'model_comb_linear', 'feature_comb']
+    combination_methods = ['model_comb_non_linear', 'feature_comb']
     num_paragraphs = [[1], [3], [1, 3]]
     algorithms = ['regression']
     unigrams = [False]
