@@ -10,15 +10,14 @@ from svm_rank import SVMRank
 from scipy.special import softmax
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
 
 '''
-TODO:
-1. Check the results
-2. Try 10 topics
-3. Add a second data set
-4. Check the data format of svm-rank
-5. Check the aspect-guided topics
-6. Future work: add a second model for score combination
+0. Try regression Tree
+1. Check the results (print the model predictions (different aspects) and the actual predictions)
+2. Prepare education data set and run experiments
+3. Feature selection of the topic models
+4. Score combination, Feature Combination, Feature Selection
 '''
 
 
@@ -68,7 +67,8 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             test_features = transformer.transform(test_features.todense())
 
             if algorithm == 'regression':
-                clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(train_features, y_train)
+                #clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(train_features, y_train)
+                clf = DecisionTreeRegressor()
                 joblib.dump(clf, model_dir)
             else:
                 clf = SVMRank()
@@ -96,7 +96,8 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 test_features = transformer.transform(test_features.todense())
 
                 if algorithm == 'regression':
-                    clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(train_features, y_train)
+                    #clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(train_features, y_train)
+                    clf = DecisionTreeRegressor()
                     joblib.dump(clf, single_model_dir)
                 else:
                     clf = SVMRank()
@@ -128,7 +129,8 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 t.fit(all_train_grades)
                 all_train_grades = t.transform(all_train_grades)
                 all_test_grades = t.transform(all_test_grades)
-                lr = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(all_train_grades, y_train)
+                lr = DecisionTreeRegressor().fit(all_train_grades, y_train)
+                #lr = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(all_train_grades, y_train)
                 grades = lr.predict(all_test_grades)
             else:
                 grades /= float(counter)
@@ -163,7 +165,7 @@ def main():
     unigrams = [False]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',dimension_features,algorithm,modes,rmse,kendall,pearson\n'
-    output_file = open('report.txt', 'w+')
+    output_file = open('report_dt.txt', 'w+')
     output_file.write(header)
 
     for combination in combination_methods:
