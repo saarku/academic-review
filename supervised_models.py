@@ -125,7 +125,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
 
         error = sqrt(mean_squared_error(y_test, grades))
         kendall, _ = kendalltau(y_test, grades)
-        pearson, _ = pearsonr(np.reshape(np.asarray(y_test), (-1,1)), grades)
+        pearson, _ = pearsonr(y_test, np.reshape(grades, (1, -1)).tolist()[0])
         print(pearson)
 
         output_performance += '{},{},{},{},{},{},{},{},{},{},{}\n'.format(dim, unigrams_flag, combination_method,
