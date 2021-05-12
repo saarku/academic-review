@@ -115,10 +115,16 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 all_test_grades.append(aspect_grades)
                 all_train_grades.append(aspect_train_grades)
 
-            if combination_method == 'model_comb':
+            if combination_method == 'model_comb_linear':
                 all_train_grades = np.hstack(all_train_grades)
                 all_test_grades = np.hstack(all_test_grades)
                 lr = LinearRegression().fit(all_train_grades, y_train)
+                grades = lr.predict(all_test_grades)
+
+            elif combination_method == 'model_comb_non_linear':
+                all_train_grades = np.hstack(all_train_grades)
+                all_test_grades = np.hstack(all_test_grades)
+                lr = MLPRegressor().fit(all_train_grades, y_train)
                 grades = lr.predict(all_test_grades)
             else:
                 grades /= float(counter)
@@ -126,8 +132,6 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
         error = sqrt(mean_squared_error(y_test, grades))
         kendall, _ = kendalltau(y_test, grades)
         pearson, _ = pearsonr(y_test, np.reshape(grades, (1, -1)).tolist()[0])
-        print(pearson)
-
         output_performance += '{},{},{},{},{},{},{},{},{},{},{}\n'.format(dim, unigrams_flag, combination_method,
                                                                           '_'.join([str(i) for i in topic_model_dims]),
                                                                           '_'.join([str(i) for i in num_paragraphs]),
@@ -139,7 +143,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
 def main():
     data_dir = '/home/skuzi2/iclr17_dataset'
     test_dimensions = [1, 2, 3, 5, 6]
-    topic_model_dims = [[5]]
+    topic_model_dims = [[10,5], [10], [5]]
     modes, pos_modes, neg_modes = ['pos', 'neg'], ['pos'], ['neg']
 
     dimension_features = {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes, 'all': ['neu']}
@@ -149,13 +153,13 @@ def main():
     neutral_features = {'all': ['neu']}
     features = [pos_neg_features, pos_features, neg_features, neutral_features, dimension_features]
 
-    combination_methods = ['score_comb']
+    combination_methods = ['model_comb_non_linear', 'model_comb_linear', 'score_comb', 'feature_comb']
     num_paragraphs = [[1], [3], [1, 3]]
     algorithms = ['regression']
     unigrams = [True, False]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
-    header += ',dimension_features,algorithm,log,softmax,rmse,kendall,pearson\n'
-    output_file = open('report_score_comb.txt', 'w+')
+    header += ',dimension_features,algorithm,modes,rmse,kendall,pearson\n'
+    output_file = open('report.txt', 'w+')
     output_file.write(header)
 
     for combination in combination_methods:
