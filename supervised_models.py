@@ -69,6 +69,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             if algorithm == 'regression':
                 #clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(train_features, y_train)
                 clf = DecisionTreeRegressor()
+                clf.fit(train_features, y_train)
                 joblib.dump(clf, model_dir)
             else:
                 clf = SVMRank()
@@ -98,6 +99,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 if algorithm == 'regression':
                     #clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(train_features, y_train)
                     clf = DecisionTreeRegressor()
+                    clf.fit(train_features, y_train)
                     joblib.dump(clf, single_model_dir)
                 else:
                     clf = SVMRank()
