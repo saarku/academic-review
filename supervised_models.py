@@ -122,7 +122,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 grades = lr.predict(all_test_grades)
             else:
                 grades /= counter
-
+        print(grades)
         error = sqrt(mean_squared_error(y_test, grades))
         kendall, _ = kendalltau(y_test, grades)
         pearson, _ = pearsonr(y_test, grades)
