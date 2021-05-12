@@ -129,7 +129,8 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 t.fit(all_train_grades)
                 all_train_grades = t.transform(all_train_grades)
                 all_test_grades = t.transform(all_test_grades)
-                lr = DecisionTreeRegressor().fit(all_train_grades, y_train)
+                c = DecisionTreeRegressor()
+                lr = c.fit(all_train_grades, y_train)
                 #lr = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(all_train_grades, y_train)
                 grades = lr.predict(all_test_grades)
             else:
