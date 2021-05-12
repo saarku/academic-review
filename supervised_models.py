@@ -77,7 +77,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             grades = clf.predict(test_features)
 
         else:
-            grades = np.zeros((all_features_test[0].shape[0], 1))
+            grades = np.zeros((all_features_test[0].shape[0], 1), dtype=float)
             all_test_grades = []
             all_train_grades = []
             counter = 0
@@ -122,10 +122,11 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 grades = lr.predict(all_test_grades)
             else:
                 grades /= counter
-        print(grades)
+
         error = sqrt(mean_squared_error(y_test, grades))
         kendall, _ = kendalltau(y_test, grades)
         pearson, _ = pearsonr(y_test, grades)
+        print(pearson)
 
         output_performance += '{},{},{},{},{},{},{},{},{},{},{}\n'.format(dim, unigrams_flag, combination_method,
                                                                           '_'.join([str(i) for i in topic_model_dims]),
