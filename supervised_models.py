@@ -11,6 +11,8 @@ from scipy.special import softmax
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
+from sklearn.feature_selection import chi2
+from sklearn.feature_selection import SelectKBest
 
 '''
 0. Try regression Tree
@@ -52,7 +54,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                         all_features_test.append(x_topics_test)
                         feature_names.append(str(topics)+'_'+str(para)+'_'+str(dim_feat)+'_'+str(mode)+'_false')
 
-        if combination_method == 'feature_comb':
+        if combination_method == 'feature_comb' or combination_method == 'feature_selection':
             train_features = sp.hstack(tuple(all_features_train), format='csr')
             test_features = sp.hstack(tuple(all_features_test), format='csr')
             model_dir += '.topics.' + '_'.join([str(i) for i in topic_model_dims])
@@ -61,15 +63,19 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             model_dir += '.mode.' + '_'.join([str(i) for i in modes])
             model_dir += '.uni.' + str(unigrams_flag).lower()
 
-            #transformer = MinMaxScaler()
-            #transformer.fit(train_features.todense())
-            train_features = train_features.todense()
-            test_features = test_features.todense()
-            #train_features = transformer.transform(train_features)
-            #test_features = transformer.transform(test_features)
+            transformer = MinMaxScaler()
+            train_features, test_features = train_features.todense(), test_features.todense()
+            transformer.fit(train_features)
+            train_features = transformer.transform(train_features)
+            test_features = transformer.transform(test_features)
+
+            if combination_method == 'feature_selection':
+                sk = SelectKBest(chi2, k=50)
+                train_features = sk.fit_transform(train_features, y_train)
+                test_features = sk.transform(test_features)
 
             if algorithm == 'regression':
-                clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(train_features, y_train)
+                clf = MLPRegressor(solver='sgd', max_iter=1000, verbose=False).fit(train_features, y_train)
                 clf.fit(train_features, y_train)
                 joblib.dump(clf, model_dir)
             else:
@@ -94,13 +100,14 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 test_features = all_features_test[i]
                 train_features =train_features.todense()
                 test_features = test_features.todense()
-                #transformer = MinMaxScaler()
-                #transformer.fit(train_features.todense())
-                #train_features = transformer.transform(train_features.todense())
-                #test_features = transformer.transform(test_features.todense())
+
+                transformer = MinMaxScaler()
+                transformer.fit(train_features)
+                train_features = transformer.transform(train_features)
+                test_features = transformer.transform(test_features)
 
                 if algorithm == 'regression':
-                    clf = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(train_features, y_train)
+                    clf = MLPRegressor(solver='sgd', max_iter=1000, verbose=False).fit(train_features, y_train)
                     joblib.dump(clf, single_model_dir)
                 else:
                     clf = SVMRank()
@@ -128,11 +135,11 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             elif combination_method == 'model_comb_non_linear':
                 all_train_grades = np.hstack(all_train_grades)
                 all_test_grades = np.hstack(all_test_grades)
-                #t = MinMaxScaler()
-                #t.fit(all_train_grades)
-                #all_train_grades = t.transform(all_train_grades)
-                #all_test_grades = t.transform(all_test_grades)
-                lr = MLPRegressor(solver='sgd', max_iter=500, verbose=False).fit(all_train_grades, y_train)
+                t = MinMaxScaler()
+                t.fit(all_train_grades)
+                all_train_grades = t.transform(all_train_grades)
+                all_test_grades = t.transform(all_test_grades)
+                lr = MLPRegressor(solver='sgd', max_iter=1000, verbose=False).fit(all_train_grades, y_train)
                 grades = lr.predict(all_test_grades)
             else:
                 grades /= float(counter)
@@ -151,7 +158,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
 def main():
     data_dir = '/home/skuzi2/iclr17_dataset'
     test_dimensions = [1, 2, 3, 5, 6]
-    topic_model_dims = [[10], [5]]
+    topic_model_dims = [[5]]
     modes, pos_modes, neg_modes = ['pos', 'neg'], ['pos'], ['neg']
 
     dimension_features = {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes, 'all': ['neu']}
@@ -159,15 +166,15 @@ def main():
     neg_features = {'1': neg_modes, '2': neg_modes, '3': neg_modes, '5': neg_modes, '6': neg_modes}
     pos_neg_features = {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes}
     neutral_features = {'all': ['neu']}
-    features = [pos_neg_features, neutral_features, dimension_features]
+    features = [pos_features, neg_features, pos_neg_features, neutral_features, dimension_features]
 
-    combination_methods = ['score_comb', 'model_comb_linear', 'model_comb_non_linear']
+    combination_methods = ['feature_selection', 'score_comb', 'feature_comb']
     num_paragraphs = [[1], [3], [1, 3]]
     algorithms = ['regression']
     unigrams = [False]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',dimension_features,algorithm,modes,rmse,kendall,pearson\n'
-    output_file = open('no_min_max.txt', 'w+')
+    output_file = open('report.txt', 'w+')
     output_file.write(header)
 
     for combination in combination_methods:
