@@ -13,6 +13,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.feature_selection import chi2
 from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import f_regression
 
 '''
 0. Try regression Tree
@@ -71,7 +72,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
 
             if combination_method == 'feature_selection':
                 k = min(50, train_features.shape[1])
-                sk = SelectKBest(kendalltau, k=k)
+                sk = SelectKBest(f_regression, k=k)
                 train_features = sk.fit_transform(train_features, y_train)
                 test_features = sk.transform(test_features)
 
