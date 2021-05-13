@@ -70,7 +70,8 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             test_features = transformer.transform(test_features)
 
             if combination_method == 'feature_selection':
-                sk = SelectKBest(chi2, k=50)
+                k = min(50, train_features.shape[1])
+                sk = SelectKBest(chi2, k=k)
                 train_features = sk.fit_transform(train_features, y_train)
                 test_features = sk.transform(test_features)
 
@@ -158,7 +159,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
 def main():
     data_dir = '/home/skuzi2/iclr17_dataset'
     test_dimensions = [1, 2, 3, 5, 6]
-    topic_model_dims = [[5]]
+    topic_model_dims = [[]]
     modes, pos_modes, neg_modes = ['pos', 'neg'], ['pos'], ['neg']
 
     dimension_features = {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes, 'all': ['neu']}
@@ -166,15 +167,15 @@ def main():
     neg_features = {'1': neg_modes, '2': neg_modes, '3': neg_modes, '5': neg_modes, '6': neg_modes}
     pos_neg_features = {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes}
     neutral_features = {'all': ['neu']}
-    features = [pos_features, neg_features, pos_neg_features, neutral_features, dimension_features]
+    features = [pos_features]#, neg_features, pos_neg_features, neutral_features, dimension_features]
 
-    combination_methods = ['feature_selection', 'score_comb', 'feature_comb']
-    num_paragraphs = [[1], [3], [1, 3]]
+    combination_methods = ['feature_selection', 'feature_comb'] # , 'score_comb'
+    num_paragraphs = [[1]]#, [3], [1, 3]]
     algorithms = ['regression']
-    unigrams = [False, True]
+    unigrams = [True]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',dimension_features,algorithm,modes,rmse,kendall,pearson\n'
-    output_file = open('report.txt', 'w+')
+    output_file = open('report_unigram.txt', 'w+')
     output_file.write(header)
 
     for combination in combination_methods:
