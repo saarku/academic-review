@@ -171,7 +171,7 @@ def main():
     combination_methods = ['feature_selection', 'score_comb', 'feature_comb']
     num_paragraphs = [[1], [3], [1, 3]]
     algorithms = ['regression']
-    unigrams = [False]
+    unigrams = [False, True]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',dimension_features,algorithm,modes,rmse,kendall,pearson\n'
     output_file = open('report.txt', 'w+')
