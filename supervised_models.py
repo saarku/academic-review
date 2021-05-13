@@ -72,7 +72,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             if combination_method == 'feature_selection':
                 k = min(50, train_features.shape[1])
                 sk = SelectKBest(chi2, k=k)
-                train_features = sk.fit_transform(train_features, y_train)
+                train_features = sk.fit_transform(train_features, np.reshape(y_train, (1, -1)).tolist()[0])
                 test_features = sk.transform(test_features)
 
             if algorithm == 'regression':
