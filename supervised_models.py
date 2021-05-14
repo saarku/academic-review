@@ -16,11 +16,9 @@ from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_regression
 
 '''
-0. Try regression Tree
-1. Check the results (print the model predictions (different aspects) and the actual predictions)
-2. Prepare education data set and run experiments
-3. Feature selection of the topic models
-4. Score combination, Feature Combination, Feature Selection
+0. Gensim LDA
+1. svm rank
+2. KL divergence
 '''
 
 
@@ -188,7 +186,7 @@ def main():
     neutral_features = {'all': ['neu']}
     features = [dimension_features, pos_features, neg_features, pos_neg_features, neutral_features, dimension_features]
 
-    combination_methods = ['comb_sum', 'comb_min', 'comb_max', 'feature_comb']#['feature_selection', 'feature_comb']#, 'score_comb']
+    combination_methods = ['comb_min', 'comb_sum', 'comb_max', 'feature_comb']#['feature_selection', 'feature_comb']#, 'score_comb']
     num_paragraphs = [[1], [3], [1, 3]]
     algorithms = ['regression']
     unigrams = [False, True]
