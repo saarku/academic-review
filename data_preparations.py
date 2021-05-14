@@ -172,7 +172,7 @@ def main():
 
     #split_to_paragraphs('/home/skuzi2/education_dataset/data_splits/')
 
-    split_by_grade('/home/skuzi2/education_dataset/data_splits',
+    split_by_grade('/home/skuzi2/education_dataset/data_splits/',
                    '/home/skuzi2/education_dataset/annotations/annotation_aggregated.tsv',
                    [0, 1, 2, 3, 4, 5, 6])
 
