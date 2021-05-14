@@ -129,8 +129,9 @@ def write_split_to_file(assignments_list, data_dict, output_dir):
 
 
 def split_by_grade(input_data_dir, grades_dir, dimensions):
-    data_lines = [line.rstrip('\n') for line in open(input_data_dir + '.text', 'r').readlines()]
-    data_ids = [line.rstrip('\n') for line in open(input_data_dir + '.ids', 'r').readlines()]
+
+    data_lines = [line.rstrip('\n') for line in open(input_data_dir + 'dim.all.mod.neu.para.1.text', 'r').readlines()]
+    data_ids = [line.rstrip('\n') for line in open(input_data_dir + 'dim.all.mod.neu.para.1.ids', 'r').readlines()]
     data_dict = defaultdict(list)
 
     for i in range(len(data_ids)):
@@ -155,8 +156,8 @@ def split_by_grade(input_data_dir, grades_dir, dimensions):
         neg_assignments = assignments[:len(assignments)//2]
         pos_assignments = assignments[len(assignments)//2:]
 
-        write_split_to_file(neg_assignments, data_dict, input_data_dir + '.' + str(dim) + '.neg')
-        write_split_to_file(pos_assignments, data_dict, input_data_dir + '.' + str(dim) + '.pos')
+        write_split_to_file(neg_assignments, data_dict, input_data_dir + 'dim.{}.mod.{}.para.1'.format(dim, 'neg'))
+        write_split_to_file(pos_assignments, data_dict, input_data_dir + 'dim.{}.mod.{}.para.1'.format(dim, 'pos'))
 
 
 def main():
@@ -169,9 +170,11 @@ def main():
     #aggregate_scores('/Users/saarkuzi/iclr17_dataset/annotation_fixed.tsv',
     #                  '/Users/saarkuzi/iclr17_dataset/annotation_aggregated.tsv')
 
-    split_to_paragraphs('/home/skuzi2/education_dataset/data_splits/')
+    #split_to_paragraphs('/home/skuzi2/education_dataset/data_splits/')
 
-    #split_by_grade(input_folder_dir, grades_dir, [1, 2, 3, 5, 6])
+    split_by_grade('/home/skuzi2/education_dataset/data_splits',
+                   '/home/skuzi2/education_dataset/annotations/annotation_aggregated.tsv',
+                   [0, 1, 2, 3, 4, 5, 6])
 
 
 if __name__ == '__main__':
