@@ -108,13 +108,13 @@ class TopicModels:
 
 def main():
 
-    topics = 10
+    topics = 5
     modes = ['pos', 'neg']
     dimensions = {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes, 'all': ['neu']}
     paragraphs = ['1', '3']
-    base_dir = '../iclr17_dataset/'
+    base_dir = '../education_dataset/'
 
-    learn_flag = False
+    learn_flag = True
     infer_flag = True
 
     if learn_flag:
@@ -125,6 +125,7 @@ def main():
                     model_dir = base_dir + 'lda_models/{}_topics/'.format(topics)
                     model_dir += 'dim.{}.mod.{}.para.{}.num.{}/'.format(dim, mode, para, topics)
                     os.mkdir(model_dir) if not os.path.exists(model_dir) else None
+                    print('learn ' + model_dir)
                     tm = TopicModels(data_dir, data_dir)
                     tm.learn_lda(topics, model_dir + '/model')
 
@@ -138,7 +139,7 @@ def main():
                     model_dir, vectors_dir = base_dir + '/lda_models/', base_dir + '/lda_vectors/'
                     model_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}/model'.format(topics, dim, mode, para, topics)
                     vectors_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(topics, dim, mode, para, topics)
-                    print(vectors_dir)
+                    print('infer ' + vectors_dir)
 
                     tm = TopicModels(train_data_dir, vocab_dir)
                     tm.generate_topic_dists(model_dir, vectors_dir + '.train')
