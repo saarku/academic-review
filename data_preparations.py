@@ -96,11 +96,10 @@ def split_to_paragraphs(full_data_dir):
     :return: None. Outputs the paragraphs to files.
     """
 
-    ids = open(full_data_dir + '.ids', 'r').readlines()
-    texts = open(full_data_dir + '.text', 'r').readlines()
-
-    new_id_file = open(full_data_dir + '.paragraphs.ids', 'w')
-    new_text_file = open(full_data_dir + '.paragraphs.text', 'w')
+    ids = open(full_data_dir + 'dim.all.mod.neu.para.1.test.ids', 'r').readlines()
+    texts = open(full_data_dir + 'dim.all.mod.neu.para.1.test.text', 'r').readlines()
+    new_id_file = open(full_data_dir + 'dim.all.mod.neu.para.3.test.ids', 'w')
+    new_text_file = open(full_data_dir + 'dim.all.mod.neu.para.3.test.text', 'w')
 
     for i in range(len(texts)):
         t = texts[i].rstrip('\n').split()
@@ -170,9 +169,9 @@ def main():
     #aggregate_scores('/Users/saarkuzi/iclr17_dataset/annotation_fixed.tsv',
     #                  '/Users/saarkuzi/iclr17_dataset/annotation_aggregated.tsv')
 
-    #split_to_paragraphs('/Users/saarkuzi/iclr17_dataset/test.val')
+    split_to_paragraphs('/home/skuzi2/education_dataset/data_splits/')
 
-    split_by_grade(input_folder_dir, grades_dir, [1, 2, 3, 5, 6])
+    #split_by_grade(input_folder_dir, grades_dir, [1, 2, 3, 5, 6])
 
 
 if __name__ == '__main__':
