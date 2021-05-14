@@ -32,6 +32,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
     modes = set()
     for i in dimension_features: modes = modes.union(set(dimension_features[i]))
     modes = '_'.join([str(i) for i in modes])
+    debug_file = open('debug.txt', 'w')
 
     for dim in test_dimensions:
         model_dir = models_dir + 'dim.' + str(dim) + '.algo.' + algorithm
@@ -87,9 +88,9 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             grades = clf.predict(test_features)
 
         else:
+            debug_file.write(','.join(feature_names) + ',grades\n')
             grades = np.zeros((all_features_test[0].shape[0], 1), dtype=float)
-            all_test_grades = []
-            all_train_grades = []
+            all_test_grades, all_train_grades = [], []
             counter = 0
             for i in range(len(all_features_train)):
                 args = feature_names[i].split('_')
@@ -145,6 +146,13 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 grades = lr.predict(all_test_grades)
             else:
                 grades /= float(counter)
+                for aspect in all_test_grades:
+                    for i in range(aspect.shape[0]):
+                        line = ''
+                        for j in range(aspect.shape[1]):
+                            line += str(aspect[i,j]) + ','
+                        line += str(y_test[i]) + '\n'
+
 
         error = sqrt(mean_squared_error(y_test, grades))
         kendall, _ = kendalltau(y_test, grades)
