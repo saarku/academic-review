@@ -34,7 +34,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
     modes = '_'.join([str(i) for i in modes])
 
     for dim in test_dimensions:
-        debug_file = open('debug{}.txt'.format(dim), 'w')
+        #debug_file = open('debug{}.txt'.format(dim), 'w')
         model_dir = models_dir + 'dim.' + str(dim) + '.algo.' + algorithm
         all_features_train, all_features_test, feature_names, y_train, y_test = [], [], [], [], []
 
@@ -88,7 +88,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             grades = clf.predict(test_features)
 
         else:
-            debug_file.write(','.join(feature_names) + ',final,grades\n')
+            #debug_file.write(','.join(feature_names) + ',final,grades\n')
             grades = np.zeros((all_features_test[0].shape[0], 1), dtype=float)
             all_test_grades, all_train_grades = [], []
             counter = 0
@@ -144,15 +144,25 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 all_test_grades = t.transform(all_test_grades)
                 lr = MLPRegressor(solver='sgd', max_iter=1000, verbose=False).fit(all_train_grades, y_train)
                 grades = lr.predict(all_test_grades)
+
+            elif combination_method == 'comb_max':
+                all_test_grades = np.hstack(all_test_grades)
+                grades = np.max(all_test_grades, axis=1)
+
+            elif combination_method == 'comb_min':
+                all_test_grades = np.hstack(all_test_grades)
+                grades = np.min(all_test_grades, axis=1)
+
             else:
                 grades /= float(counter)
+                '''
                 for paper_id in range(grades.shape[0]):
                     line = ''
                     for aspect in all_test_grades:
                         line += str(aspect[paper_id, 0]) + ','
                     line += str(grades[paper_id,0]) + ','+ str(y_test[paper_id]) + '\n'
                     debug_file.write(line)
-
+                '''
 
         error = sqrt(mean_squared_error(y_test, grades))
         kendall, _ = kendalltau(y_test, grades)
@@ -166,25 +176,25 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
 
 
 def main():
-    data_dir = '/home/skuzi2/iclr17_dataset'
-    test_dimensions = [1, 2, 3, 5, 6]
+    data_dir = '/home/skuzi2/education_dataset'
+    test_dimensions = [0, 1, 2, 3, 4, 5, 6]
     topic_model_dims = [[5]]
     modes, pos_modes, neg_modes = ['pos', 'neg'], ['pos'], ['neg']
 
-    dimension_features = {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes, 'all': ['neu']}
-    pos_features = {'1': pos_modes, '2': pos_modes, '3': pos_modes, '5': pos_modes, '6': pos_modes}
-    neg_features = {'1': neg_modes, '2': neg_modes, '3': neg_modes, '5': neg_modes, '6': neg_modes}
-    pos_neg_features = {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes}
+    dimension_features = {'0': modes, '1': modes, '2': modes, '3': modes, '4': modes, '5': modes, '6': modes, 'all': ['neu']}
+    pos_features = {'0': pos_modes, '1': pos_modes, '2': pos_modes, '3': pos_modes, '4': pos_modes, '5': pos_modes, '6': pos_modes}
+    neg_features = {'0': neg_modes, '1': neg_modes, '2': neg_modes, '3': neg_modes, '4': neg_modes, '5': neg_modes, '6': neg_modes}
+    pos_neg_features = {'0': modes, '1': modes, '2': modes, '3': modes, '4': modes, '5': modes, '6': modes}
     neutral_features = {'all': ['neu']}
-    features = [dimension_features] #pos_features]#, neg_features, pos_neg_features, neutral_features, dimension_features]
+    features = [dimension_features, pos_features, neg_features, pos_neg_features, neutral_features, dimension_features]
 
-    combination_methods = ['score_comb']#['feature_selection', 'feature_comb']#, 'score_comb']
-    num_paragraphs = [[1,3]]#[[1]]#, [3], [1, 3]]
+    combination_methods = ['comb_sum', 'comb_min', 'comb_max', 'feature_comb']#['feature_selection', 'feature_comb']#, 'score_comb']
+    num_paragraphs = [[1], [3], [1, 3]]
     algorithms = ['regression']
-    unigrams = [True]
+    unigrams = [False, True]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',dimension_features,algorithm,modes,rmse,kendall,pearson\n'
-    output_file = open('report_unigram.txt', 'w+')
+    output_file = open('report_education.txt', 'w+')
     output_file.write(header)
 
     for combination in combination_methods:
