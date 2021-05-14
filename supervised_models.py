@@ -152,6 +152,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                         for j in range(aspect.shape[1]):
                             line += str(aspect[i,j]) + ','
                         line += str(grades[i,0]) + ','+ str(y_test[i]) + '\n'
+                        debug_file.write(line)
 
 
         error = sqrt(mean_squared_error(y_test, grades))
