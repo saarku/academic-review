@@ -146,13 +146,12 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 grades = lr.predict(all_test_grades)
             else:
                 grades /= float(counter)
-                for aspect in all_test_grades:
-                    for i in range(aspect.shape[0]):
-                        line = ''
-                        for j in range(aspect.shape[1]):
-                            line += str(aspect[i,j]) + ','
-                        line += str(grades[i,0]) + ','+ str(y_test[i]) + '\n'
-                        debug_file.write(line)
+                for paper_id in range(grades.shape[0]):
+                    line = ''
+                    for aspect in all_test_grades:
+                        line += str(aspect[paper_id, 0]) + ','
+                    line += str(grades[paper_id,0]) + ','+ str(y_test[paper_id]) + '\n'
+                    debug_file.write(line)
 
 
         error = sqrt(mean_squared_error(y_test, grades))
