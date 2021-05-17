@@ -9,6 +9,9 @@ import numpy as np
 from svm_rank import SVMRank
 from scipy.special import softmax
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.linear_model import LinearRegression
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import f_regression
 import sys
 
 '''
@@ -21,7 +24,7 @@ Interesting further study: feature combination approaches, feature selection.
 
 
 def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, topic_model_dims, num_paragraphs,
-                      dimension_features, algorithm, kl_flag):
+                      dimension_features, algorithm):
     output_performance = ''
     builder = FeatureBuilder(data_dir)
     topics_dir, models_dir = data_dir + '/lda_vectors/', data_dir + '/models/'
@@ -30,6 +33,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
     modes = '_'.join([str(i) for i in modes])
 
     for dim in test_dimensions:
+        #debug_file = open('debug{}.txt'.format(dim), 'w')
         model_dir = models_dir + 'dim.' + str(dim) + '.algo.' + algorithm
         all_features_train, all_features_test, feature_names, y_train, y_test = [], [], [], [], []
 
@@ -45,7 +49,6 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                     for mode in dimension_features[dim_feat]:
                         vec_dir = topics_dir
                         vec_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(topics, dim_feat, mode, para, topics)
-                        if kl_flag: vec_dir += '.kl'
                         output = builder.build_topic_features(dim, vec_dir + '.train', vec_dir + '.test.val', para)
                         x_topics_train, y_train, x_topics_test, y_test = output[0], output[1], output[2], output[3]
                         all_features_train.append(x_topics_train)
@@ -67,6 +70,12 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             train_features = transformer.transform(train_features)
             test_features = transformer.transform(test_features)
 
+            if combination_method == 'feature_selection':
+                k = min(50, train_features.shape[1])
+                sk = SelectKBest(f_regression, k=k)
+                train_features = sk.fit_transform(train_features, y_train)
+                test_features = sk.transform(test_features)
+
             if algorithm == 'regression':
                 clf = MLPRegressor(solver='sgd', max_iter=1000, verbose=False).fit(train_features, y_train)
                 clf.fit(train_features, y_train)
@@ -78,6 +87,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             grades = clf.predict(test_features)
 
         else:
+            #debug_file.write(','.join(feature_names) + ',final,grades\n')
             grades = np.zeros((all_features_test[0].shape[0], 1), dtype=float)
             all_test_grades, all_train_grades = [], []
             counter = 0
@@ -111,10 +121,10 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 aspect_train_grades = clf.predict(train_features)
                 aspect_train_grades = np.reshape(aspect_train_grades, (-1, 1))
 
-                if combination_method == 'comb_rank':
+                if combination_method == 'rank_comb':
                     aspect_grades = FeatureBuilder.grades_to_ranks(aspect_grades)
 
-                if algorithm == 'ranking' and combination_method == 'comb_sum':
+                if algorithm == 'ranking':
                     grades += softmax(aspect_grades)
                 else:
                     grades += aspect_grades
@@ -122,17 +132,49 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 all_test_grades.append(aspect_grades)
                 all_train_grades.append(aspect_train_grades)
 
-            grades /= float(counter)
+            if combination_method == 'model_comb_linear':
+                all_train_grades = np.hstack(all_train_grades)
+                all_test_grades = np.hstack(all_test_grades)
+                lr = LinearRegression().fit(all_train_grades, y_train)
+                grades = lr.predict(all_test_grades)
+
+            elif combination_method == 'model_comb_non_linear':
+                all_train_grades = np.hstack(all_train_grades)
+                all_test_grades = np.hstack(all_test_grades)
+                t = MinMaxScaler()
+                t.fit(all_train_grades)
+                all_train_grades = t.transform(all_train_grades)
+                all_test_grades = t.transform(all_test_grades)
+                lr = MLPRegressor(solver='sgd', max_iter=1000, verbose=False).fit(all_train_grades, y_train)
+                grades = lr.predict(all_test_grades)
+
+            elif combination_method == 'comb_max':
+                all_test_grades = np.hstack(all_test_grades)
+                grades = np.max(all_test_grades, axis=1)
+
+            elif combination_method == 'comb_min':
+                all_test_grades = np.hstack(all_test_grades)
+                grades = np.min(all_test_grades, axis=1)
+
+            else:
+                grades /= float(counter)
+                '''
+                for paper_id in range(grades.shape[0]):
+                    line = ''
+                    for aspect in all_test_grades:
+                        line += str(aspect[paper_id, 0]) + ','
+                    line += str(grades[paper_id,0]) + ','+ str(y_test[paper_id]) + '\n'
+                    debug_file.write(line)
+                '''
 
         error = sqrt(mean_squared_error(y_test, grades))
         kendall, _ = kendalltau(y_test, grades)
         pearson, _ = pearsonr(y_test, np.reshape(grades, (1, -1)).tolist()[0])
-        performance = '{},{},{},{},{},{},{},{},{},{},{},{}\n'.format(dim, unigrams_flag, combination_method,
-                                                                     '_'.join([str(i) for i in topic_model_dims]),
-                                                                     '_'.join([str(i) for i in num_paragraphs]),
-                                                                     '_'.join([str(i) for i in dimension_features]),
-                                                                     algorithm, modes, kl_flag, error, kendall, pearson)
-        output_performance += performance
+        output_performance += '{},{},{},{},{},{},{},{},{},{},{}\n'.format(dim, unigrams_flag, combination_method,
+                                                                          '_'.join([str(i) for i in topic_model_dims]),
+                                                                          '_'.join([str(i) for i in num_paragraphs]),
+                                                                          '_'.join([str(i) for i in dimension_features]),
+                                                                          algorithm, modes, error, kendall, pearson)
     return output_performance
 
 
@@ -152,14 +194,13 @@ def main():
         pos_neg_features[str(dim)] = modes
     features = [dimension_features, pos_features, neg_features, pos_neg_features, neutral_features, dimension_features]
 
-    combination_methods = ['comb_sum', 'comb_rank', 'feature_comb']
+    combination_methods = ['comb_sum', 'feature_comb', 'comb_min', 'comb_max']#['feature_selection', 'feature_comb']#, 'score_comb']
     num_paragraphs = [[1, 3], [1], [3]]
     algorithms = ['ranking', 'regression']
     unigrams = [False, True]
-    kl_flags = [True, False]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
-    header += ',dimension_features,algorithm,modes,kl,rmse,kendall,pearson\n'
-    output_file = open('report_{}.txt'.format(data_name), 'w+')
+    header += ',dimension_features,algorithm,modes,rmse,kendall,pearson\n'
+    output_file = open('report_education.txt', 'w+')
     output_file.write(header)
 
     for combination in combination_methods:
@@ -168,11 +209,10 @@ def main():
                 for para in num_paragraphs:
                     for feature in features:
                         for algo in algorithms:
-                            for kl in kl_flags:
-                                output = single_experiment(test_dimensions, data_dir, uni, combination, topic_dims,
-                                                           para, feature, algo, kl)
-                                output_file.write(output)
-                                output_file.flush()
+                            output = single_experiment(test_dimensions, data_dir, uni, combination, topic_dims, para,
+                                                       feature, algo)
+                            output_file.write(output)
+                            output_file.flush()
 
 
 if __name__ == '__main__':
