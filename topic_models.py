@@ -111,7 +111,7 @@ def main():
     topics = 5
     modes = ['pos', 'neg']
     dimensions = {'0': modes, '1': modes, '2': modes, '3': modes, '4': modes, '5': modes, '6': modes, 'all': ['neu']}
-    paragraphs = ['1']
+    paragraphs = ['1', '3']
     base_dir = '../education_dataset/'
 
     learn_flag = False
@@ -142,9 +142,9 @@ def main():
                     print('infer ' + vectors_dir)
 
                     tm = TopicModels(train_data_dir, vocab_dir)
-                    tm.generate_topic_dists(model_dir, vectors_dir + '.train')
+                    tm.generate_topic_kl(model_dir, vectors_dir + '.train.kl')
                     tm = TopicModels(test_data_dir, vocab_dir)
-                    tm.generate_topic_dists(model_dir, vectors_dir + '.test.val')
+                    tm.generate_topic_kl(model_dir, vectors_dir + '.test.val.kl')
 
 
 if __name__ == '__main__':
