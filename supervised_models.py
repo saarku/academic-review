@@ -199,7 +199,7 @@ def unigram_baseline():
         output_file.flush()
 
 def main():
-    unigram_baseline()
+    run_experiments()
 
 
 
