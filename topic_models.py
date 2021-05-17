@@ -148,10 +148,10 @@ def main():
 
     topics = 5
     modes = ['pos', 'neg']
-    #dimensions = {'0': modes, '1': modes, '2': modes, '3': modes, '4': modes, '5': modes, '6': modes, 'all': ['neu']}
-    dimensions =  {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes, 'all': ['neu']}
+    dimensions = {'0': modes, '1': modes, '2': modes, '3': modes, '4': modes, '5': modes, '6': modes, 'all': ['neu']}
+    #dimensions =  {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes, 'all': ['neu']}
     paragraphs = ['1', '3']
-    base_dir = '../iclr17_dataset/'
+    base_dir = '../education_dataset/'
     model_type = 'ovb' # ovb or gibbs
 
     learn_flag = False
