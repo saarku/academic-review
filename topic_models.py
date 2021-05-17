@@ -123,7 +123,6 @@ class TopicModels:
         elif model_type == 'ovb':
             lda_model = joblib.load(topic_model_dir + '.ovb')
             all_topics = lda_model.components_ / lda_model.components_.sum(axis=1)[:, np.newaxis]
-            print(all_topics.shape)
         else:
             print(str(model_type) + ' not supported')
             return -1
