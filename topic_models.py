@@ -123,6 +123,7 @@ class TopicModels:
         elif model_type == 'ovb':
             lda_model = joblib.load(topic_model_dir + '.ovb')
             all_topics = lda_model.components_
+            print(all_topics.shape)
         else:
             print(str(model_type) + ' not supported')
             return -1
@@ -149,9 +150,9 @@ def main():
     topics = 5
     modes = ['pos', 'neg']
     dimensions = {'0': modes, '1': modes, '2': modes, '3': modes, '4': modes, '5': modes, '6': modes, 'all': ['neu']}
-    dimensions =  {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes, 'all': ['neu']}
+    #dimensions =  {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes, 'all': ['neu']}
     paragraphs = ['1', '3']
-    base_dir = '../iclr17_dataset/'
+    base_dir = '../education_dataset/'
     model_type = 'ovb' # ovb or gibbs
 
     learn_flag = False
@@ -183,9 +184,9 @@ def main():
                     print('infer ' + vectors_dir)
 
                     tm = TopicModels(train_data_dir, vocab_dir)
-                    tm.generate_topic_dists(model_dir, vectors_dir + '.train', model_type)
+                    tm.generate_topic_kl(model_dir, vectors_dir + '.kl.train', model_type)
                     tm = TopicModels(test_data_dir, vocab_dir)
-                    tm.generate_topic_dists(model_dir, vectors_dir + '.test.val', model_type)
+                    tm.generate_topic_kl(model_dir, vectors_dir + '.kl.test.val', model_type)
 
 if __name__ == '__main__':
     main()
