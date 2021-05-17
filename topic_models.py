@@ -76,17 +76,18 @@ class TopicModels:
         :param model_type: (string) either gibbs or ovb.
         :return: None.
         """
-        lda_model = LdaModel.load(topic_model_dir)
         count_vector_lda = CountVectorizer()
         count_vector_lda.fit(self.vocab_lines)
         x_lda_counts = count_vector_lda.transform(self.data_lines)
 
         if model_type == 'gibbs':
+            lda_model = LdaModel.load(topic_model_dir)
             x_vectors = from_sparse(x_lda_counts)
             lda_file = open(output_dir, 'w+')
             for lda_vector in x_vectors:
                 lda_file.write(str(lda_model.get_document_topics(lda_vector, minimum_probability=0.0)) + '\n')
             lda_file.close()
+
         elif model_type == 'ovb':
             lda = joblib.load(topic_model_dir + '.ovb')
             topics = lda.transform(x_lda_counts)
