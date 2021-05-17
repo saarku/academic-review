@@ -68,22 +68,38 @@ class TopicModels:
             print(str(model_type) + ' not supported')
             return -1
 
-    def generate_topic_dists(self, topic_model_dir, output_dir):
+    def generate_topic_dists(self, topic_model_dir, output_dir, model_type):
         """ Generate topic representation for training/test data.
 
         :param topic_model_dir: (string) directory of the topic model.
         :param output_dir: (string).
+        :param model_type: (string) either gibbs or ovb.
         :return: None.
         """
         lda_model = LdaModel.load(topic_model_dir)
         count_vector_lda = CountVectorizer()
         count_vector_lda.fit(self.vocab_lines)
         x_lda_counts = count_vector_lda.transform(self.data_lines)
-        x_vectors = from_sparse(x_lda_counts)
-        lda_file = open(output_dir, 'w+')
-        for lda_vector in x_vectors:
-            lda_file.write(str(lda_model.get_document_topics(lda_vector, minimum_probability=0.0)) + '\n')
-        lda_file.close()
+
+        if model_type == 'gibbs':
+            x_vectors = from_sparse(x_lda_counts)
+            lda_file = open(output_dir, 'w+')
+            for lda_vector in x_vectors:
+                lda_file.write(str(lda_model.get_document_topics(lda_vector, minimum_probability=0.0)) + '\n')
+            lda_file.close()
+        elif model_type == 'ovb':
+            lda = joblib.load(topic_model_dir + '.ovb')
+            topics = lda.transform(x_lda_counts)
+            lda_file = open(output_dir, 'w+')
+            for i in range(topics.shape[0]):
+                line = '['
+                for j in range(topics.shape[1]):
+                    line += '({}, {}), '.format(j, topics[i, j])
+                line = line.rstrip(',') + ']'
+                lda_file.write(line)
+        else:
+            print(str(model_type) + ' not supported')
+            return -1
 
     def generate_topic_kl(self, topic_model_dir, output_dir):
         """ Generate topic representation (with kl-divergence) for training/test data.
@@ -126,8 +142,8 @@ def main():
     base_dir = '../education_dataset/'
     model_type = 'ovb' # ovb or gibbs
 
-    learn_flag = True
-    infer_flag = False
+    learn_flag = False
+    infer_flag = True
 
     if learn_flag:
         for dim in dimensions:
@@ -148,16 +164,17 @@ def main():
                     train_data_dir = base_dir + '/data_splits/dim.all.mod.neu.para.{}.train.text'.format(para)
                     test_data_dir = base_dir + '/data_splits/dim.all.mod.neu.para.{}.test.val.text'.format(para)
                     vocab_dir = base_dir + '/data_splits/dim.{}.mod.{}.para.{}.train.text'.format(dim, mode, para)
-                    model_dir, vectors_dir = base_dir + '/lda_models/', base_dir + '/lda_vectors/'
+                    model_dir, vectors_dir = base_dir + '/lda_models/'
+                    vectors_dir = base_dir + '/lda_vectors_{}/'.format(model_type)
                     model_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}/model'.format(topics, dim, mode, para, topics)
                     vectors_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(topics, dim, mode, para, topics)
+                    if model_type == 'ovb': model_dir += '.ovb'
                     print('infer ' + vectors_dir)
 
                     tm = TopicModels(train_data_dir, vocab_dir)
-                    tm.generate_topic_kl(model_dir, vectors_dir + '.kl.train')
+                    tm.generate_topic_dists(model_dir, vectors_dir + '.train', model_type)
                     tm = TopicModels(test_data_dir, vocab_dir)
-                    tm.generate_topic_kl(model_dir, vectors_dir + '.kl.test.val')
-
+                    tm.generate_topic_dists(model_dir, vectors_dir + '.test.val', model_type)
 
 if __name__ == '__main__':
     main()
