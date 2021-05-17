@@ -161,11 +161,11 @@ def main():
     combination_methods = ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3], [1], [3]]
     algorithms = ['ranking', 'regression']
-    topic_model_type = 'gibbs'
+    topic_model_type = 'ovb'
     unigrams = [False]
     kl_flags = [True]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
-    header += ',dimension_features,algorithm,modes,kl,rmse,kendall,pearson\n'
+    header += ',algorithm,modes,kl,rmse,kendall,pearson\n'
     output_file = open('report_{}_{}.txt'.format(data_name, topic_model_type), 'w+')
     output_file.write(header)
 
