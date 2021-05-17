@@ -187,5 +187,6 @@ def main():
                     tm = TopicModels(test_data_dir, vocab_dir)
                     tm.generate_topic_kl(model_dir, vectors_dir + '.kl.test.val', model_type)
 
+
 if __name__ == '__main__':
     main()

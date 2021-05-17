@@ -144,6 +144,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
 
 def main():
     data_name = {1: 'iclr17', 2: 'education'}[int(sys.argv[1])]
+    topic_model_type = sys.argv[2]
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
     topic_model_dims = [[5]]
@@ -161,9 +162,9 @@ def main():
     combination_methods = ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3], [1], [3]]
     algorithms = ['ranking', 'regression']
-    topic_model_type = 'ovb'
-    unigrams = [False]
-    kl_flags = [True]
+
+    unigrams = [False, True]
+    kl_flags = [True, False]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',algorithm,modes,kl,rmse,kendall,pearson\n'
     output_file = open('report_{}_{}.txt'.format(data_name, topic_model_type), 'w+')
@@ -180,6 +181,7 @@ def main():
                                                            para, feature, algo, kl, topic_model_type)
                                 output_file.write(output)
                                 output_file.flush()
+
 
 if __name__ == '__main__':
     main()
