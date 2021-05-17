@@ -98,8 +98,6 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 train_features = train_features.todense()
                 test_features = test_features.todense()
 
-                print(test_features)
-
                 transformer = MinMaxScaler()
                 transformer.fit(train_features)
                 train_features = transformer.transform(train_features)
@@ -142,7 +140,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
     return output_performance
 
 
-def main():
+def run_experiments():
     data_name = {1: 'iclr17', 2: 'education'}[int(sys.argv[1])]
     topic_model_type = sys.argv[2]
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
@@ -181,6 +179,26 @@ def main():
                                                            para, feature, algo, kl, topic_model_type)
                                 output_file.write(output)
                                 output_file.flush()
+
+
+def unigram_baseline():
+    data_name = {1: 'iclr17', 2: 'education'}[int(sys.argv[1])]
+    data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
+    test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
+    algorithms = ['ranking', 'regression']
+    header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
+    header += ',algorithm,modes,kl,rmse,kendall,pearson\n'
+    output_file = open('report_unigrams_{}.txt'.format(data_name), 'w+')
+    output_file.write(header)
+
+    for algo in algorithms:
+        output = single_experiment(test_dimensions, data_dir, True, 'feature_comb', [], [1], {'all': ['neu']}, algo,
+                                   False, 'obv')
+        output_file.write(output)
+        output_file.flush()
+
+def main():
+
 
 
 if __name__ == '__main__':
