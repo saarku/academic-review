@@ -121,7 +121,7 @@ class TopicModels:
             lda_model = LdaModel.load(topic_model_dir)
             all_topics = lda_model.get_topics()
         elif model_type == 'ovb':
-            lda_model = joblib.load(topic_model_dir)
+            lda_model = joblib.load(topic_model_dir + '.ovb')
             all_topics = lda_model.components_
         else:
             print(str(model_type) + ' not supported')
