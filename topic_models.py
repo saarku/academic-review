@@ -154,7 +154,7 @@ def main():
     base_dir = '../iclr17_dataset/'
     model_type = 'ovb' # ovb or gibbs
 
-    learn_flag = True
+    learn_flag = False
     infer_flag = True
 
     if learn_flag:
@@ -183,9 +183,9 @@ def main():
                     print('infer ' + vectors_dir)
 
                     tm = TopicModels(train_data_dir, vocab_dir)
-                    tm.generate_topic_kl(model_dir, vectors_dir + '.kl.train', model_type)
+                    tm.generate_topic_dists(model_dir, vectors_dir + '.train', model_type)
                     tm = TopicModels(test_data_dir, vocab_dir)
-                    tm.generate_topic_kl(model_dir, vectors_dir + '.kl.test.val', model_type)
+                    tm.generate_topic_dists(model_dir, vectors_dir + '.test.val', model_type)
 
 if __name__ == '__main__':
     main()
