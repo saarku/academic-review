@@ -124,8 +124,11 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 if combination_method == 'rank_comb':
                     aspect_grades = FeatureBuilder.grades_to_ranks(aspect_grades)
 
-                print(feature_names[i] + ' ' +  str(aspect_grades.shape))
-                grades += aspect_grades
+                if algorithm == 'ranking':
+                    grades += softmax(aspect_grades)
+                else:
+                    grades += aspect_grades
+
                 all_test_grades.append(aspect_grades)
                 all_train_grades.append(aspect_train_grades)
 
@@ -188,9 +191,9 @@ def main():
     neutral_features = {'all': ['neu']}
     features = [dimension_features, pos_features, neg_features, pos_neg_features, neutral_features, dimension_features]
 
-    combination_methods = ['comb_min', 'comb_sum', 'comb_max', 'feature_comb']#['feature_selection', 'feature_comb']#, 'score_comb']
+    combination_methods = ['comb_sum', 'feature_comb', 'comb_min', 'comb_max']#['feature_selection', 'feature_comb']#, 'score_comb']
     num_paragraphs = [[1,3], [1], [3]]
-    algorithms = ['regression']
+    algorithms = ['ranking', 'regression']
     unigrams = [False, True]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',dimension_features,algorithm,modes,rmse,kendall,pearson\n'
