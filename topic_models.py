@@ -169,13 +169,13 @@ def main():
                     vectors_dir = base_dir + '/lda_vectors_{}/'.format(model_type)
                     model_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}/model'.format(topics, dim, mode, para, topics)
                     vectors_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(topics, dim, mode, para, topics)
-                    if model_type == 'ovb': model_dir += '.ovb'
                     print('infer ' + vectors_dir)
 
                     tm = TopicModels(train_data_dir, vocab_dir)
                     tm.generate_topic_dists(model_dir, vectors_dir + '.train', model_type)
                     tm = TopicModels(test_data_dir, vocab_dir)
                     tm.generate_topic_dists(model_dir, vectors_dir + '.test.val', model_type)
+
 
 if __name__ == '__main__':
     main()
