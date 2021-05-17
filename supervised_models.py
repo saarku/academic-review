@@ -34,7 +34,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
         comb_model_dir = model_dir
         comb_model_dir += '.topics.' + '_'.join([str(i) for i in topic_model_dims])
         comb_model_dir += '.para.' + '_'.join([str(i) for i in num_paragraphs])
-        comb_model_dir += '.mode.' + '_'.join([str(i) for i in modes])
+        comb_model_dir += '.mode.' + modes
         comb_model_dir += '.kl.' + str(kl_flag).lower()
         comb_model_dir += '.type.' + str(model_type).lower()
         comb_model_dir += '.uni.' + str(unigrams_flag).lower()
@@ -90,7 +90,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 args = feature_names[i].split('_')
                 single_model_dir = model_dir
                 single_model_dir += '.topics.' + args[0] + '.para.' + args[1] + '.mode.' + args[2]
-                single_model_dir += '.kl.' + args[3] + '.type.' + args[4] + '.uni.' + args[5] + '.comb.single'
+                single_model_dir += '.kl.' + args[3].lower() + '.type.' + args[4] + '.uni.' + args[5] + '.comb.single'
                 counter += 1
 
                 train_features = all_features_train[i]
