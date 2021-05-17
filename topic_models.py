@@ -111,7 +111,7 @@ def main():
     topics = 5
     modes = ['pos', 'neg']
     dimensions = {'0': modes, '1': modes, '2': modes, '3': modes, '4': modes, '5': modes, '6': modes, 'all': ['neu']}
-    paragraphs = ['1', '3']
+    paragraphs = ['1']
     base_dir = '../education_dataset/'
 
     learn_flag = False

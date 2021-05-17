@@ -1,3 +1,4 @@
+import re
 base_dir = '/Users/saarkuzi/Documents/PycharmProjects/education/topic_grading/datasets/'
 
 grades_file = open('annotation_aggregated.tsv', 'w')
@@ -21,7 +22,10 @@ test_lines = open(base_dir + '33072-18/alltext/alltext.dat', 'r').readlines()
 test_grades = open(base_dir + '33072-18/metadata.dat', 'r').readlines()
 
 for i in range(len(test_lines)):
-    output_test.write(test_lines[i])
+    html_converter = re.compile(r'<[^>]+>')
+    line = html_converter.sub('', test_lines[i])
+
+    output_test.write(line)
     output_test_ids.write(str(counter) + '\n')
     grades_file.write(str(counter) + '\t' + '\t'.join(test_grades[i].split('\t')[1:]))
     counter += 1
