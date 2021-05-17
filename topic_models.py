@@ -142,9 +142,9 @@ def main():
                     print('infer ' + vectors_dir)
 
                     tm = TopicModels(train_data_dir, vocab_dir)
-                    tm.generate_topic_kl(model_dir, vectors_dir + '.train.kl')
+                    tm.generate_topic_kl(model_dir, vectors_dir + '.kl.train')
                     tm = TopicModels(test_data_dir, vocab_dir)
-                    tm.generate_topic_kl(model_dir, vectors_dir + '.test.val.kl')
+                    tm.generate_topic_kl(model_dir, vectors_dir + '.kl.test.val')
 
 
 if __name__ == '__main__':
