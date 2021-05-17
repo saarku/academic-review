@@ -115,6 +115,7 @@ class TopicModels:
         count_vector_lda = CountVectorizer()
         count_vector_lda.fit(self.vocab_lines)
         x_lda_counts = count_vector_lda.transform(self.data_lines)
+        print(x_lda_counts.shape)
         x_vectors = from_sparse(x_lda_counts)
 
         if model_type == 'gibbs':
