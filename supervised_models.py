@@ -13,9 +13,10 @@ import sys
 
 '''
 -1. Discrepency of test data 133 vs 134 - text vs ids
-0. Gensim LDA
-2. restore features: KL divergence, svm rank, log norm
-3. chase topic models vs gensim
+
+1. Run for num of topics in {5, 15, 25}
+2. Tune number of paragraphs (in {1, 3, 1_3} and num topics (3 options) on a validation set - for pearson and kendall separately.
+
 Interesting further study: feature combination approaches, feature selection.
 '''
 
@@ -198,9 +199,9 @@ def unigram_baseline():
         output_file.write(output)
         output_file.flush()
 
+
 def main():
     run_experiments()
-
 
 
 if __name__ == '__main__':

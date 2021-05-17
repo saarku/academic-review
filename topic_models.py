@@ -5,6 +5,7 @@ from sklearn.decomposition import LatentDirichletAllocation
 import os
 import numpy as np
 import joblib
+import sys
 
 
 def get_topics_vec(dists_dir, labels, dimension_id, num_paragraphs):
@@ -146,46 +147,57 @@ class TopicModels:
 
 def main():
 
-    topics = 5
+    dataset = sys.argv[1]
+    topics = [15, 25]
     modes = ['pos', 'neg']
-    dimensions = {'0': modes, '1': modes, '2': modes, '3': modes, '4': modes, '5': modes, '6': modes, 'all': ['neu']}
-    #dimensions =  {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes, 'all': ['neu']}
+    dimensions_ed = {'0': modes, '1': modes, '2': modes, '3': modes, '4': modes, '5': modes, '6': modes, 'all': ['neu']}
+    dimensions_ic = {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes, 'all': ['neu']}
     paragraphs = ['1', '3']
-    base_dir = '../education_dataset/'
-    model_type = 'ovb' # ovb or gibbs
+    base_dir = '../{}_dataset/'.format(dataset)
+    dimensions = dimensions_ed if dataset == 'education' else dimensions_ic
+    model_types = ['ovb', 'gibbs']  # ovb or gibbs
 
-    learn_flag = False
+    learn_flag = True
     infer_flag = True
 
     if learn_flag:
         for dim in dimensions:
             for mode in dimensions[dim]:
                 for para in paragraphs:
-                    data_dir = base_dir + 'data_splits/dim.{}.mod.{}.para.{}.train.text'.format(dim, mode, para)
-                    model_dir = base_dir + 'lda_models/{}_topics/'.format(topics)
-                    model_dir += 'dim.{}.mod.{}.para.{}.num.{}/'.format(dim, mode, para, topics)
-                    os.mkdir(model_dir) if not os.path.exists(model_dir) else None
-                    print('learn ' + model_dir)
-                    tm = TopicModels(data_dir, data_dir)
-                    tm.learn_lda(topics, model_dir + '/model', model_type)
+                    for model_type in model_types:
+                        for topic in topics:
+                            data_dir = base_dir + 'data_splits/dim.{}.mod.{}.para.{}.train.text'.format(dim, mode, para)
+                            model_dir = base_dir + 'lda_models/{}_topics/'.format(topic)
+                            model_dir += 'dim.{}.mod.{}.para.{}.num.{}/'.format(dim, mode, para, topic)
+                            os.mkdir(model_dir) if not os.path.exists(model_dir) else None
+                            print('learn ' + model_dir)
+                            tm = TopicModels(data_dir, data_dir)
+                            tm.learn_lda(topic, model_dir + '/model', model_type)
 
     if infer_flag:
         for dim in dimensions:
             for mode in dimensions[dim]:
                 for para in paragraphs:
-                    train_data_dir = base_dir + '/data_splits/dim.all.mod.neu.para.{}.train.text'.format(para)
-                    test_data_dir = base_dir + '/data_splits/dim.all.mod.neu.para.{}.test.val.text'.format(para)
-                    vocab_dir = base_dir + '/data_splits/dim.{}.mod.{}.para.{}.train.text'.format(dim, mode, para)
-                    model_dir = base_dir + '/lda_models/'
-                    vectors_dir = base_dir + '/lda_vectors_{}/'.format(model_type)
-                    model_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}/model'.format(topics, dim, mode, para, topics)
-                    vectors_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(topics, dim, mode, para, topics)
-                    print('infer ' + vectors_dir)
+                    for model_type in model_types:
+                        for topic in topics:
+                            train_data_dir = base_dir + '/data_splits/dim.all.mod.neu.para.{}.train.text'.format(para)
+                            test_data_dir = base_dir + '/data_splits/dim.all.mod.neu.para.{}.test.val.text'.format(para)
+                            vocab_dir = base_dir + '/data_splits/dim.{}.mod.{}.para.{}.train.text'.format(dim, mode,
+                                                                                                          para)
+                            model_dir = base_dir + '/lda_models/'
+                            vectors_dir = base_dir + '/lda_vectors_{}/'.format(model_type)
+                            model_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}/model'.format(topic, dim, mode, para,
+                                                                                               topic)
+                            vectors_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(topic, dim, mode, para,
+                                                                                           topic)
+                            print('infer ' + vectors_dir)
 
-                    tm = TopicModels(train_data_dir, vocab_dir)
-                    tm.generate_topic_kl(model_dir, vectors_dir + '.kl.train', model_type)
-                    tm = TopicModels(test_data_dir, vocab_dir)
-                    tm.generate_topic_kl(model_dir, vectors_dir + '.kl.test.val', model_type)
+                            tm = TopicModels(train_data_dir, vocab_dir)
+                            tm.generate_topic_kl(model_dir, vectors_dir + '.kl.train', model_type)
+                            tm.generate_topic_dists(model_dir, vectors_dir + '.train', model_type)
+                            tm = TopicModels(test_data_dir, vocab_dir)
+                            tm.generate_topic_kl(model_dir, vectors_dir + '.kl.test.val', model_type)
+                            tm.generate_topic_dists(model_dir, vectors_dir + '.test.val', model_type)
 
 
 if __name__ == '__main__':
