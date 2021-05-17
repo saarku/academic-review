@@ -16,9 +16,10 @@ from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_regression
 
 '''
+-1. Discrepency of test data 133 vs 134 - text vs ids
 0. Gensim LDA
-1. svm rank
-2. KL divergence
+2. restore features: KL divergence, svm rank, log norm
+3. chase topic models vs gensim
 '''
 
 
@@ -187,7 +188,7 @@ def main():
     features = [dimension_features, pos_features, neg_features, pos_neg_features, neutral_features, dimension_features]
 
     combination_methods = ['comb_min', 'comb_sum', 'comb_max', 'feature_comb']#['feature_selection', 'feature_comb']#, 'score_comb']
-    num_paragraphs = [[1], [3], [1, 3]]
+    num_paragraphs = [[1,3], [1], [3]]
     algorithms = ['regression']
     unigrams = [False, True]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
