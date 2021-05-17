@@ -124,6 +124,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 if combination_method == 'rank_comb':
                     aspect_grades = FeatureBuilder.grades_to_ranks(aspect_grades)
 
+                print(feature_names[i])
                 grades += aspect_grades
                 all_test_grades.append(aspect_grades)
                 all_train_grades.append(aspect_train_grades)
