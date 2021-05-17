@@ -98,6 +98,8 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 train_features = train_features.todense()
                 test_features = test_features.todense()
 
+                print(test_features)
+
                 transformer = MinMaxScaler()
                 transformer.fit(train_features)
                 train_features = transformer.transform(train_features)
@@ -159,12 +161,12 @@ def main():
     combination_methods = ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3], [1], [3]]
     algorithms = ['ranking', 'regression']
-    topic_model_types = ['ovb']
-    unigrams = [False, True]
-    kl_flags = [True, False]
+    topic_model_type = 'gibbs'
+    unigrams = [False]
+    kl_flags = [True]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',dimension_features,algorithm,modes,kl,rmse,kendall,pearson\n'
-    output_file = open('report_ovb_{}.txt'.format(data_name), 'w+')
+    output_file = open('report_{}_{}.txt'.format(data_name, topic_model_type), 'w+')
     output_file.write(header)
 
     for combination in combination_methods:
@@ -174,12 +176,10 @@ def main():
                     for feature in features:
                         for algo in algorithms:
                             for kl in kl_flags:
-                                for model_type in topic_model_types:
-                                    output = single_experiment(test_dimensions, data_dir, uni, combination, topic_dims,
-                                                               para, feature, algo, kl, model_type)
-                                    output_file.write(output)
-                                    output_file.flush()
-
+                                output = single_experiment(test_dimensions, data_dir, uni, combination, topic_dims,
+                                                           para, feature, algo, kl, topic_model_type)
+                                output_file.write(output)
+                                output_file.flush()
 
 if __name__ == '__main__':
     main()
