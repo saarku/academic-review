@@ -96,7 +96,7 @@ class TopicModels:
                 line = '['
                 for j in range(topics.shape[1]):
                     line += '({}, {}), '.format(j, topics[i, j])
-                line = line.rstrip(',') + ']'
+                line = line.rstrip(', ') + ']\n'
                 lda_file.write(line)
         else:
             print(str(model_type) + ' not supported')
