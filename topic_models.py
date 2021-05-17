@@ -164,7 +164,7 @@ def main():
                     train_data_dir = base_dir + '/data_splits/dim.all.mod.neu.para.{}.train.text'.format(para)
                     test_data_dir = base_dir + '/data_splits/dim.all.mod.neu.para.{}.test.val.text'.format(para)
                     vocab_dir = base_dir + '/data_splits/dim.{}.mod.{}.para.{}.train.text'.format(dim, mode, para)
-                    model_dir, vectors_dir = base_dir + '/lda_models/'
+                    model_dir = base_dir + '/lda_models/'
                     vectors_dir = base_dir + '/lda_vectors_{}/'.format(model_type)
                     model_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}/model'.format(topics, dim, mode, para, topics)
                     vectors_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(topics, dim, mode, para, topics)
