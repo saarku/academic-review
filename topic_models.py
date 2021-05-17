@@ -1,9 +1,10 @@
 from utils import to_sparse, from_sparse, pre_process_text
 from gensim.models.ldamodel import LdaModel
 from sklearn.feature_extraction.text import CountVectorizer
-import sys
+from sklearn.decomposition import LatentDirichletAllocation
 import os
 import numpy as np
+import joblib
 
 
 def get_topics_vec(dists_dir, labels, dimension_id, num_paragraphs):
@@ -44,18 +45,28 @@ class TopicModels:
         self.data_lines = [pre_process_text(line) for line in open(data_dir, 'r').read().split('\n')][0:-1]
         self.vocab_lines = [pre_process_text(line) for line in open(vocabulary_data_dir, 'r').read().split('\n')][0:-1]
 
-    def learn_lda(self, num_topics, output_dir):
+    def learn_lda(self, num_topics, output_dir, model_type):
         """ Learn an LDA topic model.
 
         :param num_topics: (int) number file with the distributions.
         :param output_dir: (string) directory for the output model.
+        :param model_type: (string) either gibbs or ovb.
         :return: None.
         """
         count_vector = CountVectorizer()
         train_data = count_vector.fit_transform(self.data_lines)
         train_data = from_sparse(train_data)
-        lda = LdaModel(train_data, num_topics=num_topics)
-        lda.save(output_dir)
+
+        if model_type == 'gibbs':
+            lda = LdaModel(train_data, num_topics=num_topics)
+            lda.save(output_dir)
+        elif model_type == 'ovb':
+            lda = LatentDirichletAllocation(n_components=num_topics)
+            lda.fit(train_data)
+            joblib.dump(lda, output_dir + '.ovb')
+        else:
+            print(str(model_type) + ' not supported')
+            return -1
 
     def generate_topic_dists(self, topic_model_dir, output_dir):
         """ Generate topic representation for training/test data.
@@ -113,9 +124,10 @@ def main():
     dimensions = {'0': modes, '1': modes, '2': modes, '3': modes, '4': modes, '5': modes, '6': modes, 'all': ['neu']}
     paragraphs = ['1', '3']
     base_dir = '../education_dataset/'
+    model_type = 'ovb' # ovb or gibbs
 
-    learn_flag = False
-    infer_flag = True
+    learn_flag = True
+    infer_flag = False
 
     if learn_flag:
         for dim in dimensions:
@@ -127,7 +139,7 @@ def main():
                     os.mkdir(model_dir) if not os.path.exists(model_dir) else None
                     print('learn ' + model_dir)
                     tm = TopicModels(data_dir, data_dir)
-                    tm.learn_lda(topics, model_dir + '/model')
+                    tm.learn_lda(topics, model_dir + '/model', model_type)
 
     if infer_flag:
         for dim in dimensions:
