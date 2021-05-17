@@ -55,9 +55,9 @@ class TopicModels:
         """
         count_vector = CountVectorizer()
         train_data = count_vector.fit_transform(self.data_lines)
-        train_data = from_sparse(train_data)
 
         if model_type == 'gibbs':
+            train_data = from_sparse(train_data)
             lda = LdaModel(train_data, num_topics=num_topics)
             lda.save(output_dir)
         elif model_type == 'ovb':
