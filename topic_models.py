@@ -102,20 +102,30 @@ class TopicModels:
             print(str(model_type) + ' not supported')
             return -1
 
-    def generate_topic_kl(self, topic_model_dir, output_dir):
+    def generate_topic_kl(self, topic_model_dir, output_dir, model_type):
         """ Generate topic representation (with kl-divergence) for training/test data.
 
         :param topic_model_dir: (string) directory of the topic model.
         :param output_dir: (string).
+        :param model_type: (string) either gibbs or ovb.
         :return: None.
         """
         lda_file = open(output_dir, 'w+')
-        lda_model = LdaModel.load(topic_model_dir)
+
         count_vector_lda = CountVectorizer()
         count_vector_lda.fit(self.vocab_lines)
         x_lda_counts = count_vector_lda.transform(self.data_lines)
         x_vectors = from_sparse(x_lda_counts)
-        all_topics = lda_model.get_topics()
+
+        if model_type == 'gibbs':
+            lda_model = LdaModel.load(topic_model_dir)
+            all_topics = lda_model.get_topics()
+        elif model_type == 'ovb':
+            lda_model = joblib.load(topic_model_dir)
+            all_topics = lda_model.components_
+        else:
+            print(str(model_type) + ' not supported')
+            return -1
 
         for doc_vec in x_vectors:
             doc_vec = dict(doc_vec)
@@ -172,10 +182,9 @@ def main():
                     print('infer ' + vectors_dir)
 
                     tm = TopicModels(train_data_dir, vocab_dir)
-                    tm.generate_topic_dists(model_dir, vectors_dir + '.train', model_type)
+                    tm.generate_topic_kl(model_dir, vectors_dir + '.kl.train', model_type)
                     tm = TopicModels(test_data_dir, vocab_dir)
-                    tm.generate_topic_dists(model_dir, vectors_dir + '.test.val', model_type)
-
+                    tm.generate_topic_kl(model_dir, vectors_dir + '.kl.test.val', model_type)
 
 if __name__ == '__main__':
     main()
