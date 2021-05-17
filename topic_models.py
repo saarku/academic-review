@@ -115,7 +115,6 @@ class TopicModels:
         count_vector_lda = CountVectorizer()
         count_vector_lda.fit(self.vocab_lines)
         x_lda_counts = count_vector_lda.transform(self.data_lines)
-        print(x_lda_counts.shape)
         x_vectors = from_sparse(x_lda_counts)
 
         if model_type == 'gibbs':
@@ -139,6 +138,7 @@ class TopicModels:
                 kl_score = 0
                 for term in doc_vec:
                     if all_topics[topic_id, term] > 0:
+                        print(str(doc_vec[term]) + ' ' + str(all_topics[topic_id, term]))
                         kl_score += doc_vec[term] * np.log(doc_vec[term]/all_topics[topic_id, term])
                 doc_topics.append((topic_id, kl_score))
 
