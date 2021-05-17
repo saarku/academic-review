@@ -24,7 +24,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                       dimension_features, algorithm, kl_flag, model_type):
     output_performance = ''
     builder = FeatureBuilder(data_dir)
-    topics_dir, models_dir = data_dir + '/lda_vectors_/'.format(model_type), data_dir + '/models/'
+    topics_dir, models_dir = data_dir + '/lda_vectors_{}/'.format(model_type), data_dir + '/models/'
     modes = set()
     for i in dimension_features: modes = modes.union(set(dimension_features[i]))
     modes = '_'.join([str(i) for i in modes])
