@@ -38,7 +38,6 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
         comb_model_dir += '.kl.' + str(kl_flag).lower()
         comb_model_dir += '.type.' + str(model_type).lower()
         comb_model_dir += '.uni.' + str(unigrams_flag).lower()
-        comb_model_dir += '.algo.' + str(algorithm)
         all_features_train, all_features_test, feature_names, y_train, y_test = [], [], [], [], []
 
         if unigrams_flag:
@@ -91,8 +90,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 args = feature_names[i].split('_')
                 single_model_dir = model_dir
                 single_model_dir += '.topics.' + args[0] + '.para.' + args[1] + '.mode.' + args[2]
-                single_model_dir += '.kl.' + args[3] + '.type.' + args[4] + '.uni.' + args[5] + '.algo.' + algorithm
-                single_model_dir += '.comb.single'
+                single_model_dir += '.kl.' + args[3] + '.type.' + args[4] + '.uni.' + args[5] + '.comb.single'
                 counter += 1
 
                 train_features = all_features_train[i]
@@ -161,12 +159,12 @@ def main():
     combination_methods = ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3], [1], [3]]
     algorithms = ['ranking', 'regression']
-    topic_model_types = ['ovb', 'gibbs']
+    topic_model_types = ['ovb']
     unigrams = [False, True]
     kl_flags = [True, False]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',dimension_features,algorithm,modes,kl,rmse,kendall,pearson\n'
-    output_file = open('report_{}.txt'.format(data_name), 'w+')
+    output_file = open('report_ovb_{}.txt'.format(data_name), 'w+')
     output_file.write(header)
 
     for combination in combination_methods:
