@@ -121,10 +121,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 if combination_method == 'comb_rank':
                     aspect_grades = FeatureBuilder.grades_to_ranks(aspect_grades)
 
-                if algorithm == 'ranking' and combination_method == 'comb_sum':
-                    grades += softmax(aspect_grades)
-                else:
-                    grades += aspect_grades
+                grades += softmax(aspect_grades)
                 all_test_grades.append(aspect_grades)
 
             grades /= float(counter)
