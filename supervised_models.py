@@ -99,6 +99,9 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 train_features = all_features_train[i]
                 test_features = all_features_test[i]
 
+                train_features = train_features.todense()
+                test_features = test_features.todense()
+
                 transformer = MinMaxScaler()
                 transformer.fit(train_features)
                 train_features = transformer.transform(train_features)
