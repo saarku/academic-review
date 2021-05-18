@@ -73,7 +73,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             test_features = transformer.transform(test_features)
 
             if algorithm == 'regression':
-                clf = MLPRegressor(solver='sgd', max_iter=1000, verbose=False).fit(train_features, y_train)
+                clf = MLPRegressor(solver='sgd', verbose=False)
                 clf.fit(train_features, y_train)
                 joblib.dump(clf, comb_model_dir)
             else:
@@ -99,17 +99,14 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 train_features = all_features_train[i]
                 test_features = all_features_test[i]
 
-                train_features = np.log(1+ train_features.todense())
-                test_features = np.log(1 + test_features.todense())
-                '''
                 transformer = MinMaxScaler()
                 transformer.fit(train_features)
                 train_features = transformer.transform(train_features)
                 test_features = transformer.transform(test_features)
-                '''
 
                 if algorithm == 'regression':
-                    clf = MLPRegressor(solver='sgd', max_iter=1000, verbose=False).fit(train_features, y_train)
+                    clf = MLPRegressor(solver='sgd', verbose=False)
+                    clf.fit(train_features, y_train)
                     joblib.dump(clf, single_model_dir)
                 else:
                     clf = SVMRank()
