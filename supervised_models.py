@@ -12,10 +12,11 @@ from sklearn.preprocessing import MinMaxScaler
 import sys
 
 '''
--1. Discrepency of test data 133 vs 134 - text vs ids
 
 1. Run for num of topics in {5, 15, 25}
+2. Analyse results - sensitivity to num paragraphs?
 2. Tune number of paragraphs (in {1, 3, 1_3} and num topics (3 options) on a validation set - for pearson and kendall separately.
+3. maybe focus on results without kl.
 
 Interesting further study: feature combination approaches, feature selection.
 '''
@@ -28,7 +29,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
     topics_dir, models_dir = data_dir + '/lda_vectors_{}/'.format(model_type), data_dir + '/models/'
     modes = set()
     for i in dimension_features: modes = modes.union(set(dimension_features[i]))
-    modes = '_'.join([str(i) for i in modes])
+    modes = '_'.join(sorted([str(i) for i in modes]))
 
     for dim in test_dimensions:
         model_dir = models_dir + 'dim.' + str(dim) + '.algo.' + algorithm
@@ -147,7 +148,7 @@ def run_experiments():
     topic_model_type = sys.argv[2]
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
-    topic_model_dims = [[5]]
+    topic_model_dims = [[15], [25], [5]]
 
     modes, pos_modes, neg_modes = ['pos', 'neg'], ['pos'], ['neg']
     dimension_features, pos_features, neg_features, pos_neg_features = {'all': ['neu']}, {}, {}, {}
@@ -157,11 +158,11 @@ def run_experiments():
         pos_features[str(dim)] = pos_modes
         neg_features[str(dim)] = neg_modes
         pos_neg_features[str(dim)] = modes
-    features = [dimension_features, pos_features, neg_features, pos_neg_features, neutral_features, dimension_features]
+    features = [dimension_features, pos_features, neg_features, pos_neg_features, neutral_features]
 
     combination_methods = ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3], [1], [3]]
-    algorithms = ['ranking', 'regression']
+    algorithms = ['regression', 'ranking']
 
     unigrams = [False, True]
     kl_flags = [True, False]
