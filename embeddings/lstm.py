@@ -72,18 +72,45 @@ def load_data(data_dir, ids_dir, grades_dir, dimension, sequence_length=100, voc
     return np.vstack(vectors), np.asarray(labels)
 
 
-def main():
-    data_dir = '/home/skuzi2/education_dataset/embeddings_data/train.txt'
-    ids_dir = '/home/skuzi2/education_dataset/data_splits/dim.all.mod.neu.para.1.train.ids'
-    grades_dir = '/home/skuzi2/education_dataset/annotations/annotation_aggregated.tsv'
+def train_model(data_name, dimension):
+    base_dir = '/home/skuzi2/{}_dataset/'.format(data_name)
+    data_dir = base_dir + '/embeddings_data/train.txt'
+    ids_dir = base_dir + '/data_splits/dim.all.mod.neu.para.1.train.ids'
+    grades_dir = base_dir + '/annotations/annotation_aggregated.tsv'
+    model_dir = base_dir + '/embeddings_models/lstm.' + str(dimension) + '.hdf5'
 
     model = NeuralModel()
     compiled_model = model.create_model()
-    data, labels = load_data(data_dir, ids_dir, grades_dir, 1)
+    data, labels = load_data(data_dir, ids_dir, grades_dir, dimension)
     print(data.shape)
     print(labels.shape)
     compiled_model.fit(x=data, y=labels, batch_size=16, epochs=3)
-    compiled_model.save('lstm.hdf5')
+    compiled_model.save(model_dir)
+
+
+def infer_embeddings(data_name, dimension, data_type):
+    base_dir = '/home/skuzi2/{}_dataset/'.format(data_name)
+    data_dir = base_dir + '/embeddings_data/{}.txt'.format(data_type)
+    ids_dir = base_dir + '/data_splits/dim.all.mod.neu.para.1.{}.ids'.format(data_type)
+    grades_dir = base_dir + '/annotations/annotation_aggregated.tsv'
+    model_dir = base_dir + '/embeddings_models/lstm.' + str(dimension) + '.hdf5'
+    vectors_dir = base_dir + '/embeddings_vectors/lstm.' + str(dimension)
+
+    model = NeuralModel()
+    compiled_model = model.create_model(weights_dir=model_dir)
+    intermediate_layer_model = Model(inputs=compiled_model.get_layer('input').output,
+                                     outputs=compiled_model.get_layer('lstm').get_output_at(0))
+
+    data, _ = load_data(data_dir, ids_dir, grades_dir, dimension)
+    embeddings = intermediate_layer_model.predict(data)
+
+    with open(vectors_dir + '.{}'.format(data_type), 'w+') as output_file:
+        for line_num in range(embeddings.shape[0]):
+            output_file.write(' '.join([str(i) for i in list(embeddings[line_num, :])]) + '\n')
+
+
+def main():
+    infer_embeddings('education', 1, 'train')
 
 
 if __name__ == '__main__':
