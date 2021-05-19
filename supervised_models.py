@@ -75,7 +75,8 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             test_features = transformer.transform(test_features)
 
             if algorithm == 'regression':
-                clf = MLPRegressor(solver='sgd', verbose=False)
+                #clf = MLPRegressor(solver='sgd', verbose=False)
+                clf = LinearRegression()
                 clf.fit(train_features, y_train)
                 joblib.dump(clf, comb_model_dir)
             else:
