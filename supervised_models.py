@@ -33,7 +33,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
     modes = '_'.join(sorted([str(i) for i in modes]))
 
     for dim in test_dimensions:
-        debug_file = open('debug' + str(dim) + '.txt', 'w')
+        #debug_file = open('debug' + str(dim) + '.txt', 'w')
         model_dir = models_dir + 'dim.' + str(dim) + '.algo.' + algorithm
         comb_model_dir = model_dir
         comb_model_dir += '.topics.' + '_'.join([str(i) for i in topic_model_dims])
@@ -75,8 +75,11 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             test_features = transformer.transform(test_features)
 
             if algorithm == 'regression':
+                clf = LinearRegression()
+                clf.fit(train_features, y_train)
+                joblib.dump(clf, comb_model_dir)
+            elif algorithm == 'mlp':
                 clf = MLPRegressor(solver='sgd', verbose=False)
-                #clf = LinearRegression()
                 clf.fit(train_features, y_train)
                 joblib.dump(clf, comb_model_dir)
             else:
@@ -96,12 +99,12 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 args = feature_names[i].split('_')
                 single_model_dir = model_dir
                 single_model_dir += '.topics.' + args[0] + '.para.' + args[1] + '.mode.' + args[2]
-                single_model_dir += '.kl.' + args[3].lower() + '.type.' + args[4] + '.uni.' + args[5] + '.dimfeat.' + args[6] + '.comb.single'
+                single_model_dir += '.kl.' + args[3].lower() + '.type.' + args[4] + '.uni.' + args[5] + '.dimfeat.' + \
+                                    args[6] + '.comb.single'
                 counter += 1
 
                 train_features = all_features_train[i]
                 test_features = all_features_test[i]
-
                 train_features = train_features.todense()
                 test_features = test_features.todense()
 
@@ -111,8 +114,11 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 test_features = transformer.transform(test_features)
 
                 if algorithm == 'regression':
-                    #clf = MLPRegressor(solver='sgd', verbose=False)
                     clf = LinearRegression()
+                    clf.fit(train_features, y_train)
+                    joblib.dump(clf, single_model_dir)
+                elif algorithm == 'mlp':
+                    clf = MLPRegressor(solver='sgd', verbose=False)
                     clf.fit(train_features, y_train)
                     joblib.dump(clf, single_model_dir)
                 else:
@@ -127,16 +133,18 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 if combination_method == 'comb_rank':
                     aspect_grades = FeatureBuilder.grades_to_ranks(aspect_grades)
 
-                if algorithm == 'ranking':
+                if algorithm == 'ranking' and combination_method == 'comb_sum':
                     grades += softmax(aspect_grades)
                 else:
                     grades += aspect_grades
+
                 all_test_grades.append(aspect_grades)
 
             grades /= float(counter)
             open(comb_model_dir + '.comb.' + combination_method + '.predictions', 'w').write(
                 '\n'.join([str(grades[i, 0]) for i in range(grades.shape[0])]))
 
+            '''
             header = ''
             for name in feature_names:
                 header += name + ','
@@ -149,6 +157,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 for j in range(all_test_grades.shape[1]):
                     line += str(all_test_grades[i, j]) + ','
                 debug_file.write(line + '\n')
+            '''
 
         error = sqrt(mean_squared_error(y_test, grades))
         kendall, _ = kendalltau(y_test, grades)
@@ -177,14 +186,14 @@ def run_experiments():
         pos_features[str(dim)] = pos_modes
         neg_features[str(dim)] = neg_modes
         pos_neg_features[str(dim)] = modes
-    features = [dimension_features]#, pos_features, neg_features, pos_neg_features, neutral_features]
+    features = [dimension_features, pos_features, neg_features, pos_neg_features, neutral_features]
 
-    combination_methods = ['comb_sum']#'comb_sum']#, 'comb_rank', 'feature_comb']
-    num_paragraphs = [[1, 3]]#, [1], [3]]
-    algorithms = ['regression']#, 'ranking']
+    combination_methods = ['comb_sum', 'comb_rank', 'feature_comb']
+    num_paragraphs = [[1, 3], [1], [3]]
+    algorithms = ['regression', 'ranking', 'mlp']
 
-    unigrams = [False]#, True]
-    kl_flags = [True]#, False]
+    unigrams = [False, True]
+    kl_flags = [True, False]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',algorithm,modes,kl,rmse,kendall,pearson\n'
     output_file = open('report_{}_{}.txt'.format(data_name, topic_model_type), 'w+')
