@@ -139,7 +139,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 header += name + ','
             header += 'final,golden\n'
             debug_file.write(header)
-            all_test_grades = np.hstack(all_test_grades + [grades,y_test])
+            all_test_grades = np.hstack(all_test_grades + [grades, np.reshape(np.asarray(y_test), (-1,1))])
 
             for i in range(all_test_grades.shape[0]):
                 line = ''
