@@ -127,7 +127,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 if algorithm == 'ranking':
                     grades += softmax(aspect_grades)
                 else:
-                    grades += softmax(aspect_grades)
+                    grades += aspect_grades
                 all_test_grades.append(aspect_grades)
 
             grades /= float(counter)
