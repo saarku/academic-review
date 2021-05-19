@@ -24,15 +24,11 @@ def pre_process_text(text):
     return " ".join(filtered_text[0:text_len])
 
 
-def pre_process(raw_data_dir, output_folder):
+def pre_process(train_data_dir, test_data_dir, output_folder):
     if not os.path.exists(output_folder): os.mkdir(output_folder)
-    data_lines = [pre_process_text(line).split() for line in open(raw_data_dir, 'r').read().split('\n')][0:-1]
-    print(data_lines)
-
-    with open(output_folder + '/raw_data.txt', 'w+') as raw_file:
-        for words in data_lines:
-            words_encoded = [w for w in words]
-            raw_file.write(' '.join(words_encoded) + '\n')
+    train_lines = [pre_process_text(line).split() for line in open(train_data_dir, 'r').read().split('\n')][0:-1]
+    test_lines = [pre_process_text(line).split() for line in open(test_data_dir, 'r').read().split('\n')][0:-1]
+    data_lines = train_lines + test_lines
 
     all_tokens = itertools.chain.from_iterable(data_lines)
     word_to_id = {token: idx for idx, token in enumerate(set(all_tokens))}
@@ -53,17 +49,25 @@ def pre_process(raw_data_dir, output_folder):
 
     np.save(output_folder + '/dictionary.npy', np.asarray(id_to_word))
 
-    with open(output_folder + '/full_data.txt', 'w+') as f:
-        for tokens in x_token_ids:
-            for token in tokens:
-                f.write(str(token) + ' ')
-            f.write('\n')
+    train_file = open(output_folder + '/train.txt', 'w+')
+    test_file = open(output_folder + '/test.txt', 'w+')
+    num_train = len(train_lines)
+
+    for i, tokens in enumerate(x_token_ids):
+        output_file = train_file if i < num_train else test_file
+        for token in tokens:
+            output_file.write(str(token) + ' ')
+        output_file.write('\n')
+
+    train_file.close()
+    test_file.close()
 
 
 def main():
-    raw_data_dir = sys.argv[1]
-    output_folder = sys.argv[2]
-    pre_process(raw_data_dir, output_folder)
+    train_dir = sys.argv[1]
+    test_dir = sys.argv[2]
+    output_folder = sys.argv[3]
+    pre_process(train_dir, test_dir, output_folder)
 
 
 if __name__ == '__main__':
