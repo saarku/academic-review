@@ -181,7 +181,7 @@ def run_experiments():
     algorithms = ['regression']#, 'ranking']
 
     unigrams = [False]#, True]
-    kl_flags = [False]#, False]
+    kl_flags = [True]#, False]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',algorithm,modes,kl,rmse,kendall,pearson\n'
     output_file = open('report_{}_{}.txt'.format(data_name, topic_model_type), 'w+')
