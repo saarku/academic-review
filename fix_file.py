@@ -14,6 +14,7 @@ remove = ['197', '287']
 
 for file_name in os.listdir(fix_folder):
     args = file_name.split('.')
+    print(args[-1])
     if args[-1] == 'val':
         para = args[5]
         output = open(fix_folder + '_fixed/' + file_name, 'w+')
