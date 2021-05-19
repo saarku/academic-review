@@ -107,7 +107,8 @@ def infer_embeddings(data_name, dimension, data_type):
 
     with open(vectors_dir + '.{}'.format(data_type), 'w+') as output_file:
         for line_num in range(embeddings.shape[0]):
-            output_file.write(' '.join([str(i) for i in list(embeddings[line_num, :])]) + '\n')
+            output_file.write('[' + ' '.join(['(' + str(i) + ', ' + str(num) + ')'
+                                              for i, num in enumerate(list(embeddings[line_num, :]))]) + ']\n')
 
 
 def main():
