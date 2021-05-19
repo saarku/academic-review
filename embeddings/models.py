@@ -69,7 +69,7 @@ def load_data(data_dir, ids_dir, grades_dir, dimension, sequence_length=100, voc
                 padded_line[padded_line > vocabulary_size] = vocabulary_size + 1
                 vectors.append(np.asarray(padded_line))
                 labels.append(label)
-    return np.vstack(vectors), labels
+    return np.vstack(vectors), np.asarray(labels)
 
 
 def main():
@@ -80,6 +80,8 @@ def main():
     model = NeuralModel()
     compiled_model = model.create_model()
     data, labels = load_data(data_dir, ids_dir, grades_dir, 1)
+    print(data.shape)
+    print(labels.shape)
     compiled_model.fit(x=data, y=labels, batch_size=16, epochs=3)
     compiled_model.save('lstm.hdf5')
 
