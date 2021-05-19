@@ -3,6 +3,7 @@ from feature_builder import FeatureBuilder
 from sklearn.metrics import mean_squared_error
 from math import sqrt
 import scipy.sparse as sp
+from sklearn.linear_model import LinearRegression
 import joblib
 from scipy.stats import kendalltau, pearsonr
 import numpy as np
@@ -109,7 +110,8 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 test_features = transformer.transform(test_features)
 
                 if algorithm == 'regression':
-                    clf = MLPRegressor(solver='sgd', verbose=False)
+                    #clf = MLPRegressor(solver='sgd', verbose=False)
+                    clf = LinearRegression()
                     clf.fit(train_features, y_train)
                     joblib.dump(clf, single_model_dir)
                 else:
