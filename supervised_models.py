@@ -32,6 +32,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
     modes = '_'.join(sorted([str(i) for i in modes]))
 
     for dim in test_dimensions:
+        debug_file = open('debug' + str(dim) + '.txt', 'w')
         model_dir = models_dir + 'dim.' + str(dim) + '.algo.' + algorithm
         comb_model_dir = model_dir
         comb_model_dir += '.topics.' + '_'.join([str(i) for i in topic_model_dims])
@@ -123,12 +124,28 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 if combination_method == 'comb_rank':
                     aspect_grades = FeatureBuilder.grades_to_ranks(aspect_grades)
 
-                grades += softmax(aspect_grades)
+                if algorithm == 'ranking':
+                    grades += softmax(aspect_grades)
+                else:
+                    grades += softmax(aspect_grades)
                 all_test_grades.append(aspect_grades)
 
             grades /= float(counter)
             open(comb_model_dir + '.comb.' + combination_method + '.predictions', 'w').write(
                 '\n'.join([str(grades[i, 0]) for i in range(grades.shape[0])]))
+
+            header = ''
+            for name in feature_names:
+                header += name + ','
+            header += 'final\n'
+            debug_file.write(header)
+            all_test_grades = np.hstack(all_test_grades + [grades])
+
+            for i in range(all_test_grades.shape[0]):
+                line = ''
+                for j in range(all_test_grades.shape[1]):
+                    line += str(all_test_grades[i, j]) + ','
+                debug_file.write(line + '\n')
 
         error = sqrt(mean_squared_error(y_test, grades))
         kendall, _ = kendalltau(y_test, grades)
@@ -147,7 +164,7 @@ def run_experiments():
     topic_model_type = sys.argv[2]
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
-    topic_model_dims = [[15], [25], [5]]
+    topic_model_dims = [[5]]
 
     modes, pos_modes, neg_modes = ['pos', 'neg'], ['pos'], ['neg']
     dimension_features, pos_features, neg_features, pos_neg_features = {'all': ['neu']}, {}, {}, {}
@@ -157,14 +174,14 @@ def run_experiments():
         pos_features[str(dim)] = pos_modes
         neg_features[str(dim)] = neg_modes
         pos_neg_features[str(dim)] = modes
-    features = [dimension_features, pos_features, neg_features, pos_neg_features, neutral_features]
+    features = [dimension_features]#, pos_features, neg_features, pos_neg_features, neutral_features]
 
-    combination_methods = ['comb_sum', 'comb_rank', 'feature_comb']
-    num_paragraphs = [[1, 3], [1], [3]]
-    algorithms = ['regression', 'ranking']
+    combination_methods = ['comb_sum']#, 'comb_rank', 'feature_comb']
+    num_paragraphs = [[1, 3]]#, [1], [3]]
+    algorithms = ['regression']#, 'ranking']
 
-    unigrams = [False, True]
-    kl_flags = [True, False]
+    unigrams = [False]#, True]
+    kl_flags = [False]#, False]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',algorithm,modes,kl,rmse,kendall,pearson\n'
     output_file = open('report_{}_{}.txt'.format(data_name, topic_model_type), 'w+')
