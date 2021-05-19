@@ -47,7 +47,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             x_unigram_train, y_train, x_unigram_test, y_test = builder.build_unigram_features(dim)
             all_features_train.append(x_unigram_train)
             all_features_test.append(x_unigram_test)
-            feature_names.append('0_0_0_0_0_true')
+            feature_names.append('0_0_0_0_0_0_true')
 
         for topics in topic_model_dims:
             for para in num_paragraphs:
@@ -60,7 +60,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                         x_topics_train, y_train, x_topics_test, y_test = output[0], output[1], output[2], output[3]
                         all_features_train.append(x_topics_train)
                         all_features_test.append(x_topics_test)
-                        feature_names.append('{}_{}_{}_{}_{}_false'.format(topics, para, mode, kl_flag, model_type))
+                        feature_names.append('{}_{}_{}_{}_{}_{}_false'.format(topics, para, mode, kl_flag, model_type, dim_feat))
 
         if combination_method == 'feature_comb':
             comb_model_dir += '.comb.' + combination_method
@@ -94,7 +94,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 args = feature_names[i].split('_')
                 single_model_dir = model_dir
                 single_model_dir += '.topics.' + args[0] + '.para.' + args[1] + '.mode.' + args[2]
-                single_model_dir += '.kl.' + args[3].lower() + '.type.' + args[4] + '.uni.' + args[5] + '.comb.single'
+                single_model_dir += '.kl.' + args[3].lower() + '.type.' + args[4] + '.uni.' + args[5] + '.dimfeat.' + args[6] + '.comb.single'
                 counter += 1
 
                 train_features = all_features_train[i]
