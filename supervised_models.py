@@ -179,7 +179,7 @@ def run_experiments():
         pos_neg_features[str(dim)] = modes
     features = [dimension_features]#, pos_features, neg_features, pos_neg_features, neutral_features]
 
-    combination_methods = ['comb_sum']#, 'comb_rank', 'feature_comb']
+    combination_methods = ['feature_comb']#'comb_sum']#, 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3]]#, [1], [3]]
     algorithms = ['regression']#, 'ranking']
 
