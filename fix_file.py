@@ -1,14 +1,24 @@
 import sys
+import os
 
-ids_file = sys.argv[1]
-fix_file = sys.argv[2]
+para_ids = '/home/skuzi2/education_dataset/data_splits/dim.all.mod.neu.para.3.test.val.ids'
+all_ids = '/home/skuzi2/education_dataset/data_splits/dim.all.mod.neu.para.1.test.val.ids'
+para_ids = [i.rstrip('\n') for i in open(para_ids, 'r').readlines()]
+all_ids = [i.rstrip('\n') for i in open(all_ids, 'r').readlines()]
+ids = {'1': all_ids, '3': para_ids}
 
-ids = [i.rstrip('\n') for i in open(ids_file, 'r').readlines()]
+fix_folder = sys.argv[2]
+os.mkdir(fix_folder + '_fixed')
 remove = ['197', '287']
 
-output = open(fix_file + '.fixed', 'w+')
 
-with open(fix_file, 'r') as input_file:
-    for i, line in enumerate(input_file):
-        if ids[i] not in remove:
-            output.write(line)
+for file_name in os.listdir(fix_folder):
+    args = file_name.split('.')
+    if args[-1] == 'val':
+        para = args[5]
+        output = open(fix_folder + '_fixed/' + file_name, 'w+')
+        with open(fix_folder + '/' + file_name, 'r') as input_file:
+            for i, line in enumerate(input_file):
+                if ids[para][i] not in remove:
+                    output.write(line)
+        output.close()
