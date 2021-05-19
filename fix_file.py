@@ -7,7 +7,7 @@ para_ids = [i.rstrip('\n') for i in open(para_ids, 'r').readlines()]
 all_ids = [i.rstrip('\n') for i in open(all_ids, 'r').readlines()]
 ids = {'1': all_ids, '3': para_ids}
 
-fix_folder = sys.argv[2]
+fix_folder = sys.argv[1]
 os.mkdir(fix_folder + '_fixed')
 remove = ['197', '287']
 
