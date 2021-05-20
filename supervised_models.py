@@ -146,8 +146,14 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 all_train_grades.append(aspect_train_grades)
 
             l = LinearRegression()
-            l.fit(np.hstack(all_train_grades), y_train)
-            grades = l.predict(np.hstack(all_test_grades))
+            grades_train = np.hstack(all_train_grades)
+            m = MinMaxScaler()
+            m.fit(grades_train)
+            grades_train = m.transform(grades_train)
+            grades_test = m.transform(np.hstack(all_test_grades))
+
+            l.fit(grades_train, y_train)
+            grades = l.predict(grades_test)
             grades = np.reshape(grades, (-1, 1))
 
 
