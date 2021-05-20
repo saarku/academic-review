@@ -208,7 +208,7 @@ def run_experiments():
 
     combination_methods = ['comb_sum'] # ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3]] #[[1, 3], [1], [3]]
-    algorithms = ['regression']#, 'ranking']#, 'mlp']
+    algorithms = ['ranking']#, 'ranking']#, 'mlp']
 
     unigrams = [False, True]#, True]
     kl_flags = [True]#[True, False]
