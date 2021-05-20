@@ -76,7 +76,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             train_features = transformer.transform(train_features)
             test_features = transformer.transform(test_features)
 
-            sk = SelectKBest(mutual_info_regression, k=50)
+            sk = SelectKBest(mutual_info_regression, k=20)
             sk.fit(train_features, y_train)
             train_features = sk.transform(train_features)
             test_features = sk.transform(test_features)
@@ -198,9 +198,9 @@ def run_experiments():
 
     combination_methods = ['feature_comb_temp'] # ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3]] #[[1, 3], [1], [3]]
-    algorithms = ['regression', 'ranking']#, 'mlp']
+    algorithms = ['regression']#, 'ranking']#, 'mlp']
 
-    unigrams = [False]#, True]
+    unigrams = [False, True]#, True]
     kl_flags = [True]#[True, False]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',algorithm,modes,kl,rmse,kendall,pearson\n'
