@@ -53,7 +53,6 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
         for topics in topic_model_dims:
             for para in num_paragraphs:
                 for dim_feat in dimension_features:
-                    if dim_feat != str(dim) and dim_feat != 'all': continue
                     for mode in dimension_features[dim_feat]:
                         vec_dir = topics_dir
                         vec_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(topics, dim_feat, mode, para, topics)
@@ -143,8 +142,8 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 else:
                     grades += aspect_grades
 
-                all_test_grades.append(aspect_grades)
-                all_train_grades.append(aspect_train_grades)
+                all_test_grades.append(FeatureBuilder.grades_to_ranks(aspect_grades))
+                all_train_grades.append(FeatureBuilder.grades_to_ranks(aspect_train_grades))
 
             l = LinearRegression()
             grades_train = np.hstack(all_train_grades)
