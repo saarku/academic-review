@@ -10,8 +10,6 @@ import numpy as np
 from svm_rank import SVMRank
 from scipy.special import softmax
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.feature_selection import SelectKBest, f_regression
-from sklearn.feature_selection import mutual_info_regression
 import sys
 
 '''
@@ -65,7 +63,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                         all_features_test.append(x_topics_test)
                         feature_names.append('{}_{}_{}_{}_{}_{}_false'.format(topics, para, mode, kl_flag, model_type, dim_feat))
 
-        if combination_method == 'feature_comb_temp':
+        if combination_method == 'feature_comb':
             comb_model_dir += '.comb.' + combination_method
             train_features = sp.hstack(tuple(all_features_train), format='csr')
             test_features = sp.hstack(tuple(all_features_test), format='csr')
@@ -75,11 +73,6 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             transformer.fit(train_features)
             train_features = transformer.transform(train_features)
             test_features = transformer.transform(test_features)
-
-            sk = SelectKBest(mutual_info_regression, k=20)
-            sk.fit(train_features, y_train)
-            train_features = sk.transform(train_features)
-            test_features = sk.transform(test_features)
 
             if algorithm == 'regression':
                 clf = LinearRegression()
@@ -134,6 +127,10 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
 
                 aspect_grades = clf.predict(test_features)
                 aspect_grades = np.reshape(aspect_grades, (-1, 1))
+
+                aspect_train_grades = clf.predict(train_features)
+                aspect_train_grades = np.reshape(aspect_train_grades, (-1, 1))
+
                 open(single_model_dir + '.predictions', 'w').write('\n'.join([str(aspect_grades[i, 0])
                                                                               for i in range(aspect_grades.shape[0])]))
 
@@ -146,8 +143,15 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                     grades += aspect_grades
 
                 all_test_grades.append(aspect_grades)
+                all_train_grades.append(aspect_train_grades)
 
-            grades /= float(counter)
+            l = LinearRegression()
+            l.fit(np.hstack(all_train_grades), y_train)
+            grades = l.predict(np.hstack(all_test_grades))
+            grades = np.reshape(grades, (-1, 1))
+
+
+            #grades /= float(counter)
             open(comb_model_dir + '.comb.' + combination_method + '.predictions', 'w').write(
                 '\n'.join([str(grades[i, 0]) for i in range(grades.shape[0])]))
 
@@ -196,7 +200,7 @@ def run_experiments():
     features = [dimension_features, pos_features, neg_features, pos_neg_features, neutral_features]
     features = [dimension_features]
 
-    combination_methods = ['feature_comb_temp'] # ['comb_sum', 'comb_rank', 'feature_comb']
+    combination_methods = ['comb_sum'] # ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3]] #[[1, 3], [1], [3]]
     algorithms = ['regression']#, 'ranking']#, 'mlp']
 
