@@ -232,7 +232,7 @@ def unigram_baseline():
     data_name = {1: 'iclr17', 2: 'education'}[int(sys.argv[1])]
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
-    algorithms = ['regression', 'ranking', 'mlp']
+    algorithms = ['regression', 'ranking']
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',algorithm,modes,kl,rmse,kendall,pearson\n'
     output_file = open('report_unigrams_{}.txt'.format(data_name), 'w+')
@@ -246,7 +246,7 @@ def unigram_baseline():
 
 
 def main():
-    run_experiments()
+    unigram_baseline()
 
 
 if __name__ == '__main__':
