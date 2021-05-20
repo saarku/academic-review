@@ -127,7 +127,6 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
 
                 aspect_grades = clf.predict(test_features)
                 aspect_grades = np.reshape(aspect_grades, (-1, 1))
-
                 aspect_train_grades = clf.predict(train_features)
                 aspect_train_grades = np.reshape(aspect_train_grades, (-1, 1))
 
@@ -142,22 +141,22 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 else:
                     grades += aspect_grades
 
-                all_test_grades.append(FeatureBuilder.grades_to_ranks(aspect_grades))
-                all_train_grades.append(FeatureBuilder.grades_to_ranks(aspect_train_grades))
+                all_test_grades.append(aspect_grades)
+                all_train_grades.append(aspect_train_grades)
 
-            l = LinearRegression()
-            grades_train = np.hstack(all_train_grades)
-            m = MinMaxScaler()
-            m.fit(grades_train)
-            grades_train = m.transform(grades_train)
-            grades_test = m.transform(np.hstack(all_test_grades))
+            if combination_method == 'comb_model':
+                l = LinearRegression()
+                grades_train = np.hstack(all_train_grades)
+                m = MinMaxScaler()
+                m.fit(grades_train)
+                grades_train = m.transform(grades_train)
+                grades_test = m.transform(np.hstack(all_test_grades))
+                l.fit(grades_train, y_train)
+                grades = l.predict(grades_test)
+                grades = np.reshape(grades, (-1, 1))
+            else:
+                grades /= float(counter)
 
-            l.fit(grades_train, y_train)
-            grades = l.predict(grades_test)
-            grades = np.reshape(grades, (-1, 1))
-
-
-            #grades /= float(counter)
             open(comb_model_dir + '.comb.' + combination_method + '.predictions', 'w').write(
                 '\n'.join([str(grades[i, 0]) for i in range(grades.shape[0])]))
 
@@ -204,14 +203,13 @@ def run_experiments():
         neg_features[str(dim)] = neg_modes
         pos_neg_features[str(dim)] = modes
     features = [dimension_features, pos_features, neg_features, pos_neg_features, neutral_features]
-    features = [dimension_features]
 
-    combination_methods = ['comb_sum'] # ['comb_sum', 'comb_rank', 'feature_comb']
-    num_paragraphs = [[1, 3]] #[[1, 3], [1], [3]]
-    algorithms = ['ranking']#, 'ranking']#, 'mlp']
+    combination_methods = ['comb_model', 'feature_comb', 'comb_sum'] # ['comb_sum', 'comb_rank', 'feature_comb']
+    num_paragraphs = [[1, 3], [1], [3]]
+    algorithms = ['regression', 'ranking']#, 'ranking']#, 'mlp']
 
     unigrams = [False, True]#, True]
-    kl_flags = [True]#[True, False]
+    kl_flags = [True, False]#[True, False]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',algorithm,modes,kl,rmse,kendall,pearson\n'
     output_file = open('report_{}_{}.txt'.format(data_name, topic_model_type), 'w+')
