@@ -11,6 +11,7 @@ from svm_rank import SVMRank
 from scipy.special import softmax
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.feature_selection import SelectKBest, f_regression
+from sklearn.feature_selection import mutual_info_regression
 import sys
 
 '''
@@ -75,7 +76,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             train_features = transformer.transform(train_features)
             test_features = transformer.transform(test_features)
 
-            sk = SelectKBest(f_regression, k=20)
+            sk = SelectKBest(mutual_info_regression, k=50)
             sk.fit(train_features, y_train)
             train_features = sk.transform(train_features)
             test_features = sk.transform(test_features)
