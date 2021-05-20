@@ -10,6 +10,7 @@ import numpy as np
 from svm_rank import SVMRank
 from scipy.special import softmax
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.feature_selection import SelectKBest, f_regression
 import sys
 
 '''
@@ -63,7 +64,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                         all_features_test.append(x_topics_test)
                         feature_names.append('{}_{}_{}_{}_{}_{}_false'.format(topics, para, mode, kl_flag, model_type, dim_feat))
 
-        if combination_method == 'feature_comb':
+        if combination_method == 'feature_comb_temp':
             comb_model_dir += '.comb.' + combination_method
             train_features = sp.hstack(tuple(all_features_train), format='csr')
             test_features = sp.hstack(tuple(all_features_test), format='csr')
@@ -73,6 +74,11 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             transformer.fit(train_features)
             train_features = transformer.transform(train_features)
             test_features = transformer.transform(test_features)
+
+            sk = SelectKBest(f_regression, k=50)
+            sk.fit(train_features, y_train)
+            train_features = sk.transform(train_features)
+            test_features = sk.transform(test_features)
 
             if algorithm == 'regression':
                 clf = LinearRegression()
@@ -187,13 +193,14 @@ def run_experiments():
         neg_features[str(dim)] = neg_modes
         pos_neg_features[str(dim)] = modes
     features = [dimension_features, pos_features, neg_features, pos_neg_features, neutral_features]
+    features = [dimension_features]
 
-    combination_methods = ['comb_sum', 'comb_rank', 'feature_comb']
-    num_paragraphs = [[1, 3], [1], [3]]
-    algorithms = ['regression', 'ranking', 'mlp']
+    combination_methods = ['feature_comb_temp'] # ['comb_sum', 'comb_rank', 'feature_comb']
+    num_paragraphs = [[1, 3]] #[[1, 3], [1], [3]]
+    algorithms = ['regression', 'ranking']#, 'mlp']
 
-    unigrams = [False, True]
-    kl_flags = [True, False]
+    unigrams = [False]#, True]
+    kl_flags = [True]#[True, False]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',algorithm,modes,kl,rmse,kendall,pearson\n'
     output_file = open('report_{}_{}.txt'.format(data_name, topic_model_type), 'w+')
@@ -230,7 +237,7 @@ def unigram_baseline():
 
 
 def main():
-    unigram_baseline()
+    run_experiments()
 
 
 if __name__ == '__main__':
