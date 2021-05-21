@@ -1,7 +1,7 @@
 import os
 import time
 import numpy as np
-
+import random
 
 class SVMRank:
 
@@ -20,6 +20,10 @@ class SVMRank:
     def predict(self, test_data):
         test_dir = self.create_svm_data(test_data)
         predictions_dir = str(time.time())
+        predictions_dir = [a for a in predictions_dir]
+        random.shuffle(predictions_dir)
+        predictions_dir = ''.join(predictions_dir)
+
         command = self.svm_dir + 'svm_rank_classify ' + test_dir + ' ' + self.model_dir + ' ' + predictions_dir
         os.system(command)
         predictions = [i.rstrip('\n').split('\t')[-1] for i in open(predictions_dir, 'r').readlines()]
@@ -30,6 +34,10 @@ class SVMRank:
     @staticmethod
     def create_svm_data(data, labels=None):
         output_dir = str(time.time())
+        output_dir = [a for a in output_dir]
+        random.shuffle(output_dir)
+        output_dir = ''.join(output_dir)
+        
         output_file = open(output_dir, 'w')
         for i in range(data.shape[0]):
             line = str(labels[i]) if labels is not None else '1'
