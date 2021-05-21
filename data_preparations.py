@@ -170,11 +170,11 @@ def main():
     #aggregate_scores('/Users/saarkuzi/iclr17_dataset/annotation_fixed.tsv',
     #                  '/Users/saarkuzi/iclr17_dataset/annotation_aggregated.tsv')
 
-    #split_to_paragraphs('/home/skuzi2/iclr17_new_dataset/data_splits/')
+    split_to_paragraphs('/home/skuzi2/iclr17_new2_dataset/data_splits/')
 
-    split_by_grade('/home/skuzi2/iclr17_new_dataset/data_splits/',
-                   '/home/skuzi2/iclr17_new_dataset/annotations/annotation_aggregated.tsv',
-                   [1, 2, 3, 5, 6])
+    #split_by_grade('/home/skuzi2/iclr17_new_dataset/data_splits/',
+    #               '/home/skuzi2/iclr17_new_dataset/annotations/annotation_aggregated.tsv',
+    #               [1, 2, 3, 5, 6])
 
 
 if __name__ == '__main__':

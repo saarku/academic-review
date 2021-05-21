@@ -1,3 +1,4 @@
+'''
 base_dir = '/Users/saarkuzi/iclr17_dataset'
 test_ids = base_dir + '/test.ids'
 val_ids = base_dir + '/val.ids'
@@ -34,6 +35,10 @@ ids = [i.rstrip('\n') for i in open(ids, 'r').readlines()] + ids_to_add
 for i in range(len(ids)):
     new_ids_file.write(ids[i] + '\n')
     new_text_file.write(texts[i] + '\n')
+
+'''
+
+
 
 
 
