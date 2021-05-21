@@ -130,8 +130,8 @@ def write_split_to_file(assignments_list, data_dict, output_dir):
 
 def split_by_grade(input_data_dir, grades_dir, dimensions):
 
-    data_lines = [line.rstrip('\n') for line in open(input_data_dir + 'dim.all.mod.neu.para.1.train.text', 'r').readlines()]
-    data_ids = [line.rstrip('\n') for line in open(input_data_dir + 'dim.all.mod.neu.para.1.train.ids', 'r').readlines()]
+    data_lines = [line.rstrip('\n') for line in open(input_data_dir + 'dim.all.mod.neu.para.3.train.text', 'r').readlines()]
+    data_ids = [line.rstrip('\n') for line in open(input_data_dir + 'dim.all.mod.neu.para.3.train.ids', 'r').readlines()]
     data_dict = defaultdict(list)
 
     for i in range(len(data_ids)):
