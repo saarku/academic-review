@@ -246,7 +246,7 @@ def unigram_baseline():
 
 
 def main():
-    unigram_baseline()
+    run_experiments()
 
 
 if __name__ == '__main__':
