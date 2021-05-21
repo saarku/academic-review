@@ -29,6 +29,7 @@ def get_topics_vec(dists_dir, labels, dimension_id, num_paragraphs, norm):
                 single_vec[index] = max(single_vec.get(index, 0), number)
         if norm:
             normalizer = sum(single_vec.values())
+            if normalizer <= 0: normalizer = 1
             for j in single_vec:
                 single_vec[j] /= normalizer
 
