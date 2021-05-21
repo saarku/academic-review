@@ -208,7 +208,7 @@ def run_experiments():
     num_paragraphs = [[1, 3]]#, [1], [3]]
     algorithms = ['regression', 'ranking']#, 'ranking']#, 'mlp']
 
-    unigrams = [False]#, True]#, True]
+    unigrams = [True]#, True]#, True]
     kl_flags = [True]#, False]#[True, False]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',algorithm,modes,kl,rmse,kendall,pearson\n'
