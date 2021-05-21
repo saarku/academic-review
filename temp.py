@@ -39,9 +39,6 @@ for i in range(len(ids)):
 '''
 
 
-
-
-
-
-
-
+import os
+for file_name in os.listdir('./'):
+    os.system('wc -l ./' + file_name)

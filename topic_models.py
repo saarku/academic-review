@@ -8,12 +8,13 @@ import joblib
 import sys
 
 
-def get_topics_vec(dists_dir, labels, dimension_id, num_paragraphs):
+def get_topics_vec(dists_dir, labels, dimension_id, num_paragraphs, norm):
     """ Read topic distributions from a file and construct a sparse matrix.
 
     :param dists_dir: a file with the distributions.
     :param dimension_id: the dimension for grading.
     :param num_paragraphs: number of paragraphs.
+    :param norm: (bool) whether to to l1 norm.
     :return: csr_matrix.
     """
     all_topic_vectors = []
@@ -26,6 +27,11 @@ def get_topics_vec(dists_dir, labels, dimension_id, num_paragraphs):
                 index = int(a.split(',')[0].split('(')[1])
                 number = float(a.split(',')[1].rstrip(')'))
                 single_vec[index] = max(single_vec.get(index, 0), number)
+        if norm:
+            normalizer = sum(single_vec.values())
+            for j in single_vec:
+                single_vec[j] /= normalizer
+
         single_vec = list(single_vec.items())
         all_topic_vectors.append(single_vec)
 

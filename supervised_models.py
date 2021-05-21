@@ -56,8 +56,10 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                     for mode in dimension_features[dim_feat]:
                         vec_dir = topics_dir
                         vec_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(topics, dim_feat, mode, para, topics)
-                        if kl_flag: vec_dir += '.kl'
-                        output = builder.build_topic_features(dim, vec_dir + '.train', vec_dir + '.test.val', para)
+                        if kl_flag == 'kl' or kl_flag == 'norm_kl': vec_dir += '.kl'
+                        norm = True if kl_flag == 'norm_kl' else False
+                        output = builder.build_topic_features(dim, vec_dir + '.train', vec_dir + '.test.val', para,
+                                                              norm=norm)
                         x_topics_train, y_train, x_topics_test, y_test = output[0], output[1], output[2], output[3]
                         all_features_train.append(x_topics_train)
                         all_features_test.append(x_topics_test)
@@ -209,7 +211,7 @@ def run_experiments():
     algorithms = ['regression', 'ranking']#, 'ranking']#, 'mlp']
 
     unigrams = [False, True]#, True]#, True]
-    kl_flags = [True, False]#[True, False]
+    kl_flags = ['kl', 'no_kl', 'norm_kl']#[True, False]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',algorithm,modes,kl,rmse,kendall,pearson\n'
     output_file = open('report_{}_{}.txt'.format(data_name, topic_model_type), 'w+')
