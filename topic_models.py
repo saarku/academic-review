@@ -148,7 +148,7 @@ class TopicModels:
 def main():
 
     dataset = sys.argv[1]
-    topics = [15, 25]
+    topics = [5]
     modes = ['pos', 'neg']
     dimensions_ed = {'0': modes, '1': modes, '2': modes, '3': modes, '4': modes, '5': modes, '6': modes, 'all': ['neu']}
     dimensions_ic = {'1': modes, '2': modes, '3': modes, '5': modes, '6': modes, 'all': ['neu']}
