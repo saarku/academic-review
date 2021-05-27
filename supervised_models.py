@@ -191,10 +191,10 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
 
 def run_experiments():
     data_name = {1: 'iclr17', 2: 'education'}[int(sys.argv[1])]
-    topic_model_type = sys.argv[2]
+    topic_model_type = 'ovb' # sys.argv[2]
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
-    topic_model_dims = [[5]]
+    topic_model_dims = [[15], [25]]
 
     modes, pos_modes, neg_modes = ['pos', 'neg'], ['pos'], ['neg']
     dimension_features, pos_features, neg_features, pos_neg_features = {'all': ['neu']}, {}, {}, {}
@@ -204,17 +204,17 @@ def run_experiments():
         pos_features[str(dim)] = pos_modes
         neg_features[str(dim)] = neg_modes
         pos_neg_features[str(dim)] = modes
-    features = [dimension_features, pos_features, neg_features, pos_neg_features, neutral_features]
+    features = [dimension_features] #, pos_features, neg_features, pos_neg_features, neutral_features]
 
-    combination_methods = ['comb_sum', 'comb_rank', 'feature_comb'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
+    combination_methods = ['comb_sum', 'feature_comb'] # 'comb_rank' 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3], [1], [3]]
     algorithms = ['regression', 'ranking']#, 'ranking']#, 'mlp']
 
     unigrams = [False, True]#, True]#, True]
-    kl_flags = ['kl', 'no_kl', 'norm_kl']#[True, False]
+    kl_flags = ['kl']#, 'no_kl', 'norm_kl']#[True, False]
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',algorithm,modes,kl,rmse,kendall,pearson\n'
-    output_file = open('report_{}_{}.txt'.format(data_name, topic_model_type), 'w+')
+    output_file = open('report_more_topics_{}_{}.txt'.format(data_name, topic_model_type), 'w+')
     output_file.write(header)
 
     for combination in combination_methods:
