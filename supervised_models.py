@@ -286,7 +286,7 @@ def lstm_baseline():
     data_name = sys.argv[1]
     dimensions = [5, 15, 25]
     w_dims = [50]
-    epochs = [50]
+    epochs = [10]
     batch_sizes = [16]
     vocabs = [1000]
     lengths = [100]
