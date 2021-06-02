@@ -194,7 +194,7 @@ def lstm_experiment(test_dimensions, data_dir, algorithm, lstm_model_name):
 
     for dim in test_dimensions:
         model_dir = models_dir + 'dim.' + str(dim) + '.algo.' + algorithm + '.' + lstm_model_name
-        vectors_dir = lstm_dir + 'lstm.dim.' + str(dim) + '.' + lstm_model_name
+        vectors_dir = lstm_dir + 'cnn.dim.' + str(dim) + '.' + lstm_model_name
         output = builder.build_topic_features(dim, vectors_dir + '.train', vectors_dir + '.test.val', 1)
         x_train, y_train, x_test, y_test = output[0], output[1], output[2], output[3]
 
