@@ -104,8 +104,7 @@ def infer_embeddings(data_name, grades_dim, model_name, data_type):
     model = NeuralModel(n_hidden=int(model_args[4]), embedding_dim=int(model_args[6]))
 
     compiled_model = model.create_model(weights_dir=model_dir)
-    print(compiled_model.summary())
-    intermediate_layer_model = Model(inputs=compiled_model.get_layer('input').output,
+    intermediate_layer_model = Model(inputs=compiled_model.get_layer('input_1').output,
                                      outputs=compiled_model.get_layer('lstm').get_output_at(0))
 
     data, _ = load_data(data_dir, ids_dir, grades_dir, grades_dim, infer_flag=True)
