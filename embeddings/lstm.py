@@ -39,15 +39,15 @@ class NeuralModel:
         embedding_layer = Embedding(self.vocab_size + 2, self.embedding_dim, input_length=self.sequence_length,
                                     trainable=True)
         encoded = embedding_layer(input_data)
-        conv_layer = Conv1D(8, kernel_size=(3, 3), activation='relu', input_shape=(self.sequence_length,
+        conv_layer = Conv1D(8, kernel_size=3, activation='relu', input_shape=(self.sequence_length,
                                                                                    self.embedding_dim))
         cnn_output = conv_layer(encoded)
 
-        pooling_layer = MaxPooling1D(pool_size=(2, 2))
+        pooling_layer = MaxPooling1D()
         cnn_output = pooling_layer(cnn_output)
 
-        flatten_layer = Flatten()
-        cnn_output = flatten_layer(cnn_output)
+        #flatten_layer = Flatten()
+        #cnn_output = flatten_layer(cnn_output)
 
         dense_layer_1 = Dense(self.n_hidden)
         dense_layer_2 = Dense(1)
