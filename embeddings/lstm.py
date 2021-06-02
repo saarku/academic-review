@@ -3,6 +3,7 @@ from keras.layers import Input, Embedding, LSTM, Dot, Activation, BatchNormaliza
 import numpy as np
 import sys
 from tensorflow.keras import backend as K
+from keras.callbacks import ModelCheckpoint, EarlyStopping
 
 
 class NeuralModel:
@@ -90,8 +91,14 @@ def train_model(data_name, grades_dim, dimension=20, w_dimension=50, epochs=3, b
     compiled_model = model.create_model(optimizer=optimizer)
     data, labels = load_data(data_dir, ids_dir, grades_dir, grades_dim, vocabulary_size=vocab, sequence_length=length)
     batch_size = min(batch_size, data.shape[0])
-    compiled_model.fit(x=data, y=labels, batch_size=batch_size, epochs=epochs)
-    compiled_model.save(model_dir)
+
+    early_stop = EarlyStopping(monitor='val_loss', restore_best_weights=True)
+    model_checkpoint = ModelCheckpoint(filepath=model_dir, monitor='val_loss', save_best_only=True)
+    callbacks_list = [model_checkpoint, early_stop]
+    compiled_model.fit(x=data, y=labels, batch_size=batch_size, epochs=epochs, validation_split=0.2,
+                       callbacks=callbacks_list)
+
+    #compiled_model.save(model_dir)
     return model_name
 
 
@@ -108,6 +115,7 @@ def infer_embeddings(data_name, grades_dim, model_name, data_type, vocab=1000, l
     model = NeuralModel(n_hidden=int(model_args[4]), embedding_dim=int(model_args[6]), sequence_length=length)
 
     compiled_model = model.create_model(weights_dir=model_dir)
+    print(compiled_model.summary())
     intermediate_layer_model = Model(inputs=compiled_model.get_layer('input_1').output,
                                      outputs=compiled_model.get_layer('lstm').get_output_at(0))
 
