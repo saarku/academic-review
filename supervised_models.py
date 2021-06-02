@@ -13,12 +13,10 @@ from sklearn.preprocessing import MinMaxScaler
 import sys
 
 '''
-
 1. Run for num of topics in {5, 15, 25}
 2. Analyse results - sensitivity to num paragraphs?
 2. Tune number of paragraphs (in {1, 3, 1_3} and num topics (3 options) on a validation set - for pearson and kendall separately.
 3. maybe focus on results without kl.
-
 Interesting further study: feature combination approaches, feature selection.
 '''
 
@@ -189,6 +187,43 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
     return output_performance
 
 
+def lstm_experiment(test_dimensions, data_dir, algorithm, lstm_model_name):
+    output_performance = ''
+    builder = FeatureBuilder(data_dir)
+    lstm_dir, models_dir = data_dir + '/embeddings_vectors/', data_dir + '/lstm_models/'
+
+    for dim in test_dimensions:
+        model_dir = models_dir + 'dim.' + str(dim) + '.algo.' + algorithm + '.' + lstm_model_name
+        vectors_dir = lstm_dir + 'lstm.dim.' + str(dim) + '.' + lstm_model_name
+        output = builder.build_topic_features(dim, vectors_dir + '.train', vectors_dir + '.test.val', 1)
+        x_train, y_train, x_test, y_test = output[0], output[1], output[2], output[3]
+
+        transformer = MinMaxScaler()
+        train_features, test_features = x_train.todense(), x_test.todense()
+        transformer.fit(train_features)
+        train_features = transformer.transform(train_features)
+        test_features = transformer.transform(test_features)
+
+        if algorithm == 'regression':
+            clf = LinearRegression()
+            clf.fit(train_features, y_train)
+            joblib.dump(clf, model_dir)
+        else:
+            clf = SVMRank()
+            clf.fit(train_features, y_train, model_dir, 0.01)
+
+        grades = clf.predict(test_features)
+        grades = np.reshape(grades, (-1, 1))
+        open(model_dir + '.predictions', 'w').write('\n'.join([str(grades[i,0]) for i in range(grades.shape[0])]))
+
+        error = sqrt(mean_squared_error(y_test, grades))
+        kendall, _ = kendalltau(y_test, grades)
+        pearson, _ = pearsonr(y_test, np.reshape(grades, (1, -1)).tolist()[0])
+        performance = '{},{},{},{},{},{}\n'.format(dim, algorithm, lstm_model_name, error, kendall, pearson)
+        output_performance += performance
+    return output_performance
+
+
 def run_experiments():
     data_name = {1: 'iclr17', 2: 'education'}[int(sys.argv[1])]
     topic_model_type = sys.argv[2]
@@ -247,8 +282,36 @@ def unigram_baseline():
         output_file.flush()
 
 
+def lstm_baseline():
+    data_name = sys.argv[1]
+    dimensions = [5, 15, 25]
+    w_dims = [50]
+    epochs = [3]
+    batch_sizes = [1, 8, 16]
+    optimizers = ['adam', 'sgd']
+    grade_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
+    algorithms = ['regression', 'ranking']
+    data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
+
+    header = 'dim,algorithm,lstm_model_name,error,kendall,pearson\n'
+    output_file = open('report_lstm_{}.txt'.format(data_name), 'w+')
+    output_file.write(header)
+
+    for lstm_dim in dimensions:
+        for word_dim in w_dims:
+            for epoch in epochs:
+                for batch in batch_sizes:
+                    for opt in optimizers:
+                        for algorithm in algorithms:
+                            lstm_model_name = 'ldim.{}.wdim.{}.epoch.{}.batch.{}.opt.{}'.format(lstm_dim, word_dim,
+                                                                                                epoch, batch, opt)
+                            output = lstm_experiment(grade_dims, data_dir, algorithm, lstm_model_name)
+                            output_file.write(output)
+                            output_file.flush()
+
+
 def main():
-    run_experiments()
+    lstm_baseline()
 
 
 if __name__ == '__main__':
