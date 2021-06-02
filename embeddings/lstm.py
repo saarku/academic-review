@@ -126,7 +126,7 @@ def main():
     data_name = sys.argv[1]
     dimensions = [5, 15, 25]
     w_dims = [20]
-    epochs = [100]
+    epochs = [200]
     batch_sizes = [1000]
     vocabs = [1000]
     lengths = [500]
