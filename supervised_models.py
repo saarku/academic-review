@@ -287,7 +287,7 @@ def lstm_baseline():
     dimensions = [50]
     w_dims = [20]
     epochs = [50]
-    batch_sizes = [1]
+    batch_sizes = [1000]
     vocabs = [1000]
     lengths = [100]
     optimizers = ['sgd']
