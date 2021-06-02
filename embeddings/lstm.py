@@ -134,10 +134,10 @@ def main():
     data_name = sys.argv[1]
     dimensions = [5, 15, 25]
     w_dims = [20]
-    epochs = [200]
+    epochs = [500]
     batch_sizes = [1000]
     vocabs = [1000]
-    lengths = [500]
+    lengths = [100]
     optimizers = ['adam']
     grade_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
 
