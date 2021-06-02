@@ -135,7 +135,7 @@ def main():
                             model_name = train_model(data_name, grade_dim, dimension=lstm_dim, w_dimension=word_dim,
                                                      epochs=epoch, batch_size=batch, optimizer=opt)
                             infer_embeddings(data_name, grade_dim, model_name, 'train')
-                            infer_embeddings(data_name, grade_dim, model_name, 'test')
+                            infer_embeddings(data_name, grade_dim, model_name, 'test.val')
 
 
 if __name__ == '__main__':
