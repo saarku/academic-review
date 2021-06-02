@@ -286,9 +286,9 @@ def lstm_baseline():
     data_name = sys.argv[1]
     dimensions = [5, 15, 25]
     w_dims = [50]
-    epochs = [3]
-    batch_sizes = [1, 8, 16]
-    optimizers = ['adam', 'sgd']
+    epochs = [200]
+    batch_sizes = [1000]
+    optimizers = ['adam']
     grade_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
     algorithms = ['regression', 'ranking']
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
