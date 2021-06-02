@@ -200,6 +200,7 @@ def lstm_experiment(test_dimensions, data_dir, algorithm, lstm_model_name):
 
         transformer = MinMaxScaler()
         train_features, test_features = x_train.todense(), x_test.todense()
+        print(train_features)
         transformer.fit(train_features)
         train_features = transformer.transform(train_features)
         test_features = transformer.transform(test_features)
