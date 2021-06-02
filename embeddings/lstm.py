@@ -76,25 +76,26 @@ def load_data(data_dir, ids_dir, grades_dir, dimension, sequence_length=100, voc
 
 
 def train_model(data_name, grades_dim, dimension=20, w_dimension=50, epochs=3, batch_size=16, optimizer='adam',
-                vocab=1000):
+                vocab=1000, length=100):
     base_dir = '/home/skuzi2/{}_dataset/'.format(data_name)
     data_dir = base_dir + '/embeddings_data/train.txt'
     ids_dir = base_dir + '/data_splits/dim.all.mod.neu.para.1.train.ids'
     grades_dir = base_dir + '/annotations/annotation_aggregated.tsv'
-    model_name = 'lstm.dim.{}.ldim.{}.wdim.{}.epoch.{}.batch.{}.opt.{}.vocab.{}'.format(grades_dim, dimension,
-                                                                                        w_dimension, epochs, batch_size,
-                                                                                        optimizer, vocab)
+    model_name = 'lstm.dim.{}.ldim.{}.wdim.{}.epoch.{}.batch.{}.opt.{}.vocab.{}.length.{}'.format(grades_dim, dimension,
+                                                                                                  w_dimension, epochs,
+                                                                                                  batch_size, optimizer,
+                                                                                                  vocab, length)
     model_dir = base_dir + '/embeddings_models/' + model_name + '.hdf5'
     model = NeuralModel(n_hidden=dimension, embedding_dim=w_dimension)
     compiled_model = model.create_model(optimizer=optimizer)
-    data, labels = load_data(data_dir, ids_dir, grades_dir, grades_dim, vocabulary_size=vocab)
+    data, labels = load_data(data_dir, ids_dir, grades_dir, grades_dim, vocabulary_size=vocab, sequence_length=length)
     batch_size = min(batch_size, data.shape[0])
     compiled_model.fit(x=data, y=labels, batch_size=batch_size, epochs=epochs)
     compiled_model.save(model_dir)
     return model_name
 
 
-def infer_embeddings(data_name, grades_dim, model_name, data_type, vocab=1000):
+def infer_embeddings(data_name, grades_dim, model_name, data_type, vocab=1000, length=100):
     K.clear_session()
     base_dir = '/home/skuzi2/{}_dataset/'.format(data_name)
     data_dir = base_dir + '/embeddings_data/{}.txt'.format(data_type)
@@ -110,7 +111,8 @@ def infer_embeddings(data_name, grades_dim, model_name, data_type, vocab=1000):
     intermediate_layer_model = Model(inputs=compiled_model.get_layer('input_1').output,
                                      outputs=compiled_model.get_layer('lstm').get_output_at(0))
 
-    data, _ = load_data(data_dir, ids_dir, grades_dir, grades_dim, infer_flag=True, vocabulary_size=vocab)
+    data, _ = load_data(data_dir, ids_dir, grades_dir, grades_dim, infer_flag=True, vocabulary_size=vocab,
+                        sequence_length=length)
     embeddings = intermediate_layer_model.predict(data)
 
     with open(vectors_dir, 'w+') as output_file:
@@ -126,7 +128,8 @@ def main():
     w_dims = [20]
     epochs = [10]
     batch_sizes = [8]
-    vocabs = [500]
+    vocabs = [1000]
+    lengths = [500]
     optimizers = ['adam']
     grade_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
 
@@ -137,10 +140,12 @@ def main():
                     for batch in batch_sizes:
                         for opt in optimizers:
                             for v in vocabs:
-                                model_name = train_model(data_name, grade_dim, dimension=lstm_dim, w_dimension=word_dim,
-                                                         epochs=epoch, batch_size=batch, optimizer=opt, vocab=v)
-                                infer_embeddings(data_name, grade_dim, model_name, 'train', vocab=v)
-                                infer_embeddings(data_name, grade_dim, model_name, 'test.val', vocab=v)
+                                for l in lengths:
+                                    model_name = train_model(data_name, grade_dim, dimension=lstm_dim,
+                                                             w_dimension=word_dim, epochs=epoch, batch_size=batch,
+                                                             optimizer=opt, vocab=v, length=l)
+                                    infer_embeddings(data_name, grade_dim, model_name, 'train', vocab=v, length=l)
+                                    infer_embeddings(data_name, grade_dim, model_name, 'test.val', vocab=v, length=l)
 
 
 if __name__ == '__main__':

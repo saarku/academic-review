@@ -288,7 +288,8 @@ def lstm_baseline():
     w_dims = [20]
     epochs = [10]
     batch_sizes = [8]
-    vocabs = [500]
+    vocabs = [1000]
+    lengths = [500]
     optimizers = ['adam']
     grade_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
     algorithms = ['regression', 'ranking']
@@ -305,14 +306,15 @@ def lstm_baseline():
                     for opt in optimizers:
                         for algorithm in algorithms:
                             for v in vocabs:
-                                lstm_model_name = 'ldim.{}.wdim.{}.epoch.{}.batch.{}.opt.{}.vocab.{}'.format(lstm_dim,
-                                                                                                             word_dim,
-                                                                                                             epoch,
-                                                                                                             batch,
-                                                                                                             opt, v)
-                                output = lstm_experiment(grade_dims, data_dir, algorithm, lstm_model_name)
-                                output_file.write(output)
-                                output_file.flush()
+                                for l in lengths:
+                                    lstm_model_name = 'ldim.{}.wdim.{}.epoch.{}.batch.{}.opt.{}.vocab.{}.length.{}'.format(lstm_dim,
+                                                                                                                 word_dim,
+                                                                                                                 epoch,
+                                                                                                                 batch,
+                                                                                                                 opt, v, l)
+                                    output = lstm_experiment(grade_dims, data_dir, algorithm, lstm_model_name)
+                                    output_file.write(output)
+                                    output_file.flush()
 
 
 def main():
