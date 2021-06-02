@@ -86,6 +86,7 @@ def train_model(data_name, grades_dim, dimension=20, w_dimension=50, epochs=3, b
     model = NeuralModel(n_hidden=dimension, embedding_dim=w_dimension)
     compiled_model = model.create_model(optimizer=optimizer)
     data, labels = load_data(data_dir, ids_dir, grades_dir, grades_dim)
+    batch_size = min(batch_size, data.shape[0])
     compiled_model.fit(x=data, y=labels, batch_size=batch_size, epochs=epochs)
     compiled_model.save(model_dir)
     return model_name
@@ -119,11 +120,11 @@ def infer_embeddings(data_name, grades_dim, model_name, data_type):
 def main():
 
     data_name = sys.argv[1]
-    dimensions = [15, 25]
+    dimensions = [5, 15, 25]
     w_dims = [50]
-    epochs = [3]
-    batch_sizes = [1, 8, 16]
-    optimizers = ['adam', 'sgd']
+    epochs = [10]
+    batch_sizes = [1000]
+    optimizers = ['adam']
     grade_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
 
     for grade_dim in grade_dims:
