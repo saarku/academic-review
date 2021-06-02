@@ -119,7 +119,7 @@ def infer_embeddings(data_name, grades_dim, model_name, data_type):
 def main():
 
     data_name = sys.argv[1]
-    dimensions = [5, 15, 25]
+    dimensions = [15, 25]
     w_dims = [50]
     epochs = [3]
     batch_sizes = [1, 8, 16]
