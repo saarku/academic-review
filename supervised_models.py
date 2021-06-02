@@ -296,7 +296,7 @@ def lstm_baseline():
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
 
     header = 'dim,algorithm,lstm_model_name,error,kendall,pearson\n'
-    output_file = open('report_lstm_{}.txt'.format(data_name), 'w+')
+    output_file = open('report_cnn_{}.txt'.format(data_name), 'w+')
     output_file.write(header)
 
     for lstm_dim in dimensions:
