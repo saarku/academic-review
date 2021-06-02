@@ -86,7 +86,7 @@ def train_model(data_name, grades_dim, dimension=20, w_dimension=50, epochs=3, b
                                                                                                   batch_size, optimizer,
                                                                                                   vocab, length)
     model_dir = base_dir + '/embeddings_models/' + model_name + '.hdf5'
-    model = NeuralModel(n_hidden=dimension, embedding_dim=w_dimension)
+    model = NeuralModel(n_hidden=dimension, embedding_dim=w_dimension, sequence_length=length)
     compiled_model = model.create_model(optimizer=optimizer)
     data, labels = load_data(data_dir, ids_dir, grades_dir, grades_dim, vocabulary_size=vocab, sequence_length=length)
     batch_size = min(batch_size, data.shape[0])
@@ -105,7 +105,7 @@ def infer_embeddings(data_name, grades_dim, model_name, data_type, vocab=1000, l
     vectors_dir = base_dir + '/embeddings_vectors/' + model_name + '.' + data_type
     model_args = model_name.split('.')
 
-    model = NeuralModel(n_hidden=int(model_args[4]), embedding_dim=int(model_args[6]))
+    model = NeuralModel(n_hidden=int(model_args[4]), embedding_dim=int(model_args[6]), sequence_length=length)
 
     compiled_model = model.create_model(weights_dir=model_dir)
     intermediate_layer_model = Model(inputs=compiled_model.get_layer('input_1').output,
