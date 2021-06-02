@@ -118,13 +118,11 @@ def train_model(data_name, grades_dim, dimension=20, w_dimension=50, epochs=3, b
     data, labels = load_data(data_dir, ids_dir, grades_dir, grades_dim, vocabulary_size=vocab, sequence_length=length)
     batch_size = min(batch_size, data.shape[0])
 
-    early_stop = EarlyStopping(monitor='val_loss', restore_best_weights=True)
-    model_checkpoint = ModelCheckpoint(filepath=model_dir, monitor='val_loss', save_best_only=True)
-    callbacks_list = [model_checkpoint, early_stop]
-    compiled_model.fit(x=data, y=labels, batch_size=batch_size, epochs=epochs, validation_split=0.2,
-                       callbacks=callbacks_list)
-
-    #compiled_model.save(model_dir)
+    #early_stop = EarlyStopping(monitor='val_loss', restore_best_weights=True)
+    #model_checkpoint = ModelCheckpoint(filepath=model_dir, monitor='val_loss', save_best_only=True)
+    #callbacks_list = [model_checkpoint, early_stop]
+    compiled_model.fit(x=data, y=labels, batch_size=batch_size, epochs=epochs)#, validation_split=0.2) # callbacks=callbacks_list)
+    compiled_model.save(model_dir)
     return model_name
 
 
@@ -158,10 +156,10 @@ def infer_embeddings(data_name, grades_dim, model_name, data_type, vocab=1000, l
 def main():
 
     data_name = sys.argv[1]
-    dimensions = [50]
-    w_dims = [20]
-    epochs = [50]
-    batch_sizes = [1000]
+    dimensions = [5, 15, 25]
+    w_dims = [50]
+    epochs = [5]
+    batch_sizes = [1]
     vocabs = [1000]
     lengths = [100]
     optimizers = ['sgd']
