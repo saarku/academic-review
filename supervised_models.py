@@ -290,7 +290,7 @@ def lstm_baseline():
     batch_sizes = [16]
     vocabs = [1000]
     lengths = [100]
-    optimizers = ['adam']
+    optimizers = ['sgd']
     grade_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
     algorithms = ['regression', 'ranking']
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
