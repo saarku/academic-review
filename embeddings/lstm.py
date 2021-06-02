@@ -158,13 +158,13 @@ def infer_embeddings(data_name, grades_dim, model_name, data_type, vocab=1000, l
 def main():
 
     data_name = sys.argv[1]
-    dimensions = [5, 15, 25]
-    w_dims = [50]
+    dimensions = [50]
+    w_dims = [20]
     epochs = [50]
     batch_sizes = [16]
     vocabs = [1000]
     lengths = [100]
-    optimizers = ['sgd']
+    optimizers = ['adam']
     grade_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
 
     for grade_dim in grade_dims:
