@@ -111,13 +111,15 @@ def train_model(data_name, grades_dim, dimension=20, w_dimension=50, epochs=3, b
     data_dir = base_dir + '/embeddings_data/train.txt'
     ids_dir = base_dir + '/data_splits/dim.all.mod.neu.para.1.train.ids'
     grades_dir = base_dir + '/annotations/annotation_aggregated.tsv'
-    model_name = 'lstm.dim.{}.ldim.{}.wdim.{}.epoch.{}.batch.{}.opt.{}.vocab.{}.length.{}'.format(grades_dim, dimension,
+    model_name = 'cnn.dim.{}.ldim.{}.wdim.{}.epoch.{}.batch.{}.opt.{}.vocab.{}.length.{}'.format(grades_dim, dimension,
                                                                                                   w_dimension, epochs,
                                                                                                   batch_size, optimizer,
                                                                                                   vocab, length)
     model_dir = base_dir + '/embeddings_models/' + model_name + '.hdf5'
     model = NeuralModel(n_hidden=dimension, embedding_dim=w_dimension, sequence_length=length)
-    compiled_model = model.create_model(optimizer=optimizer)
+
+    #compiled_model = model.create_model(optimizer=optimizer)
+    compiled_model = model.create_cnn(optimizer=optimizer)
     data, labels = load_data(data_dir, ids_dir, grades_dir, grades_dim, vocabulary_size=vocab, sequence_length=length)
     batch_size = min(batch_size, data.shape[0])
 
@@ -141,10 +143,15 @@ def infer_embeddings(data_name, grades_dim, model_name, data_type, vocab=1000, l
 
     model = NeuralModel(n_hidden=int(model_args[4]), embedding_dim=int(model_args[6]), sequence_length=length)
 
-    compiled_model = model.create_model(weights_dir=model_dir)
+    #compiled_model = model.create_model(weights_dir=model_dir)
+    compiled_model = model.create_cnn(weights_dir=model_dir)
+
     print(compiled_model.summary())
+    #intermediate_layer_model = Model(inputs=compiled_model.get_layer('input_1').output,
+    #                                 outputs=compiled_model.get_layer('lstm').get_output_at(0))
+
     intermediate_layer_model = Model(inputs=compiled_model.get_layer('input_1').output,
-                                     outputs=compiled_model.get_layer('lstm').get_output_at(0))
+                                     outputs=compiled_model.get_layer('dense_1').get_output_at(0))
 
     data, _ = load_data(data_dir, ids_dir, grades_dir, grades_dim, infer_flag=True, vocabulary_size=vocab,
                         sequence_length=length)
