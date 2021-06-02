@@ -39,7 +39,7 @@ class NeuralModel:
         embedding_layer = Embedding(self.vocab_size + 2, self.embedding_dim, input_length=self.sequence_length,
                                     trainable=True)
         encoded = embedding_layer(input_data)
-        conv_layer = Conv1D(8, kernel_size=3, activation='relu', input_shape=(self.sequence_length,
+        conv_layer = Conv1D(4, kernel_size=3, activation='relu', input_shape=(self.sequence_length,
                                                                                    self.embedding_dim))
         cnn_output = conv_layer(encoded)
 
