@@ -1,5 +1,5 @@
 from keras.models import Model
-from keras.layers import Input, Embedding, LSTM, Dot, Activation, BatchNormalization, Dropout, Dense, Bidirectional, Lambda
+from keras.layers import Input, Embedding, LSTM, Dot, Flatten, Activation, BatchNormalization, Dropout, Dense, Bidirectional, Lambda, MaxPooling2D, Conv2D
 import numpy as np
 import sys
 from tensorflow.keras import backend as K
@@ -25,6 +25,32 @@ class NeuralModel:
 
         embedding_layer = Dense(1)
         outputs = embedding_layer(lstm_output)
+
+        model = Model([input_data], outputs)
+
+        if weights_dir is not None:
+            model.load_weights(weights_dir)
+
+        model.compile(loss='mse', optimizer=optimizer, metrics=['accuracy'])
+        return model
+
+    def create_cnn(self, weights_dir=None, optimizer='adam'):
+        input_data = Input(shape=(self.sequence_length,), dtype='int32')
+        embedding_layer = Embedding(self.vocab_size + 2, self.embedding_dim, input_length=self.sequence_length,
+                                    trainable=True)
+        encoded = embedding_layer(input_data)
+        conv_layer = Conv2D(8, kernel_size=(3, 3), activation='relu', input_shape=(self.sequence_length,
+                                                                                   self.embedding_dim))
+        cnn_output = conv_layer(encoded)
+
+        pooling_layer = MaxPooling2D(pool_size=(2, 2))
+        cnn_output = pooling_layer(cnn_output)
+
+        flatten_layer = Flatten()
+        cnn_output = flatten_layer(cnn_output)
+
+        dense_layer = Dense(self.n_hidden)
+        outputs = dense_layer(cnn_output)
 
         model = Model([input_data], outputs)
 
@@ -138,7 +164,7 @@ def main():
     batch_sizes = [16]
     vocabs = [1000]
     lengths = [100]
-    optimizers = ['adam']
+    optimizers = ['sgd']
     grade_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
 
     for grade_dim in grade_dims:
