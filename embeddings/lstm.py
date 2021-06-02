@@ -112,7 +112,7 @@ def infer_embeddings(data_name, grades_dim, model_name, data_type):
 
     with open(vectors_dir, 'w+') as output_file:
         for line_num in range(embeddings.shape[0]):
-            output_file.write('[' + ' '.join(['(' + str(i) + ', ' + str(num) + ')'
+            output_file.write('[' + ', '.join(['(' + str(i) + ', ' + str(num) + ')'
                                               for i, num in enumerate(list(embeddings[line_num, :]))]) + ']\n')
 
 
