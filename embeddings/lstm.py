@@ -46,8 +46,8 @@ class NeuralModel:
         pooling_layer = MaxPooling1D()
         cnn_output = pooling_layer(cnn_output)
 
-        #flatten_layer = Flatten()
-        #cnn_output = flatten_layer(cnn_output)
+        flatten_layer = Flatten()
+        cnn_output = flatten_layer(cnn_output)
 
         dense_layer_1 = Dense(self.n_hidden)
         dense_layer_2 = Dense(1)
@@ -151,7 +151,7 @@ def infer_embeddings(data_name, grades_dim, model_name, data_type, vocab=1000, l
     #                                 outputs=compiled_model.get_layer('lstm').get_output_at(0))
 
     intermediate_layer_model = Model(inputs=compiled_model.get_layer('input_1').output,
-                                     outputs=compiled_model.get_layer('dense_1').get_output_at(0))
+                                     outputs=compiled_model.get_layer('dense').get_output_at(0))
 
     data, _ = load_data(data_dir, ids_dir, grades_dir, grades_dim, infer_flag=True, vocabulary_size=vocab,
                         sequence_length=length)
