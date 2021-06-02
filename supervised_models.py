@@ -285,9 +285,9 @@ def unigram_baseline():
 def lstm_baseline():
     data_name = sys.argv[1]
     dimensions = [5, 15, 25]
-    w_dims = [20]
+    w_dims = [50]
     epochs = [500]
-    batch_sizes = [1000]
+    batch_sizes = [16]
     vocabs = [1000]
     lengths = [100]
     optimizers = ['adam']

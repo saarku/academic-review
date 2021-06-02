@@ -95,7 +95,7 @@ def train_model(data_name, grades_dim, dimension=20, w_dimension=50, epochs=3, b
     early_stop = EarlyStopping(monitor='val_loss', restore_best_weights=True)
     model_checkpoint = ModelCheckpoint(filepath=model_dir, monitor='val_loss', save_best_only=True)
     callbacks_list = [model_checkpoint, early_stop]
-    compiled_model.fit(x=data, y=labels, batch_size=batch_size, epochs=epochs, validation_split=0.2,
+    compiled_model.fit(x=data, y=labels, batch_size=batch_size, epochs=epochs, validation_split=0.1,
                        callbacks=callbacks_list)
 
     #compiled_model.save(model_dir)
@@ -133,9 +133,9 @@ def main():
 
     data_name = sys.argv[1]
     dimensions = [5, 15, 25]
-    w_dims = [20]
+    w_dims = [50]
     epochs = [500]
-    batch_sizes = [1000]
+    batch_sizes = [16]
     vocabs = [1000]
     lengths = [100]
     optimizers = ['adam']
