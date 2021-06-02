@@ -1,19 +1,21 @@
 from keras.models import Model
 from keras.layers import Input, Embedding, LSTM, Dot, Activation, BatchNormalization, Dropout, Dense, Bidirectional, Lambda
-import keras.backend as K
 import numpy as np
+import sys
 
 
 class NeuralModel:
-    def __init__(self, sequence_length=100, n_hidden=50):
+    def __init__(self, sequence_length=100, n_hidden=50, embedding_dim=50):
         self.n_hidden = n_hidden
         self.sequence_length = sequence_length
         self.vocab_size = 1000
+        self.embedding_dim = embedding_dim
 
-    def create_model(self, weights_dir=None):
+    def create_model(self, weights_dir=None, optimizer='adam'):
         input_data = Input(shape=(self.sequence_length,), dtype='int32')
 
-        embedding_layer = Embedding(self.vocab_size + 2, self.n_hidden, input_length=self.sequence_length, trainable=True)
+        embedding_layer = Embedding(self.vocab_size + 2, self.embedding_dim, input_length=self.sequence_length,
+                                    trainable=True)
         encoded = embedding_layer(input_data)
 
         lstm_layer = LSTM(self.n_hidden)
@@ -27,7 +29,7 @@ class NeuralModel:
         if weights_dir is not None:
             model.load_weights(weights_dir)
 
-        model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
+        model.compile(loss='mse', optimizer=optimizer, metrics=['accuracy'])
         return model
 
 
@@ -54,7 +56,7 @@ def build_labels(ids_dir, grades_dir):
     return labels_matrix
 
 
-def load_data(data_dir, ids_dir, grades_dir, dimension, sequence_length=100, vocabulary_size=1000):
+def load_data(data_dir, ids_dir, grades_dir, dimension, sequence_length=100, vocabulary_size=1000, infer_flag=False):
     labels_matrix = build_labels(ids_dir, grades_dir)
     labels = []
     vectors = []
@@ -62,7 +64,7 @@ def load_data(data_dir, ids_dir, grades_dir, dimension, sequence_length=100, voc
     with open(data_dir, 'r') as vector_file:
         for i, line in enumerate(vector_file):
             label = labels_matrix[i, dimension]
-            if label > 0:
+            if label > 0 or infer_flag:
                 padding = [0] * sequence_length
                 padded_line = [int(j) for j in line.split()] + padding
                 padded_line = np.asarray(padded_line[0:sequence_length])
@@ -72,47 +74,65 @@ def load_data(data_dir, ids_dir, grades_dir, dimension, sequence_length=100, voc
     return np.vstack(vectors), np.asarray(labels)
 
 
-def train_model(data_name, dimension):
+def train_model(data_name, grades_dim, dimension=20, w_dimension=50, epochs=3, batch_size=16, optimizer='adam'):
     base_dir = '/home/skuzi2/{}_dataset/'.format(data_name)
     data_dir = base_dir + '/embeddings_data/train.txt'
     ids_dir = base_dir + '/data_splits/dim.all.mod.neu.para.1.train.ids'
     grades_dir = base_dir + '/annotations/annotation_aggregated.tsv'
-    model_dir = base_dir + '/embeddings_models/lstm.' + str(dimension) + '.hdf5'
-
-    model = NeuralModel()
-    compiled_model = model.create_model()
-    data, labels = load_data(data_dir, ids_dir, grades_dir, dimension)
-    print(data.shape)
-    print(labels.shape)
-    compiled_model.fit(x=data, y=labels, batch_size=16, epochs=3)
+    model_name = 'lstm.dim.{}.ldim.{}.wdim.{}.epoch.{}.batch.{}.opt.{}'.format(grades_dim, dimension, w_dimension,
+                                                                               epochs, batch_size, optimizer)
+    model_dir = base_dir + '/embeddings_models/' + model_name + '.hdf5'
+    model = NeuralModel(n_hidden=dimension, embedding_dim=w_dimension)
+    compiled_model = model.create_model(optimizer=optimizer)
+    data, labels = load_data(data_dir, ids_dir, grades_dir, grades_dim)
+    compiled_model.fit(x=data, y=labels, batch_size=batch_size, epochs=epochs)
     compiled_model.save(model_dir)
+    return model_name
 
 
-def infer_embeddings(data_name, dimension, data_type):
+def infer_embeddings(data_name, grades_dim, model_name, data_type):
     base_dir = '/home/skuzi2/{}_dataset/'.format(data_name)
     data_dir = base_dir + '/embeddings_data/{}.txt'.format(data_type)
     ids_dir = base_dir + '/data_splits/dim.all.mod.neu.para.1.{}.ids'.format(data_type)
     grades_dir = base_dir + '/annotations/annotation_aggregated.tsv'
-    model_dir = base_dir + '/embeddings_models/lstm.' + str(dimension) + '.hdf5'
-    vectors_dir = base_dir + '/embeddings_vectors/lstm.' + str(dimension)
+    model_dir = base_dir + '/embeddings_models/' + model_name + '.hdf5'
+    vectors_dir = base_dir + '/embeddings_vectors/' + model_name + '.' + data_type
+    model_args = model_name.split('.')
 
-    model = NeuralModel()
+    model = NeuralModel(n_hidden=int(model_args[4]), embedding_dim=int(model_args[6]))
     compiled_model = model.create_model(weights_dir=model_dir)
-    print(compiled_model.summary())
     intermediate_layer_model = Model(inputs=compiled_model.get_layer('input_1').output,
                                      outputs=compiled_model.get_layer('lstm').get_output_at(0))
 
-    data, _ = load_data(data_dir, ids_dir, grades_dir, dimension)
+    data, _ = load_data(data_dir, ids_dir, grades_dir, grades_dim, infer_flag=True)
     embeddings = intermediate_layer_model.predict(data)
 
-    with open(vectors_dir + '.{}'.format(data_type), 'w+') as output_file:
+    with open(vectors_dir, 'w+') as output_file:
         for line_num in range(embeddings.shape[0]):
             output_file.write('[' + ' '.join(['(' + str(i) + ', ' + str(num) + ')'
                                               for i, num in enumerate(list(embeddings[line_num, :]))]) + ']\n')
 
 
 def main():
-    infer_embeddings('education', 1, 'train')
+
+    data_name = sys.argv[1]
+    dimensions = [5, 15, 25]
+    w_dims = [50]
+    epochs = [3]
+    batch_sizes = [1, 8, 16]
+    optimizers = ['adam', 'sgd']
+    grade_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
+
+    for grade_dim in grade_dims:
+        for lstm_dim in dimensions:
+            for word_dim in w_dims:
+                for epoch in epochs:
+                    for batch in batch_sizes:
+                        for opt in optimizers:
+                            model_name = train_model(data_name, grade_dim, dimension=lstm_dim, w_dimension=word_dim,
+                                                     epochs=epoch, batch_size=batch, optimizer=opt)
+                            infer_embeddings(data_name, grade_dim, model_name, 'train')
+                            infer_embeddings(data_name, grade_dim, model_name, 'test')
 
 
 if __name__ == '__main__':
