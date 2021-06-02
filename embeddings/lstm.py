@@ -49,8 +49,11 @@ class NeuralModel:
         flatten_layer = Flatten()
         cnn_output = flatten_layer(cnn_output)
 
-        dense_layer = Dense(self.n_hidden)
-        outputs = dense_layer(cnn_output)
+        dense_layer_1 = Dense(self.n_hidden)
+        dense_layer_2 = Dense(1)
+
+        outputs = dense_layer_1(cnn_output)
+        outputs = dense_layer_2(outputs)
 
         model = Model([input_data], outputs)
 
@@ -158,7 +161,7 @@ def main():
     data_name = sys.argv[1]
     dimensions = [5, 15, 25]
     w_dims = [50]
-    epochs = [3]
+    epochs = [2]
     batch_sizes = [1]
     vocabs = [1000]
     lengths = [100]
