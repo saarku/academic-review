@@ -288,6 +288,7 @@ def lstm_baseline():
     w_dims = [20]
     epochs = [20]
     batch_sizes = [8]
+    vocabs = [500]
     optimizers = ['adam']
     grade_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
     algorithms = ['regression', 'ranking']
@@ -303,11 +304,15 @@ def lstm_baseline():
                 for batch in batch_sizes:
                     for opt in optimizers:
                         for algorithm in algorithms:
-                            lstm_model_name = 'ldim.{}.wdim.{}.epoch.{}.batch.{}.opt.{}'.format(lstm_dim, word_dim,
-                                                                                                epoch, batch, opt)
-                            output = lstm_experiment(grade_dims, data_dir, algorithm, lstm_model_name)
-                            output_file.write(output)
-                            output_file.flush()
+                            for v in vocabs:
+                                lstm_model_name = 'ldim.{}.wdim.{}.epoch.{}.batch.{}.opt.{}.vocab.{}'.format(lstm_dim,
+                                                                                                             word_dim,
+                                                                                                             epoch,
+                                                                                                             batch,
+                                                                                                             opt, v)
+                                output = lstm_experiment(grade_dims, data_dir, algorithm, lstm_model_name)
+                                output_file.write(output)
+                                output_file.flush()
 
 
 def main():
