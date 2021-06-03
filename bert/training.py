@@ -1,5 +1,5 @@
 from bert_tokenizer import BertTokenizer
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 sess = tf.Session()
 from tensorflow.keras import backend as K
 
