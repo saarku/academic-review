@@ -54,6 +54,7 @@ valid_dataset = NewsGroupsDataset(valid_encodings, [float(i) for i in valid_labe
 print('load')
 
 model = BertForSequenceClassification.from_pretrained(model_name, num_labels=1)
+print(model)
 #model = AutoModel.from_pretrained(model_name)
 
 training_args = TrainingArguments(
@@ -80,3 +81,7 @@ trainer = Trainer(
 
 print('train')
 trainer.train()
+
+
+
+
