@@ -34,7 +34,7 @@ def compute_metrics(pred):
     return {'accuracy': acc}
 
 
-model_name = "bert-base-uncased"
+model_name = "'allenai/scibert_scivocab_uncased'"
 max_length = 512
 
 print('initialize tokenize')
