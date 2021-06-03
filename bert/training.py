@@ -10,6 +10,6 @@ from bert_layer import BertLayer
 #bert_layer = BertLayer(n_fine_tune_layers=1, pooling="first")
 
 model = BertModel()
-model.create_model()
+model.create_model(['bin'])
 
 print(model.summary())
