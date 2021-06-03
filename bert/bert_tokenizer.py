@@ -1,24 +1,17 @@
 #import tensorflow_hub as hub
 from bert.tokenization import FullTokenizer
+from transformers import AutoTokenizer
 
 
 class BertTokenizer:
 
     def __init__(self):
-        #self.bert_path = "https://tfhub.dev/google/bert_uncased_L-12_H-768_A-12/1"
-        self.bert_path  = "/home/skuzi2/scibert_scivocab_uncased"
-        self.tokenizer = self.create_tokenizer_from_hub_module()
-
-    def create_tokenizer_from_hub_module(self):
-        #bert_module = hub.Module(self.bert_path)
-        #tokenization_info = bert_module(signature="tokenization_info", as_dict=True)
-        #vocab_file, do_lower_case = self.sess.run([tokenization_info["vocab_file"], tokenization_info["do_lower_case"], ])
-        vocab_file = self.bert_path + '/vocab.txt'
-        do_lower_case = True
-        return FullTokenizer(vocab_file=vocab_file, do_lower_case=do_lower_case)
+        self.tokenizer = AutoTokenizer.from_pretrained('allenai/scibert_scivocab_uncased')
 
     def convert_single_example(self, text, max_seq_length=100):
-
+        train_encodings = self.tokenizer([text], truncation=True, padding=True)
+        print(train_encodings)
+        '''
         text_tokens = self.tokenizer.tokenize(text)
 
         if len(text_tokens) > max_seq_length - 2:
@@ -46,3 +39,4 @@ class BertTokenizer:
         assert len(segment_ids) == max_seq_length
 
         return input_ids, input_mask, segment_ids
+        '''
