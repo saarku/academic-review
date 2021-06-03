@@ -84,7 +84,7 @@ trainer.train()
 
 
 test_encodings = tokenizer(valid_texts[:10], truncation=True, padding=True, max_length=max_length, return_tensors="pt")
-outputs = model(**test_encodings)
+outputs = model(**test_encodings, output_hidden_states=True)
 print(outputs)
 
 
