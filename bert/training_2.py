@@ -34,7 +34,7 @@ def compute_metrics(pred):
     return {'accuracy': acc}
 
 
-model_name = "'allenai/scibert_scivocab_uncased'"
+model_name = 'allenai/scibert_scivocab_uncased'
 max_length = 512
 
 print('initialize tokenize')
@@ -52,8 +52,8 @@ valid_dataset = NewsGroupsDataset(valid_encodings, valid_labels[:10])
 
 print('load')
 
-#model = BertForSequenceClassification.from_pretrained(model_name, num_labels=len(target_names))
-model = AutoModel.from_pretrained(model_name)
+model = BertForSequenceClassification.from_pretrained(model_name, num_labels=len(target_names))
+#model = AutoModel.from_pretrained(model_name)
 
 training_args = TrainingArguments(
     output_dir='./results',          # output directory
