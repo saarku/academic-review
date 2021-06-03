@@ -30,7 +30,7 @@ training_args = TFTrainingArguments(
 )
 
 with training_args.strategy.scope():
-    model = TFDistilBertForSequenceClassification.from_pretrained("distilbert-base-uncased")
+    model = TFDistilBertForSequenceClassification.from_pretrained("allenai/scibert_scivocab_uncased")
 
 print(model.summary())
 '''
