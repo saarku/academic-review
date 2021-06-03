@@ -42,15 +42,15 @@ tokenizer = AutoTokenizer.from_pretrained(model_name, do_lower_case=True)
 (train_texts, valid_texts, train_labels, valid_labels), target_names = read_20newsgroups()
 
 print('tokenizing')
-train_encodings = tokenizer(train_texts, truncation=True, padding=True, max_length=max_length)
-valid_encodings = tokenizer(valid_texts, truncation=True, padding=True, max_length=max_length)
+train_encodings = tokenizer(train_texts[:10], truncation=True, padding=True, max_length=max_length)
+valid_encodings = tokenizer(valid_texts[:10], truncation=True, padding=True, max_length=max_length)
 
 print('dataset')
-train_dataset = NewsGroupsDataset(train_encodings, train_labels)
-valid_dataset = NewsGroupsDataset(valid_encodings, valid_labels)
+train_dataset = NewsGroupsDataset(train_encodings, train_labels[:10])
+valid_dataset = NewsGroupsDataset(valid_encodings, valid_labels[:10])
 
 print('load')
-model = BertForSequenceClassification.from_pretrained(model_name, num_labels=len(target_names)).to("cuda")
+model = BertForSequenceClassification.from_pretrained(model_name, num_labels=len(target_names))
 
 training_args = TrainingArguments(
     output_dir='./results',          # output directory
