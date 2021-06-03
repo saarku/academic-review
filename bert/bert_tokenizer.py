@@ -6,6 +6,7 @@ class BertTokenizer:
 
     def __init__(self, sess):
         self.bert_path = "https://tfhub.dev/google/bert_uncased_L-12_H-768_A-12/1"
+        #self.bert_path  = "/home/skuzi2/scibert_scivocab_uncased"
         self.sess = sess
         self.tokenizer = self.create_tokenizer_from_hub_module()
 

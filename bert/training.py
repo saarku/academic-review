@@ -1,6 +1,6 @@
 from bert_tokenizer import BertTokenizer
 import tensorflow as tf
-sess = tf.Session()
+sess = tf.compat.v1.Session()
 from tensorflow.keras import backend as K
 
 
