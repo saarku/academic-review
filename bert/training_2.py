@@ -1,5 +1,5 @@
 import torch
-from transformers import AutoTokenizer, BertForSequenceClassification
+from transformers import AutoTokenizer, BertForSequenceClassification, AutoModel
 from transformers import Trainer, TrainingArguments
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.model_selection import train_test_split
@@ -52,7 +52,8 @@ valid_dataset = NewsGroupsDataset(valid_encodings, valid_labels[:10])
 
 print('load')
 
-model = BertForSequenceClassification.from_pretrained(model_name)#, num_labels=len(target_names))
+#model = BertForSequenceClassification.from_pretrained(model_name, num_labels=len(target_names))
+model = AutoModel.from_pretrained(model_name)
 
 training_args = TrainingArguments(
     output_dir='./results',          # output directory
