@@ -51,7 +51,8 @@ train_dataset = NewsGroupsDataset(train_encodings, train_labels[:10])
 valid_dataset = NewsGroupsDataset(valid_encodings, valid_labels[:10])
 
 print('load')
-model = BertForSequenceClassification.from_pretrained(model_name, num_labels=len(target_names))
+
+model = BertForSequenceClassification.from_pretrained(model_name)#, num_labels=len(target_names))
 
 training_args = TrainingArguments(
     output_dir='./results',          # output directory
