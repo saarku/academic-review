@@ -9,6 +9,6 @@ from transformers import AutoModel, TFBertForSequenceClassification
 
 #'/home/skuzi2/scibert_scivocab_uncased''allenai/scibert_scivocab_uncased'
 
-model = TFBertForSequenceClassification.from_pretrained('/home/skuzi2/scibert_scivocab_uncased')
+model = TFBertForSequenceClassification.from_pretrained('/home/skuzi2/scibert_scivocab_uncased/bert_')
 
 
