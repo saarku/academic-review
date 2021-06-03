@@ -1,4 +1,4 @@
-import tensorflow_hub as hub
+#import tensorflow_hub as hub
 from bert.tokenization import FullTokenizer
 
 
