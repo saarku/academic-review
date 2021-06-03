@@ -38,7 +38,8 @@ model_name = "'allenai/scibert_scivocab_uncased'"
 max_length = 512
 
 print('initialize tokenize')
-tokenizer = AutoTokenizer.from_pretrained(model_name, do_lower_case=True)
+#tokenizer = AutoTokenizer.from_pretrained(model_name, do_lower_case=True)
+tokenizer = AutoTokenizer.from_pretrained('allenai/scibert_scivocab_uncased')
 (train_texts, valid_texts, train_labels, valid_labels), target_names = read_20newsgroups()
 
 print('tokenizing')
