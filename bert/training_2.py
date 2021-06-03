@@ -1,9 +1,6 @@
 import torch
-from transformers.file_utils import is_tf_available, is_torch_available, is_torch_tpu_available
-from transformers import BertTokenizerFast, BertForSequenceClassification
+from transformers import AutoTokenizer, BertForSequenceClassification
 from transformers import Trainer, TrainingArguments
-import numpy as np
-import random
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
@@ -39,7 +36,7 @@ def compute_metrics(pred):
 
 model_name = "bert-base-uncased"
 max_length = 512
-tokenizer = BertTokenizerFast.from_pretrained(model_name, do_lower_case=True)
+tokenizer = AutoTokenizer.from_pretrained(model_name, do_lower_case=True)
 (train_texts, valid_texts, train_labels, valid_labels), target_names = read_20newsgroups()
 
 train_encodings = tokenizer(train_texts, truncation=True, padding=True, max_length=max_length)
