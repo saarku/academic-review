@@ -47,6 +47,7 @@ train_encodings = tokenizer(train_texts[:10], truncation=True, padding=True, max
 valid_encodings = tokenizer(valid_texts[:10], truncation=True, padding=True, max_length=max_length)
 
 print('dataset')
+print(train_labels[:10])
 train_dataset = NewsGroupsDataset(train_encodings, train_labels[:10])
 valid_dataset = NewsGroupsDataset(valid_encodings, valid_labels[:10])
 
