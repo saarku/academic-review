@@ -1,5 +1,5 @@
 import tensorflow_hub as hub
-from transformers import AutoModel, BertForSequenceClassification
+from transformers import AutoModel, TFBertForSequenceClassification
 
 #model = AutoModel.from_pretrained('allenai/scibert_scivocab_uncased')
 
@@ -9,6 +9,6 @@ from transformers import AutoModel, BertForSequenceClassification
 
 #'/home/skuzi2/scibert_scivocab_uncased'
 
-model = BertForSequenceClassification.from_pretrained('allenai/scibert_scivocab_uncased')
-print(model.summary())
+model = TFBertForSequenceClassification.from_pretrained('allenai/scibert_scivocab_uncased')
+
 
