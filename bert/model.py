@@ -2,7 +2,7 @@ import tensorflow as tf
 from bert_layer import BertLayer
 from keras.models import Model
 import keras.backend as K
-sess = tf.Session()
+sess = tf.compat.v1.Session()
 
 
 def triplet_distance(vectors):
