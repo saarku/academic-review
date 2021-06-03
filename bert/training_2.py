@@ -36,15 +36,20 @@ def compute_metrics(pred):
 
 model_name = "bert-base-uncased"
 max_length = 512
+
+print('initialize tokenize')
 tokenizer = AutoTokenizer.from_pretrained(model_name, do_lower_case=True)
 (train_texts, valid_texts, train_labels, valid_labels), target_names = read_20newsgroups()
 
+print('tokenizing')
 train_encodings = tokenizer(train_texts, truncation=True, padding=True, max_length=max_length)
 valid_encodings = tokenizer(valid_texts, truncation=True, padding=True, max_length=max_length)
 
+print('dataset')
 train_dataset = NewsGroupsDataset(train_encodings, train_labels)
 valid_dataset = NewsGroupsDataset(valid_encodings, valid_labels)
 
+print('load')
 model = BertForSequenceClassification.from_pretrained(model_name, num_labels=len(target_names)).to("cuda")
 
 training_args = TrainingArguments(
@@ -69,4 +74,5 @@ trainer = Trainer(
     compute_metrics=compute_metrics,     # the callback that computes metrics of interest
 )
 
+print('train')
 trainer.train()
