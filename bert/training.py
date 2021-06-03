@@ -1,15 +1,4 @@
-from bert_tokenizer import BertTokenizer
-from model import BertModel
-from bert_layer import BertLayer
+import tensorflow_hub as hub
 
-
-#t = BertTokenizer()
-#t.convert_single_example('public scope science depth')
-#model = BertModel()
-
-#bert_layer = BertLayer(n_fine_tune_layers=1, pooling="first")
-
-model = BertModel()
-model.create_model(['bin'])
-
-print(model.summary())
+bert_model = hub.KerasLayer('https://tfhub.dev/tensorflow/bert_en_uncased_L-12_H-768_A-12/3')
+print(bert_model.summary())
