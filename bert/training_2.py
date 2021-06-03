@@ -82,6 +82,8 @@ trainer = Trainer(
 print('train')
 trainer.train()
 
+outputs = model(train_encodings)
+print(outputs)
 
 
 
