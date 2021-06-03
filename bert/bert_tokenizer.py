@@ -16,7 +16,7 @@ class BertTokenizer:
         #vocab_file, do_lower_case = self.sess.run([tokenization_info["vocab_file"], tokenization_info["do_lower_case"], ])
         vocab_file = self.bert_path + '/vocab.txt'
         do_lower_case = True
-        return FullTokenizer(vocab_file=vocab_file, do_lower_case=do_lower_case, preserve_unused_tokens=False)
+        return FullTokenizer(vocab_file=vocab_file, do_lower_case=do_lower_case)
 
     def convert_single_example(self, text, max_seq_length=100):
         text_tokens = self.tokenizer.tokenize(text)
