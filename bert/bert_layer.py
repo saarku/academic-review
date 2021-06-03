@@ -6,7 +6,7 @@ from tensorflow.keras import backend as K
 class BertLayer(tf.keras.layers.Layer):
 
     def __init__(self, n_fine_tune_layers=0, pooling="first",
-                 bert_path="/home/skuzi2/scibert_scivocab_uncased", **kwargs):
+                 bert_path="https://tfhub.dev/google/bert_uncased_L-12_H-768_A-12/1", **kwargs):
 
         self.n_fine_tune_layers = n_fine_tune_layers
         self.bert = None
@@ -20,6 +20,7 @@ class BertLayer(tf.keras.layers.Layer):
 
     def build(self, input_shape):
         self.bert = hub.Module(self.bert_path, trainable=self.trainable, name=f"{self.name}_module")
+        self.bert.load_weights('/home/skuzi2/scibert_scivocab_uncased/')
 
         trainable_vars = self.bert.variables
         if self.pooling == "first":
