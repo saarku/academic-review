@@ -1,5 +1,5 @@
 import torch
-from transformers import AutoTokenizer, BertForSequenceClassification, AutoModel
+from transformers import AutoTokenizer, BertForSequenceClassification, AutoModel, BertTokenizerFast
 from transformers import Trainer, TrainingArguments
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.model_selection import train_test_split
@@ -39,7 +39,7 @@ max_length = 512
 
 print('initialize tokenize')
 #tokenizer = AutoTokenizer.from_pretrained(model_name, do_lower_case=True)
-tokenizer = AutoTokenizer.from_pretrained('allenai/scibert_scivocab_uncased')
+tokenizer = BertTokenizerFast.from_pretrained('allenai/scibert_scivocab_uncased', do_lower_case=True)
 (train_texts, valid_texts, train_labels, valid_labels), target_names = read_20newsgroups()
 
 print('tokenizing')
