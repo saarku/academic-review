@@ -4,10 +4,9 @@ from bert.tokenization import FullTokenizer
 
 class BertTokenizer:
 
-    def __init__(self, sess):
+    def __init__(self):
         #self.bert_path = "https://tfhub.dev/google/bert_uncased_L-12_H-768_A-12/1"
         self.bert_path  = "/home/skuzi2/scibert_scivocab_uncased"
-        self.sess = sess
         self.tokenizer = self.create_tokenizer_from_hub_module()
 
     def create_tokenizer_from_hub_module(self):
@@ -19,7 +18,9 @@ class BertTokenizer:
         return FullTokenizer(vocab_file=vocab_file, do_lower_case=do_lower_case)
 
     def convert_single_example(self, text, max_seq_length=100):
+
         text_tokens = self.tokenizer.tokenize(text)
+
         if len(text_tokens) > max_seq_length - 2:
             text_tokens = text_tokens[:(max_seq_length - 2)]
 
