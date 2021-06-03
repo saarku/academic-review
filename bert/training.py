@@ -9,7 +9,7 @@ from transformers import AutoModel, BertForSequenceClassification
 
 #'/home/skuzi2/scibert_scivocab_uncased''allenai/scibert_scivocab_uncased'
 
-model = BertForSequenceClassification.from_pretrained('allenai/scibert_scivocab_uncased')
+model = BertForSequenceClassification.from_pretrained('allenai/scibert_scivocab_uncased', num_labels=1)
 print(model)
 
 
