@@ -1,9 +1,9 @@
 from transformers import AutoTokenizer, AutoModel
 import tensorflow as tf
-from transformers import TFTrainer, TFTrainingArguments
+from transformers import TFTrainer, TFTrainingArguments, TFDistilBertForSequenceClassification
 
 tokenizer = AutoTokenizer.from_pretrained('allenai/scibert_scivocab_uncased')
-model = AutoModel.from_pretrained('allenai/scibert_scivocab_uncased')
+#model = AutoModel.from_pretrained('allenai/scibert_scivocab_uncased')
 
 train_texts = open('/home/skuzi2/education_dataset/data_splits/dim.all.mod.neu.para.1.train.text', 'r').readlines()
 train_labels = [1]*len(train_texts)
@@ -15,9 +15,9 @@ train_dataset = tf.data.Dataset.from_tensor_slices((
     train_labels
 ))
 
-print(model.summary())
 
-'''
+
+
 training_args = TFTrainingArguments(
     output_dir='./results',          # output directory
     num_train_epochs=3,              # total number of training epochs
@@ -29,6 +29,11 @@ training_args = TFTrainingArguments(
     logging_steps=10,
 )
 
+with training_args.strategy.scope():
+    model = TFDistilBertForSequenceClassification.from_pretrained("distilbert-base-uncased")
+
+print(model.summary())
+'''
 trainer = TFTrainer(
     model=model,                         # the instantiated 🤗 Transformers model to be trained
     args=training_args,                  # training arguments, defined above
