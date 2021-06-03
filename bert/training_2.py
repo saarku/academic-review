@@ -52,7 +52,7 @@ valid_dataset = NewsGroupsDataset(valid_encodings, valid_labels[:10])
 
 print('load')
 
-model = BertForSequenceClassification.from_pretrained(model_name, num_labels=len(target_names))
+model = BertForSequenceClassification.from_pretrained(model_name, num_labels=1)
 #model = AutoModel.from_pretrained(model_name)
 
 training_args = TrainingArguments(
