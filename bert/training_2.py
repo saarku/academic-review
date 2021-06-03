@@ -35,7 +35,7 @@ def compute_metrics(pred):
 
 
 model_name = 'allenai/scibert_scivocab_uncased'
-max_length = 512
+max_length = 20
 
 print('initialize tokenize')
 tokenizer = AutoTokenizer.from_pretrained(model_name, do_lower_case=True)
