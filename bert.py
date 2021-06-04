@@ -80,7 +80,7 @@ def infer_embeddings(model, tokenizer, data_name, max_length, data_type, output_
     lines = open(directory, 'r').readlines()
     encodings = tokenizer(lines[:10], truncation=True, padding=True, max_length=max_length, return_tensors="pt")
     outputs = model(**encodings, output_hidden_states=True)
-    hidden_states = outputs[1][-1].numpy()  # (batch, seq, hidden)
+    hidden_states = outputs[1][-1].detach().numpy()  # (batch, seq, hidden)
     embeddings = np.mean(hidden_states, axis=1)  # (batch, hidden)
     output_file = open(output_dir, 'w+')
 
