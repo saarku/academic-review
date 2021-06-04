@@ -178,7 +178,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
 
 def run_experiments():
     data_name = sys.argv[1]
-    topic_model_type = 'ovb'
+    topic_model_types = ['gibbs', 'ovb']
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
     topic_model_dims = ['cv']
@@ -191,18 +191,18 @@ def run_experiments():
         pos_features[str(dim)] = pos_modes
         neg_features[str(dim)] = neg_modes
         pos_neg_features[str(dim)] = modes
-    features = [pos_features, neg_features, pos_neg_features, neutral_features] #dimension_features] #
+    features = [dimension_features] #[pos_features, neg_features, pos_neg_features, neutral_features] #dimension_features] #
 
     combination_methods = ['feature_comb', 'comb_sum', 'comb_rank'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3]]#, [1], [3]]
     algorithms = ['regression', 'ranking']#, 'ranking']#, 'mlp']
 
     unigrams = [False]#, True]#, True]
-    kl_flags = ['kl']#, 'nokl', 'normkl']#[True, False]
+    kl_flags = ['nokl', 'normkl', 'kl']#[True, False]
 
     header = 'dim,unigrams_flag,combination_method,num_topic,optimal_num,paragraph_id,algorithm,modes,kl_flag'
     header += 'model_type,error,kendall,pearson\n'
-    output_file = open('report_aspect_table_{}.txt'.format(data_name), 'w+')
+    output_file = open('report_kl_table_{}.txt'.format(data_name), 'w+')
     output_file.write(header)
 
     for combination in combination_methods:
@@ -212,10 +212,11 @@ def run_experiments():
                     for feature in features:
                         for algo in algorithms:
                             for kl in kl_flags:
-                                output = single_experiment(test_dimensions, data_dir, uni, combination, topic_dims,
-                                                           para, feature, algo, kl, topic_model_type)
-                                output_file.write(output)
-                                output_file.flush()
+                                for t in topic_model_types:
+                                    output = single_experiment(test_dimensions, data_dir, uni, combination, topic_dims,
+                                                               para, feature, algo, kl, t)
+                                    output_file.write(output)
+                                    output_file.flush()
 
 
 def lstm_single_experiment(test_dimensions, data_name, algorithm, arch):
@@ -339,7 +340,7 @@ def run_lstm_experiment():
 
 
 def main():
-    run_bert_experiment()
+    run_experiments()
 
 
 if __name__ == '__main__':
