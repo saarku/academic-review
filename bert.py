@@ -47,6 +47,7 @@ def fine_tune_bert(data_name, dimension, max_length):
     model = BertForSequenceClassification.from_pretrained(model_name, num_labels=1)
 
     training_args = TrainingArguments(
+        output_dir='./results',
         num_train_epochs=3,              # total number of training epochs
         per_device_train_batch_size=16,  # batch size per device during training
         load_best_model_at_end=True,     # load the best model when finished training (default metric is loss)
