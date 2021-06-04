@@ -27,6 +27,7 @@ def load_data(data_name, dimension, data_type):
     labels = FeatureBuilder.build_labels(ids_dir, grades_dir)
     lines = open(ids_dir.replace('ids', 'text'), 'r').readlines()
     x, y = FeatureBuilder.modify_data_to_dimension(lines, labels, dimension)
+    y = [float(i) for i in y]
     return x, y
 
 
