@@ -126,6 +126,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
 
             train_features = sp.hstack(tuple(topic_model_train_features[optimal_num] + uni_features_train), format='csr')
             test_features = sp.hstack(tuple(topic_model_test_features[optimal_num] + uni_features_test), format='csr')
+            train_features, test_features = train_features.todense(), test_features.todense()
             transformer = MinMaxScaler()
             transformer.fit(train_features)
             train_features = transformer.transform(train_features)

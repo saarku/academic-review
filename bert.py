@@ -68,7 +68,7 @@ def fine_tune_bert(data_name, dimension, max_length):
     return model, tokenizer
 
 
-def infer_embeddings(model, tokenizer, data_name, max_length, data_type, output_dir):
+def infer_embeddings(model, encodings, max_length, data_type, output_dir):
     base_dir = '/home/skuzi2/{}_dataset/'.format(data_name)
     directory = base_dir + 'data_splits/dim.all.mod.neu.para.1.' + data_type + '.text'
     lines = open(directory, 'r').readlines()
