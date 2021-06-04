@@ -133,6 +133,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
             test_features = transformer.transform(test_features)
             clf = learn_model(algorithm, train_features, y_train, model_dir + '.model')
             grades = clf.predict(test_features)
+            grades = np.reshape(grades, (-1, 1))
             open(model_dir + '.predict', 'w').write('\n'.join([str(grades[i,0]) for i in range(grades.shape[0])]))
 
         else:
@@ -192,7 +193,7 @@ def run_experiments():
         pos_neg_features[str(dim)] = modes
     features = [dimension_features] #, pos_features, neg_features, pos_neg_features, neutral_features]
 
-    combination_methods = ['comb_sum', 'feature_comb', 'comb_rank'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
+    combination_methods = ['feature_comb', 'comb_sum', 'comb_rank'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3]]#, [1], [3]]
     algorithms = ['regression', 'ranking']#, 'ranking']#, 'mlp']
 
