@@ -191,18 +191,18 @@ def run_experiments():
         pos_features[str(dim)] = pos_modes
         neg_features[str(dim)] = neg_modes
         pos_neg_features[str(dim)] = modes
-    features = [dimension_features] #, pos_features, neg_features, pos_neg_features, neutral_features]
+    features = [pos_features, neg_features, pos_neg_features, neutral_features] #dimension_features] #
 
     combination_methods = ['feature_comb', 'comb_sum', 'comb_rank'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3]]#, [1], [3]]
     algorithms = ['regression', 'ranking']#, 'ranking']#, 'mlp']
 
-    unigrams = [False, True]#, True]#, True]
+    unigrams = [False]#, True]#, True]
     kl_flags = ['kl']#, 'nokl', 'normkl']#[True, False]
 
-    header = 'dim,unigrams_flag,combination_method,num_topic,optimal_num,paragraph_id,algorithm,modes,kl_flag,'
+    header = 'dim,unigrams_flag,combination_method,num_topic,optimal_num,paragraph_id,algorithm,modes,kl_flag\n'
     header += 'model_type,error,kendall,pearson'
-    output_file = open('report_main_table_{}.txt'.format(data_name), 'w+')
+    output_file = open('report_aspect_table_{}.txt'.format(data_name), 'w+')
     output_file.write(header)
 
     for combination in combination_methods:
