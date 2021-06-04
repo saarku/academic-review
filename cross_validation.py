@@ -27,10 +27,10 @@ def learn_model(algorithm, features, labels, model_dir):
     return clf
 
 
-def run_sum_comb_method(train_features, train_labels, test_features, test_labels, algorithm, method):
+def run_sum_comb_method(all_train_features, train_labels, all_test_features, test_labels, algorithm, method):
     grades = np.zeros((len(test_labels), 1), dtype=float)
-    for i in range(len(train_features)):
-        train_features, test_features = train_features[i], test_features[i]
+    for i in range(len(all_train_features)):
+        train_features, test_features = all_train_features[i], all_train_features[i]
         train_features = train_features.todense()
         test_features = test_features.todense()
         transformer = MinMaxScaler()
@@ -51,7 +51,7 @@ def run_sum_comb_method(train_features, train_labels, test_features, test_labels
         else:
             grades += aspect_grades
 
-    grades /= float(len(train_features))
+    grades /= float(len(all_train_features))
     return grades
 
 
