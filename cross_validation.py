@@ -280,6 +280,50 @@ def lstm_single_experiment(test_dimensions, data_name, algorithm, arch):
     return output_performance
 
 
+def bert_experiment(test_dimensions, data_name, algorithm):
+    output_performance = ''
+    data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
+    builder = FeatureBuilder(data_dir)
+    vecs_dir, models_dir = data_dir + '/bert_embeddings/', data_dir + '/lstm_models/'
+
+    for dim in test_dimensions:
+        vectors_dir = vecs_dir + '.dim.' + str(dim)
+        output = builder.build_topic_features(dim, vectors_dir + '.train', vectors_dir + '.test.val', 1)
+        x_train, y_train, x_test, y_test = output[0], output[1], output[2], output[3]
+
+        train_features, test_features = x_train.todense(), x_test.todense()
+        transformer = MinMaxScaler()
+        transformer.fit(train_features)
+        train_features = transformer.transform(train_features)
+        test_features = transformer.transform(test_features)
+        model_dir = models_dir + '.dim.' + str(dim) + '.algo.' + algorithm
+        clf = learn_model(algorithm, train_features, y_train,  model_dir + '.model')
+        grades = clf.predict(test_features)
+        grades = np.reshape(grades, (-1, 1))
+        open(model_dir + '.predict', 'w').write('\n'.join([str(grades[i, 0]) for i in range(grades.shape[0])]))
+
+        error = sqrt(mean_squared_error(y_test, grades))
+        kendall, _ = kendalltau(y_test, grades)
+        pearson, _ = pearsonr(y_test, np.reshape(grades, (1, -1)).tolist()[0])
+        performance = '{},{},{},{},{}\n'.format(dim, algorithm, error, kendall, pearson)
+        output_performance += performance
+    return output_performance
+
+
+def run_bert_experiment():
+    data_name = sys.argv[1]
+    test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
+    algorithms = ['regression', 'ranking']
+    header = 'dim,algorithm,error,kendall,pearson\n'
+    output_file = open('report_bert_{}.txt'.format(data_name), 'w+')
+    output_file.write(header)
+
+    for algo in algorithms:
+        output = bert_experiment(test_dimensions, data_name, algo)
+        output_file.write(output)
+        output_file.flush()
+
+
 def run_lstm_experiment():
     data_name = sys.argv[1]
     test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
@@ -295,7 +339,7 @@ def run_lstm_experiment():
 
 
 def main():
-    run_lstm_experiment()
+    run_bert_experiment()
 
 
 if __name__ == '__main__':
