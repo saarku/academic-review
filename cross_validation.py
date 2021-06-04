@@ -218,7 +218,7 @@ def run_experiments():
                                 output_file.flush()
 
 
-def lstm_single_experiment(test_dimensions, data_name, algorithm):
+def lstm_single_experiment(test_dimensions, data_name, algorithm, arch):
     output_performance = ''
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     builder = FeatureBuilder(data_dir)
@@ -228,7 +228,7 @@ def lstm_single_experiment(test_dimensions, data_name, algorithm):
     for dim in test_dimensions:
         optimal_num, optimal_kendall = 0, -1
         for vec_dim in [5, 15, 25]:
-            vectors_dir = lstm_dir + 'lstm.dim.' + str(dim) + '.ldim.' + str(vec_dim) + '.' + lstm_model_name
+            vectors_dir = lstm_dir + arch + '.dim.' + str(dim) + '.ldim.' + str(vec_dim) + '.' + lstm_model_name
             output = builder.build_topic_features(dim, vectors_dir + '.train', vectors_dir + '.test.val', 1)
             x_train, y_train, x_test, y_test = output[0], output[1], output[2], output[3]
 
@@ -257,7 +257,7 @@ def lstm_single_experiment(test_dimensions, data_name, algorithm):
                 optimal_kendall = kendall
                 optimal_num = vec_dim
 
-        vectors_dir = lstm_dir + 'lstm.dim.' + str(dim) + '.ldim.' + str(optimal_num) + '.' + lstm_model_name
+        vectors_dir = lstm_dir + arch + '.dim.' + str(dim) + '.ldim.' + str(optimal_num) + '.' + lstm_model_name
         output = builder.build_topic_features(dim, vectors_dir + '.train', vectors_dir + '.test.val', 1)
         x_train, y_train, x_test, y_test = output[0], output[1], output[2], output[3]
 
@@ -285,11 +285,11 @@ def run_lstm_experiment():
     test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
     algorithms = ['regression', 'ranking']
     header = 'dim,optimal_num,algorithm,error,kendall,pearson\n'
-    output_file = open('report_lstm_{}.txt'.format(data_name), 'w+')
+    output_file = open('report_cnn_{}.txt'.format(data_name), 'w+')
     output_file.write(header)
 
     for algo in algorithms:
-        output = lstm_single_experiment(test_dimensions, data_name, algo)
+        output = lstm_single_experiment(test_dimensions, data_name, algo, 'cnn')
         output_file.write(output)
         output_file.flush()
 
