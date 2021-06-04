@@ -85,7 +85,7 @@ def infer_embeddings(model, tokenizer, data_name, max_length, data_type, output_
     output_file = open(output_dir, 'w+')
 
     for i in range(embeddings.shape[0]):
-        line = ['({}, {})'.format(i, embeddings[i, j]) for j in range(embeddings.shape[1])]
+        line = ['({}, {})'.format(j, embeddings[i, j]) for j in range(embeddings.shape[1])]
         line = '[' + ', '.join(line) + ']\n'
         output_file.write(line)
 
