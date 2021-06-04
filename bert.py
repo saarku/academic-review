@@ -101,7 +101,7 @@ def main():
         model, tokenizer = fine_tune_bert(data_name, dim, max_length)
 
         for data_type in ['train', 'test.val']:
-            output_dir = 'train', '../{}_dataset/bert_embeddings/dim.{}.{}'.format(data_name, dim, data_type)
+            output_dir = '../{}_dataset/bert_embeddings/dim.{}.{}'.format(data_name, dim, data_type)
             infer_embeddings(model, tokenizer, data_name, max_length, data_type, output_dir)
 
 
