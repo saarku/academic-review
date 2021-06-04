@@ -38,9 +38,11 @@ def fine_tune_bert(data_name, dimension, max_length):
     print('Initializing Tokenizer')
     tokenizer = AutoTokenizer.from_pretrained(model_name, do_lower_case=True)
     x_data, y_data = load_data(data_name, dimension, 'train')
+    x_test, y_test = load_data(data_name, dimension, 'test.val')
 
     print('Tokenizing')
-    train_encodings = tokenizer(x_data, truncation=True, padding=True, max_length=max_length)
+    train_encodings = tokenizer(x_data, truncation=True, padding=True, max_length=max_length, return_tensors="pt")
+    test_encodings = tokenizer(x_test, truncation=True, padding=True, max_length=max_length, return_tensors="pt")
     train_dataset = AcademicDataset(train_encodings, y_data)
 
     print('Loading BERT')
@@ -61,21 +63,23 @@ def fine_tune_bert(data_name, dimension, max_length):
 
     print('Fine-tuning')
     trainer.train()
+    print('Finished')
 
     model_path = '../{}_dataset/bert_models/dim.{}'.format(data_name, dimension)
     model.save_pretrained(model_path)
     tokenizer.save_pretrained(model_path)
-    return model, tokenizer
+    print('Done')
+    return model, tokenizer, train_encodings, test_encodings
 
 
-def infer_embeddings(model, encodings, max_length, data_type, output_dir):
-    base_dir = '/home/skuzi2/{}_dataset/'.format(data_name)
-    directory = base_dir + 'data_splits/dim.all.mod.neu.para.1.' + data_type + '.text'
-    lines = open(directory, 'r').readlines()
-    encodings = tokenizer(lines, truncation=True, padding=True, max_length=max_length, return_tensors="pt")
+def infer_embeddings(model, encodings, output_dir):
+    print('22222222222222')
     outputs = model(**encodings, output_hidden_states=True)
+    print('33333333333333')
     hidden_states = outputs[1][-1].detach().numpy()  # (batch, seq, hidden)
+    print('444444444444444')
     embeddings = np.mean(hidden_states, axis=1)  # (batch, hidden)
+    print('555555555555555')
     output_file = open(output_dir, 'w+')
 
     for i in range(embeddings.shape[0]):
@@ -93,11 +97,13 @@ def main():
 
     for dim in grade_dims:
         print('{}: {}'.format(data_name, dim))
-        model, tokenizer = fine_tune_bert(data_name, dim, max_length)
+        model, tokenizer, train_encodings, test_encodings = fine_tune_bert(data_name, dim, max_length)
 
+        print('inferring')
         for data_type in ['train', 'test.val']:
             output_dir = '../{}_dataset/bert_embeddings/dim.{}.{}'.format(data_name, dim, data_type)
-            infer_embeddings(model, tokenizer, data_name, max_length, data_type, output_dir)
+            encodings = train_encodings if data_type == 'train' else test_encodings
+            infer_embeddings(model, encodings, output_dir)
 
 
 if __name__ == '__main__':
