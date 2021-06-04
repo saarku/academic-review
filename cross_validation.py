@@ -287,7 +287,7 @@ def bert_experiment(test_dimensions, data_name, algorithm):
     vecs_dir, models_dir = data_dir + '/bert_embeddings/', data_dir + '/lstm_models/'
 
     for dim in test_dimensions:
-        vectors_dir = vecs_dir + '.dim.' + str(dim)
+        vectors_dir = vecs_dir + 'dim.' + str(dim)
         output = builder.build_topic_features(dim, vectors_dir + '.train', vectors_dir + '.test.val', 1)
         x_train, y_train, x_test, y_test = output[0], output[1], output[2], output[3]
 
@@ -296,7 +296,7 @@ def bert_experiment(test_dimensions, data_name, algorithm):
         transformer.fit(train_features)
         train_features = transformer.transform(train_features)
         test_features = transformer.transform(test_features)
-        model_dir = models_dir + '.dim.' + str(dim) + '.algo.' + algorithm
+        model_dir = models_dir + 'bert.dim.' + str(dim) + '.algo.' + algorithm
         clf = learn_model(algorithm, train_features, y_train,  model_dir + '.model')
         grades = clf.predict(test_features)
         grades = np.reshape(grades, (-1, 1))
