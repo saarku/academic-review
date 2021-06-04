@@ -40,23 +40,16 @@ def fine_tune_bert(data_name, dimension, max_length):
     x_data, y_data = load_data(data_name, dimension, 'train')
 
     print('Tokenizing')
-    train_encodings = tokenizer(x_data[:10], truncation=True, padding=True, max_length=max_length)
-    train_dataset = AcademicDataset(train_encodings, y_data[:10])
+    train_encodings = tokenizer(x_data, truncation=True, padding=True, max_length=max_length)
+    train_dataset = AcademicDataset(train_encodings, y_data)
 
     print('Loading BERT')
     model = BertForSequenceClassification.from_pretrained(model_name, num_labels=1)
 
     training_args = TrainingArguments(
-        output_dir='./results',          # output directory
-        num_train_epochs=1,              # total number of training epochs
+        num_train_epochs=3,              # total number of training epochs
         per_device_train_batch_size=16,  # batch size per device during training
-        per_device_eval_batch_size=20,   # batch size for evaluation
-        warmup_steps=500,                # number of warmup steps for learning rate scheduler
-        weight_decay=0.01,               # strength of weight decay
-        logging_dir='./logs',            # directory for storing logs
         load_best_model_at_end=True,     # load the best model when finished training (default metric is loss)
-        logging_steps=200,               # log & save weights each logging_steps
-        evaluation_strategy="steps",     # evaluate each `logging_steps`
     )
 
     trainer = Trainer(
@@ -78,7 +71,7 @@ def infer_embeddings(model, tokenizer, data_name, max_length, data_type, output_
     base_dir = '/home/skuzi2/{}_dataset/'.format(data_name)
     directory = base_dir + 'data_splits/dim.all.mod.neu.para.1.' + data_type + '.text'
     lines = open(directory, 'r').readlines()
-    encodings = tokenizer(lines[:10], truncation=True, padding=True, max_length=max_length, return_tensors="pt")
+    encodings = tokenizer(lines, truncation=True, padding=True, max_length=max_length, return_tensors="pt")
     outputs = model(**encodings, output_hidden_states=True)
     hidden_states = outputs[1][-1].detach().numpy()  # (batch, seq, hidden)
     embeddings = np.mean(hidden_states, axis=1)  # (batch, hidden)
@@ -94,10 +87,11 @@ def infer_embeddings(model, tokenizer, data_name, max_length, data_type, output_
 
 def main():
     data_name = sys.argv[1]
-    grade_dims = {'education': [0], 'a': [1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
+    grade_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
     max_length = 512
 
     for dim in grade_dims:
+        print('{}: {}'.format(data_name, dim))
         model, tokenizer = fine_tune_bert(data_name, dim, max_length)
 
         for data_type in ['train', 'test.val']:
