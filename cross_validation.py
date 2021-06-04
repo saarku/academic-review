@@ -223,7 +223,7 @@ def lstm_single_experiment(test_dimensions, data_name, algorithm):
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     builder = FeatureBuilder(data_dir)
     lstm_dir, models_dir = data_dir + '/embeddings_vectors/', data_dir + '/lstm_models/'
-    lstm_model_name = 'wdim.20.epoch.5.batch.16.opt.adam.vocab.1000.length.100.train'
+    lstm_model_name = 'wdim.20.epoch.5.batch.16.opt.adam.vocab.1000.length.100'
 
     for dim in test_dimensions:
         optimal_num, optimal_kendall = 0, -1
