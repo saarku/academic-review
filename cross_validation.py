@@ -200,8 +200,8 @@ def run_experiments():
     unigrams = [False]#, True]#, True]
     kl_flags = ['kl']#, 'nokl', 'normkl']#[True, False]
 
-    header = 'dim,unigrams_flag,combination_method,num_topic,optimal_num,paragraph_id,algorithm,modes,kl_flag\n'
-    header += 'model_type,error,kendall,pearson'
+    header = 'dim,unigrams_flag,combination_method,num_topic,optimal_num,paragraph_id,algorithm,modes,kl_flag'
+    header += 'model_type,error,kendall,pearson\n'
     output_file = open('report_aspect_table_{}.txt'.format(data_name), 'w+')
     output_file.write(header)
 
@@ -218,8 +218,84 @@ def run_experiments():
                                 output_file.flush()
 
 
+def lstm_single_experiment(test_dimensions, data_name, algorithm):
+    output_performance = ''
+    data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
+    builder = FeatureBuilder(data_dir)
+    lstm_dir, models_dir = data_dir + '/embeddings_vectors/', data_dir + '/lstm_models/'
+    lstm_model_name = 'wdim.20.epoch.5.batch.16.opt.adam.vocab.1000.length.100.train'
+
+    for dim in test_dimensions:
+        optimal_num, optimal_kendall = 0, -1
+        for vec_dim in [5, 15, 25]:
+            vectors_dir = lstm_dir + 'lstm.dim.' + str(dim) + '.ldim.' + str(vec_dim) + '.' + lstm_model_name
+            output = builder.build_topic_features(dim, vectors_dir + '.train', vectors_dir + '.test.val', 1)
+            x_train, y_train, x_test, y_test = output[0], output[1], output[2], output[3]
+
+            all_train_ids = list(range(len(y_train)))
+            random.shuffle(all_train_ids)
+            val_split = int(len(all_train_ids) * 0.15)
+            validation_ids, small_train_ids = all_train_ids[:val_split], all_train_ids[val_split:]
+            validation_labels = [y_train[i] for i in range(len(y_train)) if i in validation_ids]
+            small_train_labels = [y_train[i] for i in range(len(y_train)) if i in small_train_ids]
+
+            transformer = MinMaxScaler()
+            x_train = x_train.todense()
+            transformer.fit(x_train)
+            small_train_features = x_train[small_train_ids, :]
+            validation_features = x_train[validation_ids, :]
+            small_train_features = transformer.transform(small_train_features)
+            validation_features = transformer.transform(validation_features)
+
+            temp_model_dir = 'val.lstm.' + str(time.time())
+            clf = learn_model(algorithm, small_train_features, small_train_labels, temp_model_dir)
+            val_grades = clf.predict(validation_features)
+            kendall, _ = kendalltau(validation_labels, np.reshape(val_grades, (-1, 1)))
+            os.system('rm ' + temp_model_dir)
+
+            if kendall > optimal_kendall:
+                optimal_kendall = kendall
+                optimal_num = vec_dim
+
+        vectors_dir = lstm_dir + 'lstm.dim.' + str(dim) + '.ldim.' + str(optimal_num) + '.' + lstm_model_name
+        output = builder.build_topic_features(dim, vectors_dir + '.train', vectors_dir + '.test.val', 1)
+        x_train, y_train, x_test, y_test = output[0], output[1], output[2], output[3]
+
+        train_features, test_features = x_train.todense(), x_test.todense()
+        transformer = MinMaxScaler()
+        transformer.fit(train_features)
+        train_features = transformer.transform(train_features)
+        test_features = transformer.transform(test_features)
+        model_dir = models_dir + '.dim.' + str(dim) + '.algo.' + algorithm
+        clf = learn_model(algorithm, train_features, y_train,  model_dir + '.model')
+        grades = clf.predict(test_features)
+        grades = np.reshape(grades, (-1, 1))
+        open(model_dir + '.predict', 'w').write('\n'.join([str(grades[i, 0]) for i in range(grades.shape[0])]))
+
+        error = sqrt(mean_squared_error(y_test, grades))
+        kendall, _ = kendalltau(y_test, grades)
+        pearson, _ = pearsonr(y_test, np.reshape(grades, (1, -1)).tolist()[0])
+        performance = '{},{},{},{},{},{}\n'.format(dim, optimal_num, algorithm, error, kendall, pearson)
+        output_performance += performance
+    return output_performance
+
+
+def run_lstm_experiment():
+    data_name = sys.argv[1]
+    test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
+    algorithms = ['regression', 'ranking']
+    header = 'dim,optimal_num,algorithm,error,kendall,pearson\n'
+    output_file = open('report_lstm_{}.txt'.format(data_name), 'w+')
+    output_file.write(header)
+
+    for algo in algorithms:
+        output = lstm_single_experiment(test_dimensions, data_name, algo)
+        output_file.write(output)
+        output_file.flush()
+
+
 def main():
-    run_experiments()
+    run_lstm_experiment()
 
 
 if __name__ == '__main__':
