@@ -176,7 +176,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
 
 
 def run_experiments():
-    data_name = {1: 'iclr17', 2: 'education'}[int(sys.argv[1])]
+    data_name = sys.argv[1]
     topic_model_type = 'cvb'
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
