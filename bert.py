@@ -72,21 +72,22 @@ def fine_tune_bert(data_name, dimension, max_length):
     return model, tokenizer, train_encodings, test_encodings
 
 
-def infer_embeddings(model, encodings, output_dir):
-    print('22222222222222')
-    outputs = model(**encodings, output_hidden_states=True)
-    print('33333333333333')
-    hidden_states = outputs[1][-1].detach().numpy()  # (batch, seq, hidden)
-    print('444444444444444')
-    embeddings = np.mean(hidden_states, axis=1)  # (batch, hidden)
-    print('555555555555555')
+def infer_embeddings(model, tokenizer, lines, output_dir, max_length):
     output_file = open(output_dir, 'w+')
-
-    for i in range(embeddings.shape[0]):
-        line = ['({}, {})'.format(j, embeddings[i, j]) for j in range(embeddings.shape[1])]
-        line = '[' + ', '.join(line) + ']\n'
-        output_file.write(line)
-
+    for i in range(0, len(lines), 16):
+        print('22222222222222')
+        end = min(i+16, len(lines))
+        encodings = tokenizer(lines[i: end], truncation=True, padding=True, max_length=max_length, return_tensors="pt")
+        outputs = model(**encodings, output_hidden_states=True)
+        print('33333333333333')
+        hidden_states = outputs[1][-1].detach().numpy()  # (batch, seq, hidden)
+        print('444444444444444')
+        embeddings = np.mean(hidden_states, axis=1)  # (batch, hidden)
+        print('555555555555555')
+        for l in range(embeddings.shape[0]):
+            line = ['({}, {})'.format(j, embeddings[l, j]) for j in range(embeddings.shape[1])]
+            line = '[' + ', '.join(line) + ']\n'
+            output_file.write(line)
     output_file.close()
 
 
@@ -103,8 +104,9 @@ def main():
         for data_type in ['train', 'test.val']:
             output_dir = '../{}_dataset/bert_embeddings/dim.{}.{}'.format(data_name, dim, data_type)
             encodings = train_encodings if data_type == 'train' else test_encodings
-            infer_embeddings(model, encodings, output_dir)
-
+            data_dir = '/home/skuzi2/{}_dataset/data_splits/dim.all.mod.neu.para.1.{}.text'.format(data_name, data_type)
+            lines = open(data_dir, 'r').readlines()
+            infer_embeddings(model, tokenizer, lines, output_dir, max_length)
 
 if __name__ == '__main__':
     main()
