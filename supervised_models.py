@@ -318,7 +318,7 @@ def lstm_baseline():
 
 
 def main():
-    lstm_baseline()
+    run_experiments()
 
 
 if __name__ == '__main__':
