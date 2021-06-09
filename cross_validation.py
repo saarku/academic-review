@@ -91,7 +91,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
     args = model_name.split('.')
     header = ','.join([str(args[i]) for i in range(0, len(args), 2)])
     config = ','.join([str(args[i+1]) for i in range(0, len(args), 2)])
-    header += 'dim,unigrams_flag,combination_method,cv_flag,optimal_dim,error,pearson,kendall\n'
+    header += ',dim,unigrams_flag,combination_method,cv_flag,optimal_dim,error,pearson,kendall\n'
     output_performance = ''
 
     for test_dim in test_dimensions:
@@ -270,7 +270,7 @@ def run_topics_experiment():
         pos_neg_features[str(dim)] = modes
     features = [dimension_features] #[pos_features, neg_features, pos_neg_features, neutral_features] #dimension_features] # dimension_features] #
 
-    combination_methods = ['comb_model'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
+    combination_methods = ['comb_sum'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3]] #, [1], [3]]
     algorithms = ['regression']#, 'ranking']#, 'ranking']#, 'mlp']
 
