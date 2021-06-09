@@ -255,8 +255,8 @@ def get_bert_vectors(data_dir, test_dims, same_dim_flag=True):
         for feature_dim in test_dims:
             if test_dim != feature_dim and same_dim_flag: continue
             train_features[test_dim], test_features[test_dim] = defaultdict(list), defaultdict(list)
-            vectors_dir = vectors_dir + 'dim.' + str(feature_dim)
-            output = builder.build_topic_features(test_dim, vectors_dir + '.train', vectors_dir + '.test.val', 1)
+            bert_dir = vectors_dir + 'dim.' + str(feature_dim)
+            output = builder.build_topic_features(test_dim, bert_dir + '.train', bert_dir + '.test.val', 1)
             x_train, y_train, x_test, y_test = output[0], output[1], output[2], output[3]
             train_features[test_dim][25].append(x_train)
             test_features[test_dim][25].append(x_test)
