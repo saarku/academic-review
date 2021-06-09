@@ -283,17 +283,19 @@ def run_topics_experiment():
         for para in num_paragraphs:
             for feature in features:
                 for kl in kl_flags:
+
                     args = get_topic_model_vectors(topic_dim, para, feature, model_type, kl, test_dimensions, data_dir)
                     train_features, test_features, model_name = args[0], args[1], args[2]
+                    print(model_name)
 
                     for combination in combination_methods:
                         for uni in unigrams:
                             for algo in algorithms:
-
                                 output, header = cv_experiment(test_dimensions, data_dir, uni, combination,
                                                                train_features, test_features, algo, model_name,
                                                                topic_dim)
                                 output_lines += output
+                                print(output)
     output_file.write(header)
     output_file.write(output_lines)
 
