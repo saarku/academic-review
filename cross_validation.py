@@ -64,36 +64,21 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, tes
 
     print('exit')
     if method == 'comb_model':
-        print('a')
         temp_model_dir = 'val.' + str(time.time())
-        print('b')
         train_features = np.hstack(all_aspects_train)
-        print('b1')
         test_features = np.hstack(all_aspects_test)
-        print('b2')
-
-        print('b3')
-
-        print('c')
         a_transformer = MinMaxScaler()
-        print('d')
         a_transformer.fit(train_features)
-        print('e')
-        all_aspects_train = a_transformer.transform(train_features)
-        print('f')
-        all_aspects_test = a_transformer.transform(test_features)
-        print('g')
+        train_features = a_transformer.transform(train_features)
+        test_features = a_transformer.transform(test_features)
         clf = learn_model(algorithm, train_features, train_labels, temp_model_dir)
-        print('h')
         os.system('rm -rf ' + temp_model_dir)
-        print('i')
         grades = clf.predict(test_features)
-        print('j')
         train_grades = clf.predict(train_features)
-        print('k')
+        grades = np.reshape(grades, (-1, 1))
+        train_grades = np.reshape(train_grades, (-1, 1))
         return grades, train_grades
     else:
-        print('b')
         grades /= float(len(all_train_features))
         train_grades /= float(len(all_train_features))
         return grades, train_grades
@@ -163,7 +148,6 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
             open(model_dir + '.predict', 'w').write('\n'.join([str(grades[i,0]) for i in range(grades.shape[0])]))
 
         else:
-            print('cv')
             optimal_dim, optimal_kendall = 0, -1
             for vec_dim in train_vectors[test_dim]:
                 train_features = train_vectors[test_dim][vec_dim] + uni_features_train
@@ -180,13 +164,11 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
                     validation_features.append(features[validation_ids, :])
                 val_grades, _ = run_sum_comb_method(small_train_features, small_train_labels, validation_features,
                                                  validation_labels, algorithm, combination_method)
-                print('exit2')
                 kendall, _ = kendalltau(validation_labels, np.reshape(val_grades, (-1, 1)))
                 if kendall > optimal_kendall:
                     optimal_kendall = kendall
                     optimal_dim = vec_dim
 
-            print('final')
             train_features = train_vectors[test_dim][optimal_dim] + uni_features_train
             test_features = test_vectors[test_dim][optimal_dim] + uni_features_test
             grades, _ = run_sum_comb_method(train_features, y_train, test_features, y_test, algorithm, combination_method)
