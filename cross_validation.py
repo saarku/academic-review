@@ -30,6 +30,8 @@ def learn_model(algorithm, features, labels, model_dir):
 def run_sum_comb_method(all_train_features, train_labels, all_test_features, test_labels, algorithm, method):
     grades = np.zeros((len(test_labels), 1), dtype=float)
     train_grades = np.zeros((len(train_labels), 1), dtype=float)
+    all_aspects_train, all_aspects_test = [], []
+
     for i in range(len(all_train_features)):
         train_features, test_features = all_train_features[i], all_test_features[i]
         try:
@@ -59,10 +61,25 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, tes
         else:
             grades += aspect_grades
             train_grades += aspect_grades_train
+            all_aspects_train.append(aspect_grades_train)
+            all_aspects_test.append(all_aspects_test)
 
-    grades /= float(len(all_train_features))
-    train_grades /= float(len(all_train_features))
-    return grades, train_grades
+    if method == 'comb_model':
+        temp_model_dir = 'val.' + str(time.time())
+        all_aspects_train, all_aspects_test = np.hstack(all_aspects_train), np.hstack(all_aspects_test)
+        a_transformer = MinMaxScaler()
+        a_transformer.fit(all_aspects_train)
+        all_aspects_train = a_transformer.transform(all_aspects_train)
+        all_aspects_test = a_transformer.transform(all_aspects_test)
+        clf = learn_model(algorithm, all_aspects_train, train_labels, temp_model_dir)
+        os.system('rm -rf ' + temp_model_dir)
+        grades = clf.predict(all_aspects_test)
+        train_grades = clf.predict(all_aspects_train)
+        return grades, train_grades
+    else:
+        grades /= float(len(all_train_features))
+        train_grades /= float(len(all_train_features))
+        return grades, train_grades
 
 
 def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, num_topic, num_paragraphs,
@@ -162,7 +179,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 for features in train_features:
                     small_train_features.append(features[small_train_ids, :])
                     validation_features.append(features[validation_ids, :])
-                val_grades = run_sum_comb_method(small_train_features, small_train_labels, validation_features,
+                val_grades, _ = run_sum_comb_method(small_train_features, small_train_labels, validation_features,
                                                  validation_labels, algorithm, combination_method)
                 kendall, _ = kendalltau(validation_labels, np.reshape(val_grades, (-1, 1)))
                 if kendall > optimal_kendall:
@@ -171,7 +188,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
 
             train_features = topic_model_train_features[optimal_num] + uni_features_train
             test_features = topic_model_test_features[optimal_num] + uni_features_test
-            grades = run_sum_comb_method(train_features, y_train, test_features, y_test, algorithm, combination_method)
+            grades, _ = run_sum_comb_method(train_features, y_train, test_features, y_test, algorithm, combination_method)
 
             open(model_dir + '.comb.' + combination_method + '.predict', 'w').write(
                 '\n'.join([str(grades[i, 0]) for i in range(grades.shape[0])]))
@@ -202,13 +219,13 @@ def run_experiments():
         pos_features[str(dim)] = pos_modes
         neg_features[str(dim)] = neg_modes
         pos_neg_features[str(dim)] = modes
-    features = [pos_features, neg_features, pos_neg_features, neutral_features] #dimension_features] # dimension_features] #
+    features = [dimension_features] #[pos_features, neg_features, pos_neg_features, neutral_features] #dimension_features] # dimension_features] #
 
-    combination_methods = ['comb_sum'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
+    combination_methods = ['comb_model'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3]] #, [1], [3]]
     algorithms = ['regression']#, 'ranking']#, 'ranking']#, 'mlp']
 
-    unigrams = [True]#, True]#, True]
+    unigrams = [True, False]#, True]#, True]
     kl_flags = ['kl']#[True, False]
 
     header = 'dim,unigrams_flag,combination_method,num_topic,optimal_num,paragraph_id,algorithm,modes,kl_flag'
@@ -424,14 +441,16 @@ def neural_comb(test_dimensions, data_dir):
 
 
 def main():
-    #run_experiments()
+    run_experiments()
 
+    '''
     #[LDA, LSTM, CNN]
     education_dimensions = {0: [5, 5, 5], 1: [25, 5, 5], 2: [5, 25, 25], 3: [25, 15, 25], 4: [15, 5, 15],
                             5: [5, 25, 15], 6: [15, 15, 25]}
     iclr_dimensions = {1: [15, 15, 15], 2: [15, 5, 15], 3: [15, 15, 5], 5: [5, 15, 25], 6: [25, 15, 15]}
     data_dir = '/home/skuzi2/{}_dataset'.format('iclr17')
     neural_comb(iclr_dimensions, data_dir)
+    '''
 
 if __name__ == '__main__':
     main()
