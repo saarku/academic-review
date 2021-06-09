@@ -377,6 +377,7 @@ def neural_comb(test_dimensions, data_dir):
 
 
 def main():
+    print('started')
     run_topics_experiment()
 
     '''
