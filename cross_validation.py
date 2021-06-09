@@ -276,7 +276,7 @@ def run_topics_experiment():
     num_paragraphs = [[1, 3]] #, [1], [3]]
     algorithms = ['regression']#, 'ranking']#, 'ranking']#, 'mlp']
 
-    unigrams = [False, True]#, True]#, True]
+    unigrams = [True, False]#, True]#, True]
     kl_flags = ['kl']#[True, False]
 
     output_file = open('report_model_comb_{}.txt'.format(data_name), 'w+')
