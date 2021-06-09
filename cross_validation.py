@@ -68,7 +68,15 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, tes
         temp_model_dir = 'val.' + str(time.time())
         print('b')
 
+
+        for vec in all_aspects_train:
+            print(vec.shape)
         train_features = np.hstack(all_aspects_train)
+
+
+
+
+
         test_features = np.hstack(all_aspects_test)
 
         print('c')
