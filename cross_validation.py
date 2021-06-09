@@ -97,7 +97,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
     args = model_name.split('.')
     header = ','.join([str(args[i]) for i in range(0, len(args), 2)])
     config = ','.join([str(args[i+1]) for i in range(0, len(args), 2)])
-    header += ',dim,unigrams_flag,combination_method,cv_flag,optimal_dim,error,pearson,kendall\n'
+    header += ',dim,unigrams_flag,algo,combination_method,cv_flag,optimal_dim,error,pearson,kendall\n'
     output_performance = ''
 
     for test_dim in test_dimensions:
@@ -184,13 +184,14 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
         kendall, _ = kendalltau(y_test, grades)
         pearson, _ = pearsonr(y_test, np.reshape(grades, (1, -1)).tolist()[0])
 
-        performance = '{},{},{},{},{},{},{},{}\n'.format(test_dim, unigrams_flag, combination_method, cv_flag, optimal_dim,
-                                                      error, pearson, kendall)
+        performance = '{},{},{},{},{},{},{},{},{}\n'.format(test_dim, unigrams_flag, algorithm, combination_method,
+                                                            cv_flag, optimal_dim, error, pearson, kendall)
         output_performance += config + ',' + performance
     return output_performance, header
 
 
-def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, model_type, kl_flag, test_dims, data_dir):
+def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, model_type, kl_flag, test_dims, data_dir,
+                            same_dim_flag=True):
     topics_dir = data_dir + '/lda_vectors_{}/'.format(model_type)
     topic_model_train_features, topic_model_test_features = {}, {}
     topic_model_dims = [5, 15, 25] if num_topics == 'cv' else [num_topics]
@@ -201,6 +202,7 @@ def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, mode
         for topics in topic_model_dims:
             for para in num_paragraphs:
                 for dim_feat in dimension_features:
+                    if dim_feat != dim and same_dim_flag: continue
                     for mode in dimension_features[dim_feat]:
                         vec_dir = topics_dir
                         vec_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(topics, dim_feat, mode, para, topics)
@@ -216,12 +218,13 @@ def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, mode
     for i in dimension_features: modes = modes.union(set(dimension_features[i]))
     modes = '_'.join(sorted([str(i) for i in modes]))
     paragraph_id = '_'.join([str(i) for i in num_paragraphs])
-    model_name = 'model.lda.para.{}.topics.{}.kl.{}.mode.{}.type.{}'.format(paragraph_id, num_topics, kl_flag, modes,
-                                                                            model_type)
+    model_name = 'model.lda.para.{}.topics.{}.kl.{}.mode.{}.type.{}.samedim.{}'.format(paragraph_id, num_topics,
+                                                                                       kl_flag, modes, model_type,
+                                                                                       same_dim_flag)
     return topic_model_train_features, topic_model_test_features, model_name
 
 
-def get_embedding_vectors(data_dir, arch, test_dims, vec_dim):
+def get_embedding_vectors(data_dir, arch, test_dims, vec_dim, same_dim_flag=True):
     vectors_dir = data_dir + '/embeddings_vectors/'
     config = 'wdim.20.epoch.5.batch.16.opt.adam.vocab.1000.length.100'
     train_features, test_features = {}, {}
@@ -231,6 +234,7 @@ def get_embedding_vectors(data_dir, arch, test_dims, vec_dim):
     for test_dim in test_dims:
         train_features[test_dim], test_features[test_dim] = defaultdict(list), defaultdict(list)
         for dim_feat in test_dims:
+            if dim_feat != test_dim and same_dim_flag: continue
             for d in vec_dims:
                 curr_vectors_dir = vectors_dir + arch + '.dim.' + str(dim_feat) + '.ldim.' + str(d) + '.' + config
                 output = builder.build_topic_features(test_dim, curr_vectors_dir + '.train', curr_vectors_dir + '.test.val', 1)
@@ -238,22 +242,24 @@ def get_embedding_vectors(data_dir, arch, test_dims, vec_dim):
                 train_features[test_dim][d].append(x_train)
                 test_features[test_dim][d].append(x_test)
 
-    model_name = 'model.{}.dim.{}'.format(arch, vec_dim)
+    model_name = 'model.{}.dim.{}.samedim.{}'.format(arch, vec_dim, same_dim_flag)
     return train_features, test_features, model_name
 
 
-def get_bert_vectors(data_dir, arch, test_dims, vec_dim):
+def get_bert_vectors(data_dir, test_dims, same_dim_flag=True):
     vectors_dir = data_dir + '/bert_embeddings/'
     train_features, test_features = {}, {}
     builder = FeatureBuilder(data_dir)
 
-    for dim in test_dims:
-        train_features[dim], test_features[dim] = defaultdict(list), defaultdict(list)
-        vectors_dir = vectors_dir + 'dim.' + str(dim)
-        output = builder.build_topic_features(dim, vectors_dir + '.train', vectors_dir + '.test.val', 1)
-        x_train, y_train, x_test, y_test = output[0], output[1], output[2], output[3]
-        train_features[dim][25].append(x_train)
-        test_features[dim][25].append(x_test)
+    for test_dim in test_dims:
+        for feature_dim in test_dims:
+            if test_dim != feature_dim and same_dim_flag: continue
+            train_features[test_dim], test_features[test_dim] = defaultdict(list), defaultdict(list)
+            vectors_dir = vectors_dir + 'dim.' + str(feature_dim)
+            output = builder.build_topic_features(test_dim, vectors_dir + '.train', vectors_dir + '.test.val', 1)
+            x_train, y_train, x_test, y_test = output[0], output[1], output[2], output[3]
+            train_features[test_dim][25].append(x_train)
+            test_features[test_dim][25].append(x_test)
 
     model_name = 'model.bert'
     return train_features, test_features, model_name
@@ -265,6 +271,7 @@ def run_topics_experiment():
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
     topic_model_dims = ['cv']
+    same_dim_flag = [True, False]
 
     modes, pos_modes, neg_modes = ['pos', 'neg'], ['pos'], ['neg']
     dimension_features, pos_features, neg_features, pos_neg_features = {'all': ['neu']}, {}, {}, {}
@@ -283,25 +290,26 @@ def run_topics_experiment():
     unigrams = [True, False]#, True]#, True]
     kl_flags = ['kl']#[True, False]
 
-    output_file = open('report_new_{}.txt'.format(data_name), 'w+')
+    output_file = open('report_topics_main_{}.txt'.format(data_name), 'w+')
     output_lines, header = '', ''
 
     for topic_dim in topic_model_dims:
         for para in num_paragraphs:
             for feature in features:
                 for kl in kl_flags:
+                    for f in same_dim_flag:
+                        args = get_topic_model_vectors(topic_dim, para, feature, model_type, kl, test_dimensions,
+                                                       data_dir, same_dim_flag=f)
+                        train_features, test_features, model_name = args[0], args[1], args[2]
 
-                    args = get_topic_model_vectors(topic_dim, para, feature, model_type, kl, test_dimensions, data_dir)
-                    train_features, test_features, model_name = args[0], args[1], args[2]
-
-                    for combination in combination_methods:
-                        for uni in unigrams:
-                            for algo in algorithms:
-                                output, header = cv_experiment(test_dimensions, data_dir, uni, combination,
-                                                               train_features, test_features, algo, model_name,
-                                                               topic_dim)
-                                output_lines += output
-                                print(output)
+                        for combination in combination_methods:
+                            for uni in unigrams:
+                                for algo in algorithms:
+                                    output, header = cv_experiment(test_dimensions, data_dir, uni, combination,
+                                                                   train_features, test_features, algo, model_name,
+                                                                   topic_dim)
+                                    output_lines += output
+                                    print(output)
     output_file.write(header)
     output_file.write(output_lines)
 
@@ -310,6 +318,7 @@ def run_embeddings_experiment():
     data_name = sys.argv[1]
     arch = sys.argv[2]
 
+    same_dim_flag = True
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
     combination_methods = ['feature_comb', 'comb_sum', 'comb_model']
@@ -318,7 +327,13 @@ def run_embeddings_experiment():
     output_file = open('report_{}_{}.txt'.format(arch, data_name), 'w+')
     output_lines, header = '', ''
 
-    train_features, test_features, model_name = get_embedding_vectors(data_dir, arch, test_dimensions, 'cv')
+    if arch in ['lstm', 'cnn']:
+        train_features, test_features, model_name = get_embedding_vectors(data_dir, arch, test_dimensions, 'cv',
+                                                                          same_dim_flag=same_dim_flag)
+    else:
+        train_features, test_features, model_name = get_bert_vectors(data_dir, test_dimensions,
+                                                                     same_dim_flag=same_dim_flag)
+
     for combination in combination_methods:
         for uni in unigrams:
             for algo in algorithms:
@@ -406,7 +421,7 @@ def neural_comb(test_dimensions, data_dir):
 
 
 def main():
-    run_embeddings_experiment()
+    run_topics_experiment()
 
     '''
     #[LDA, LSTM, CNN]
