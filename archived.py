@@ -94,20 +94,20 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
     header += 'dim,unigrams_flag,combination_method,cv_flag,optimal_dim,error,kendall\n'
     output_performance = ''
 
-    for test_dim in test_dimensions:
-        model_dir = models_dir + 'dim.' + str(test_dim) + '.algo.' + algorithm + '.uni.' + str(unigrams_flag).lower()
+    for dim in test_dimensions:
+        model_dir = models_dir + 'dim.' + str(dim) + '.algo.' + algorithm + '.uni.' + str(unigrams_flag).lower()
         model_dir += '.comb.' + combination_method + '.' + model_name
         uni_features_train, uni_features_test, y_train, y_test = [], [], [], []
 
         if unigrams_flag:
-            x_unigram_train, y_train, x_unigram_test, y_test = builder.build_unigram_features(test_dim)
+            x_unigram_train, y_train, x_unigram_test, y_test = builder.build_unigram_features(dim)
             uni_features_train.append(x_unigram_train)
             uni_features_test.append(x_unigram_test)
 
         if combination_method == 'feature_comb':
             optimal_dim, optimal_kendall = 0, -1
-            for vec_dim in train_vectors[test_dim]:
-                train_features = tuple(train_vectors[test_dim][vec_dim] + uni_features_train)
+            for vec_dim in train_vectors:
+                train_features = tuple(train_vectors[vec_dim] + uni_features_train)
                 train_features = sp.hstack(train_features, format='csr')
                 all_train_ids = list(range(len(y_train)))
                 random.shuffle(all_train_ids)
@@ -134,8 +134,8 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
                     optimal_kendall = kendall
                     optimal_dim = vec_dim
 
-            train_features = sp.hstack(tuple(train_vectors[test_dim][optimal_dim] + uni_features_train), format='csr')
-            test_features = sp.hstack(tuple(test_vectors[test_dim][optimal_dim] + uni_features_test), format='csr')
+            train_features = sp.hstack(tuple(train_vectors[optimal_dim] + uni_features_train), format='csr')
+            test_features = sp.hstack(tuple(test_vectors[optimal_dim] + uni_features_test), format='csr')
             train_features, test_features = train_features.todense(), test_features.todense()
             transformer = MinMaxScaler()
             transformer.fit(train_features)
@@ -147,8 +147,8 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
 
         else:
             optimal_dim, optimal_kendall = 0, -1
-            for vec_dim in train_vectors[test_dim]:
-                train_features = train_vectors[test_dim][vec_dim] + uni_features_train
+            for vec_dim in train_vectors:
+                train_features = train_vectors[vec_dim] + uni_features_train
                 all_train_ids = list(range(len(y_train)))
                 random.shuffle(all_train_ids)
                 val_split = int(len(all_train_ids) * 0.15)
@@ -167,8 +167,8 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
                     optimal_kendall = kendall
                     optimal_dim = vec_dim
 
-            train_features = train_vectors[test_dim][optimal_dim] + uni_features_train
-            test_features = test_vectors[test_dim][optimal_dim] + uni_features_test
+            train_features = train_vectors[optimal_dim] + uni_features_train
+            test_features = test_vectors[optimal_dim] + uni_features_test
             grades, _ = run_sum_comb_method(train_features, y_train, test_features, y_test, algorithm, combination_method)
 
             open(model_dir + '.comb.' + combination_method + '.predict', 'w').write(
@@ -178,7 +178,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
         kendall, _ = kendalltau(y_test, grades)
         pearson, _ = pearsonr(y_test, np.reshape(grades, (1, -1)).tolist()[0])
 
-        performance = '{},{},{},{},{},{},{}\n'.format(test_dim, unigrams_flag, combination_method, cv_flag, optimal_dim,
+        performance = '{},{},{},{},{},{},{}\n'.format(dim, unigrams_flag, combination_method, cv_flag, optimal_dim,
                                                       error, kendall)
         output_performance += config + ',' + performance
     return output_performance, header
@@ -252,9 +252,136 @@ def get_bert_vectors(data_dir, arch, test_dims, vec_dim):
     return train_features, test_features, model_name
 
 
-def run_topics_experiment():
+
+
+
+
+
+def single_experiment_old(test_dimensions, data_dir, unigrams_flag, combination_method, num_topic, num_paragraphs,
+                      dimension_features, algorithm, kl_flag, model_type):
+
+    output_performance = ''
+    builder = FeatureBuilder(data_dir)
+    topics_dir, models_dir = data_dir + '/lda_vectors_{}/'.format(model_type), data_dir + '/models/'
+    modes = set()
+    for i in dimension_features: modes = modes.union(set(dimension_features[i]))
+    modes = '_'.join(sorted([str(i) for i in modes]))
+    paragraph_id = '_'.join([str(i) for i in num_paragraphs])
+
+    for dim in test_dimensions:
+        model_dir = models_dir + 'dim.' + str(dim) + '.algo.' + algorithm
+        model_dir += '.topics.' + str(num_topic) + '.para.' + paragraph_id
+        model_dir += '.mode.' + modes + '.kl.' + str(kl_flag).lower() + '.type.' + str(model_type).lower()
+        model_dir += '.uni.' + str(unigrams_flag).lower() + '.comb.' + combination_method
+        uni_features_train, uni_features_test, y_train, y_test = [], [], [], []
+
+        if unigrams_flag:
+            x_unigram_train, y_train, x_unigram_test, y_test = builder.build_unigram_features(dim)
+            uni_features_train.append(x_unigram_train)
+            uni_features_test.append(x_unigram_test)
+
+        topic_model_train_features, topic_model_test_features = {}, {}
+        topic_model_dims = [5, 15, 25] if num_topic == 'cv' else [num_topic]
+        for topics in topic_model_dims:
+            topic_model_train_features[topics], topic_model_test_features[topics] = [], []
+            for para in num_paragraphs:
+                for dim_feat in dimension_features:
+                    for mode in dimension_features[dim_feat]:
+                        vec_dir = topics_dir
+                        vec_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(topics, dim_feat, mode, para, topics)
+                        if kl_flag == 'kl' or kl_flag == 'normkl': vec_dir += '.kl'
+                        norm = True if kl_flag == 'normkl' else False
+                        output = builder.build_topic_features(dim, vec_dir + '.train', vec_dir + '.test.val', para,
+                                                              norm=norm)
+                        x_topics_train, y_train, x_topics_test, y_test = output[0], output[1], output[2], output[3]
+                        topic_model_train_features[topics].append(x_topics_train)
+                        topic_model_test_features[topics].append(x_topics_test)
+
+        if combination_method == 'feature_comb':
+            optimal_num, optimal_kendall = 0, -1
+            for topic_num in topic_model_train_features:
+                train_features = tuple(topic_model_train_features[topic_num] + uni_features_train)
+                train_features = sp.hstack(train_features, format='csr')
+                all_train_ids = list(range(len(y_train)))
+                random.shuffle(all_train_ids)
+                val_split = int(len(all_train_ids) * 0.15)
+                validation_ids, small_train_ids = all_train_ids[:val_split], all_train_ids[val_split:]
+                validation_labels = [y_train[i] for i in range(len(y_train)) if i in validation_ids]
+                small_train_labels = [y_train[i] for i in range(len(y_train)) if i in small_train_ids]
+
+                transformer = MinMaxScaler()
+                train_features = train_features.todense()
+                transformer.fit(train_features)
+                small_train_features = train_features[small_train_ids, :]
+                validation_features = train_features[validation_ids, :]
+                small_train_features = transformer.transform(small_train_features)
+                validation_features = transformer.transform(validation_features)
+
+                temp_model_dir = 'val.comb.feature.' + str(time.time())
+                clf = learn_model(algorithm, small_train_features, small_train_labels, temp_model_dir)
+                val_grades = clf.predict(validation_features)
+                kendall, _ = kendalltau(validation_labels, np.reshape(val_grades, (-1, 1)))
+                os.system('rm ' + temp_model_dir)
+
+                if kendall > optimal_kendall:
+                    optimal_kendall = kendall
+                    optimal_num = topic_num
+
+            train_features = sp.hstack(tuple(topic_model_train_features[optimal_num] + uni_features_train), format='csr')
+            test_features = sp.hstack(tuple(topic_model_test_features[optimal_num] + uni_features_test), format='csr')
+            train_features, test_features = train_features.todense(), test_features.todense()
+            transformer = MinMaxScaler()
+            transformer.fit(train_features)
+            train_features = transformer.transform(train_features)
+            test_features = transformer.transform(test_features)
+            clf = learn_model(algorithm, train_features, y_train, model_dir + '.model')
+            grades = clf.predict(test_features)
+            grades = np.reshape(grades, (-1, 1))
+            open(model_dir + '.predict', 'w').write('\n'.join([str(grades[i,0]) for i in range(grades.shape[0])]))
+
+        else:
+            optimal_num, optimal_kendall = 0, -1
+            for topic_num in topic_model_train_features:
+                train_features = topic_model_train_features[topic_num] + uni_features_train
+                all_train_ids = list(range(len(y_train)))
+                random.shuffle(all_train_ids)
+                val_split = int(len(all_train_ids) * 0.15)
+                validation_ids, small_train_ids = all_train_ids[:val_split], all_train_ids[val_split:]
+                validation_labels = [y_train[i] for i in range(len(y_train)) if i in validation_ids]
+                small_train_labels = [y_train[i] for i in range(len(y_train)) if i in small_train_ids]
+
+                small_train_features, validation_features = [], []
+                for features in train_features:
+                    small_train_features.append(features[small_train_ids, :])
+                    validation_features.append(features[validation_ids, :])
+                val_grades, _ = run_sum_comb_method(small_train_features, small_train_labels, validation_features,
+                                                 validation_labels, algorithm, combination_method)
+                kendall, _ = kendalltau(validation_labels, np.reshape(val_grades, (-1, 1)))
+                if kendall > optimal_kendall:
+                    optimal_kendall = kendall
+                    optimal_num = topic_num
+
+            train_features = topic_model_train_features[optimal_num] + uni_features_train
+            test_features = topic_model_test_features[optimal_num] + uni_features_test
+            grades, _ = run_sum_comb_method(train_features, y_train, test_features, y_test, algorithm, combination_method)
+
+            open(model_dir + '.comb.' + combination_method + '.predict', 'w').write(
+                '\n'.join([str(grades[i, 0]) for i in range(grades.shape[0])]))
+
+        error = sqrt(mean_squared_error(y_test, grades))
+        kendall, _ = kendalltau(y_test, grades)
+        pearson, _ = pearsonr(y_test, np.reshape(grades, (1, -1)).tolist()[0])
+        performance = '{},{},{},{},{},{},{},{},{},{},{},{},{}\n'.format(dim, unigrams_flag, combination_method,
+                                                                        num_topic, optimal_num, paragraph_id, algorithm,
+                                                                        modes, kl_flag, model_type, error, kendall,
+                                                                        pearson)
+        output_performance += performance
+    return output_performance
+
+
+def run_experiments():
     data_name = sys.argv[1]
-    model_type = 'ovb'
+    topic_model_types = ['ovb']
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
     topic_model_dims = ['cv']
@@ -276,26 +403,143 @@ def run_topics_experiment():
     unigrams = [True, False]#, True]#, True]
     kl_flags = ['kl']#[True, False]
 
-    output_file = open('report_model_comb_{}.txt'.format(data_name), 'w+')
-    output_lines, header = '', ''
-
-    for topic_dim in topic_model_dims:
-        for para in num_paragraphs:
-            for feature in features:
-                for kl in kl_flags:
-                    args = get_topic_model_vectors(topic_dim, para, feature, model_type, kl, test_dimensions, data_dir)
-                    train_features, test_features, model_name = args[0], args[1], args[2]
-
-                    for combination in combination_methods:
-                        for uni in unigrams:
-                            for algo in algorithms:
-
-                                output, header = cv_experiment(test_dimensions, data_dir, uni, combination,
-                                                               train_features, test_features, algo, model_name,
-                                                               topic_dim)
-                                output_lines += output
+    header = 'dim,unigrams_flag,combination_method,num_topic,optimal_num,paragraph_id,algorithm,modes,kl_flag'
+    header += 'model_type,error,kendall,pearson\n'
+    output_file = open('report_aspect_unigrams_{}.txt'.format(data_name), 'w+')
     output_file.write(header)
-    output_file.write(output_lines)
+
+    for combination in combination_methods:
+        for uni in unigrams:
+            for topic_dims in topic_model_dims:
+                for para in num_paragraphs:
+                    for feature in features:
+                        for algo in algorithms:
+                            for kl in kl_flags:
+                                for t in topic_model_types:
+                                    output = single_experiment(test_dimensions, data_dir, uni, combination, topic_dims,
+                                                               para, feature, algo, kl, t)
+                                    output_file.write(output)
+                                    output_file.flush()
+
+
+def lstm_single_experiment(test_dimensions, data_name, algorithm, arch):
+    output_performance = ''
+    data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
+    builder = FeatureBuilder(data_dir)
+    lstm_dir, models_dir = data_dir + '/embeddings_vectors/', data_dir + '/lstm_models/'
+    lstm_model_name = 'wdim.20.epoch.5.batch.16.opt.adam.vocab.1000.length.100'
+
+    for dim in test_dimensions:
+        optimal_num, optimal_kendall = 0, -1
+        for vec_dim in [5, 15, 25]:
+            vectors_dir = lstm_dir + arch + '.dim.' + str(dim) + '.ldim.' + str(vec_dim) + '.' + lstm_model_name
+            output = builder.build_topic_features(dim, vectors_dir + '.train', vectors_dir + '.test.val', 1)
+            x_train, y_train, x_test, y_test = output[0], output[1], output[2], output[3]
+
+            all_train_ids = list(range(len(y_train)))
+            random.shuffle(all_train_ids)
+            val_split = int(len(all_train_ids) * 0.15)
+            validation_ids, small_train_ids = all_train_ids[:val_split], all_train_ids[val_split:]
+            validation_labels = [y_train[i] for i in range(len(y_train)) if i in validation_ids]
+            small_train_labels = [y_train[i] for i in range(len(y_train)) if i in small_train_ids]
+
+            transformer = MinMaxScaler()
+            x_train = x_train.todense()
+            transformer.fit(x_train)
+            small_train_features = x_train[small_train_ids, :]
+            validation_features = x_train[validation_ids, :]
+            small_train_features = transformer.transform(small_train_features)
+            validation_features = transformer.transform(validation_features)
+
+            temp_model_dir = 'val.lstm.' + str(time.time())
+            clf = learn_model(algorithm, small_train_features, small_train_labels, temp_model_dir)
+            val_grades = clf.predict(validation_features)
+            kendall, _ = kendalltau(validation_labels, np.reshape(val_grades, (-1, 1)))
+            os.system('rm ' + temp_model_dir)
+
+            if kendall > optimal_kendall:
+                optimal_kendall = kendall
+                optimal_num = vec_dim
+
+        vectors_dir = lstm_dir + arch + '.dim.' + str(dim) + '.ldim.' + str(optimal_num) + '.' + lstm_model_name
+        output = builder.build_topic_features(dim, vectors_dir + '.train', vectors_dir + '.test.val', 1)
+        x_train, y_train, x_test, y_test = output[0], output[1], output[2], output[3]
+
+        train_features, test_features = x_train.todense(), x_test.todense()
+        transformer = MinMaxScaler()
+        transformer.fit(train_features)
+        train_features = transformer.transform(train_features)
+        test_features = transformer.transform(test_features)
+        model_dir = models_dir + '.dim.' + str(dim) + '.algo.' + algorithm
+        clf = learn_model(algorithm, train_features, y_train,  model_dir + '.model')
+        grades = clf.predict(test_features)
+        grades = np.reshape(grades, (-1, 1))
+        open(model_dir + '.predict', 'w').write('\n'.join([str(grades[i, 0]) for i in range(grades.shape[0])]))
+
+        error = sqrt(mean_squared_error(y_test, grades))
+        kendall, _ = kendalltau(y_test, grades)
+        pearson, _ = pearsonr(y_test, np.reshape(grades, (1, -1)).tolist()[0])
+        performance = '{},{},{},{},{},{}\n'.format(dim, optimal_num, algorithm, error, kendall, pearson)
+        output_performance += performance
+    return output_performance
+
+
+def bert_experiment(test_dimensions, data_name, algorithm):
+    output_performance = ''
+    data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
+    builder = FeatureBuilder(data_dir)
+    vecs_dir, models_dir = data_dir + '/bert_embeddings/', data_dir + '/lstm_models/'
+
+    for dim in test_dimensions:
+        vectors_dir = vecs_dir + 'dim.' + str(dim)
+        output = builder.build_topic_features(dim, vectors_dir + '.train', vectors_dir + '.test.val', 1)
+        x_train, y_train, x_test, y_test = output[0], output[1], output[2], output[3]
+
+        train_features, test_features = x_train.todense(), x_test.todense()
+        transformer = MinMaxScaler()
+        transformer.fit(train_features)
+        train_features = transformer.transform(train_features)
+        test_features = transformer.transform(test_features)
+        model_dir = models_dir + 'bert.dim.' + str(dim) + '.algo.' + algorithm
+        clf = learn_model(algorithm, train_features, y_train,  model_dir + '.model')
+        grades = clf.predict(test_features)
+        grades = np.reshape(grades, (-1, 1))
+        open(model_dir + '.predict', 'w').write('\n'.join([str(grades[i, 0]) for i in range(grades.shape[0])]))
+
+        error = sqrt(mean_squared_error(y_test, grades))
+        kendall, _ = kendalltau(y_test, grades)
+        pearson, _ = pearsonr(y_test, np.reshape(grades, (1, -1)).tolist()[0])
+        performance = '{},{},{},{},{}\n'.format(dim, algorithm, error, kendall, pearson)
+        output_performance += performance
+    return output_performance
+
+
+def run_bert_experiment():
+    data_name = sys.argv[1]
+    test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
+    algorithms = ['regression', 'ranking']
+    header = 'dim,algorithm,error,kendall,pearson\n'
+    output_file = open('report_bert_{}.txt'.format(data_name), 'w+')
+    output_file.write(header)
+
+    for algo in algorithms:
+        output = bert_experiment(test_dimensions, data_name, algo)
+        output_file.write(output)
+        output_file.flush()
+
+
+def run_lstm_experiment():
+    data_name = sys.argv[1]
+    test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
+    algorithms = ['regression', 'ranking']
+    header = 'dim,optimal_num,algorithm,error,kendall,pearson\n'
+    output_file = open('report_cnn_{}.txt'.format(data_name), 'w+')
+    output_file.write(header)
+
+    for algo in algorithms:
+        output = lstm_single_experiment(test_dimensions, data_name, algo, 'cnn')
+        output_file.write(output)
+        output_file.flush()
 
 
 def neural_comb(test_dimensions, data_dir):
@@ -372,7 +616,7 @@ def neural_comb(test_dimensions, data_dir):
 
 
 def main():
-    run_topics_experiment()
+    run_experiments()
 
     '''
     #[LDA, LSTM, CNN]
