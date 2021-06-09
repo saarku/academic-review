@@ -22,6 +22,12 @@ def learn_model(algorithm, features, labels, model_dir):
         clf = LinearRegression()
         clf.fit(features, labels)
         joblib.dump(clf, model_dir)
+
+    elif algorithm == 'mlp':
+        clf = MLPRegressor()
+        clf.fit(features, labels)
+        joblib.dump(clf, model_dir)
+
     else:
         clf = SVMRank()
         clf.fit(features, labels, model_dir, 0.01)
@@ -70,7 +76,7 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, tes
         a_transformer.fit(train_features)
         train_features = a_transformer.transform(train_features)
         test_features = a_transformer.transform(test_features)
-        clf = learn_model(algorithm, train_features, train_labels, temp_model_dir)
+        clf = learn_model('regression', train_features, train_labels, temp_model_dir)
         os.system('rm -rf ' + temp_model_dir)
         grades = clf.predict(test_features)
         train_grades = clf.predict(train_features)
@@ -270,14 +276,14 @@ def run_topics_experiment():
         pos_neg_features[str(dim)] = modes
     features = [dimension_features] #[pos_features, neg_features, pos_neg_features, neutral_features] #dimension_features] # dimension_features] #
 
-    combination_methods = ['comb_sum'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
+    combination_methods = ['feature_comb', 'comb_sum', 'comb_model'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3]] #, [1], [3]]
-    algorithms = ['regression']#, 'ranking']#, 'ranking']#, 'mlp']
+    algorithms = ['mlp', 'regression', 'ranking']#, 'ranking']#, 'ranking']#, 'mlp']
 
     unigrams = [True, False]#, True]#, True]
     kl_flags = ['kl']#[True, False]
 
-    output_file = open('report_model_comb_{}.txt'.format(data_name), 'w+')
+    output_file = open('report_new_{}.txt'.format(data_name), 'w+')
     output_lines, header = '', ''
 
     for topic_dim in topic_model_dims:
