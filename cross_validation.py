@@ -420,9 +420,9 @@ def main():
     #run_experiments()
 
     #[LDA, LSTM, CNN]
-    education_dimensions = {'0': [5, 5, 5], '1': [25, 5, 5], '2': [5, 25, 25], '3': [25, 15, 25], '4': [15, 5, 15],
-                            '5': [5, 25, 15], '6': [15, 15, 25]}
-    iclr_dimensions = {'1': [15, 15, 15], '2': [15, 5, 15], '3': [15, 15, 5], '5': [5, 15, 25], '6': [25, 15, 15]}
+    education_dimensions = {0: [5, 5, 5], 1: [25, 5, 5], 2: [5, 25, 25], 3: [25, 15, 25], 4: [15, 5, 15],
+                            5: [5, 25, 15], 6: [15, 15, 25]}
+    iclr_dimensions = {1: [15, 15, 15], 2: [15, 5, 15], 3: [15, 15, 5], 5: [5, 15, 25], 6: [25, 15, 15]}
     data_dir = '/home/skuzi2/{}_dataset'.format('education')
     neural_comb(education_dimensions, data_dir)
 
