@@ -35,21 +35,25 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, tes
 
     for i in range(len(all_train_features)):
         train_features, test_features = all_train_features[i], all_test_features[i]
+        print('2')
         try:
             train_features, test_features = train_features.todense(), test_features.todense()
         except:
             pass
+        print('3')
 
         transformer = MinMaxScaler()
         transformer.fit(train_features)
         train_features, test_features = transformer.transform(train_features), transformer.transform(test_features)
 
         temp_model_dir = 'val.' + str(time.time())
+        print('4')
         clf = learn_model(algorithm, train_features, train_labels, temp_model_dir)
         aspect_grades = clf.predict(test_features)
         aspect_grades = np.reshape(aspect_grades, (-1, 1))
         aspect_grades_train = clf.predict(train_features)
         aspect_grades_train = np.reshape(aspect_grades_train, (-1, 1))
+        print('5')
         os.system('rm -rf ' + temp_model_dir)
 
         if method == 'comb_rank':
@@ -163,6 +167,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
                 for features in train_features:
                     small_train_features.append(features[small_train_ids, :])
                     validation_features.append(features[validation_ids, :])
+                print('1')
                 val_grades, _ = run_sum_comb_method(small_train_features, small_train_labels, validation_features,
                                                  validation_labels, algorithm, combination_method)
                 kendall, _ = kendalltau(validation_labels, np.reshape(val_grades, (-1, 1)))
