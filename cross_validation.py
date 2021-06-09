@@ -360,9 +360,12 @@ def neural_comb(test_dimensions, data_dir):
                                                                    'regression', 'comb_sum')
         topic_model_train_features, topic_model_test_features = [], []
         topics = test_dimensions[dim][0]
-        for dim_feat in test_dimensions:
+        dimension_features = list(test_dimensions.keys()) + ['all']
+        for dim_feat in dimension_features:
             for para in [1, 3]:
                 for mode in ['pos', 'neg', 'neu']:
+                    if dim_feat == 'all' and mode != 'neu': continue
+                    if dim_feat != 'all' and mode == 'neu': continue
                     vec_dir = topics_dir
                     vec_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}.kl'.format(topics, dim_feat, mode, para, topics)
                     output = builder.build_topic_features(dim, vec_dir + '.train', vec_dir + '.test.val', para)
