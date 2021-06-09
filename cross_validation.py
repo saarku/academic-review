@@ -32,7 +32,11 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, tes
     train_grades = np.zeros((len(train_labels), 1), dtype=float)
     for i in range(len(all_train_features)):
         train_features, test_features = all_train_features[i], all_test_features[i]
-        train_features, test_features = train_features.todense(), test_features.todense()
+        try:
+            train_features, test_features = train_features.todense(), test_features.todense()
+        except:
+            pass
+        
         transformer = MinMaxScaler()
         transformer.fit(train_features)
         train_features, test_features = transformer.transform(train_features), transformer.transform(test_features)
