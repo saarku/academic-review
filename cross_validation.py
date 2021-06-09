@@ -36,7 +36,6 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, tes
     for i in range(len(all_train_features)):
         train_features, test_features = all_train_features[i], all_test_features[i]
         train_features, test_features = train_features.todense(), test_features.todense()
-        print(train_features.shape)
 
         transformer = MinMaxScaler()
         transformer.fit(train_features)
@@ -100,8 +99,8 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
         model_dir += '.comb.' + combination_method + '.' + model_name
         uni_features_train, uni_features_test, y_train, y_test = [], [], [], []
 
+        x_unigram_train, y_train, x_unigram_test, y_test = builder.build_unigram_features(test_dim)
         if unigrams_flag:
-            x_unigram_train, y_train, x_unigram_test, y_test = builder.build_unigram_features(test_dim)
             uni_features_train.append(x_unigram_train)
             uni_features_test.append(x_unigram_test)
 
@@ -149,8 +148,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
         else:
             optimal_dim, optimal_kendall = 0, -1
             for vec_dim in train_vectors[test_dim]:
-                train_features = train_vectors[test_dim][vec_dim]# + uni_features_train
-                print(train_features)
+                train_features = train_vectors[test_dim][vec_dim] + uni_features_train
                 all_train_ids = list(range(len(y_train)))
                 random.shuffle(all_train_ids)
                 val_split = int(len(all_train_ids) * 0.15)
@@ -169,8 +167,8 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
                     optimal_kendall = kendall
                     optimal_dim = vec_dim
 
-            train_features = train_vectors[test_dim][optimal_dim]# + uni_features_train
-            test_features = test_vectors[test_dim][optimal_dim]# + uni_features_test
+            train_features = train_vectors[test_dim][optimal_dim] + uni_features_train
+            test_features = test_vectors[test_dim][optimal_dim] + uni_features_test
             grades, _ = run_sum_comb_method(train_features, y_train, test_features, y_test, algorithm, combination_method)
 
             open(model_dir + '.comb.' + combination_method + '.predict', 'w').write(
@@ -289,7 +287,6 @@ def run_topics_experiment():
 
                     args = get_topic_model_vectors(topic_dim, para, feature, model_type, kl, test_dimensions, data_dir)
                     train_features, test_features, model_name = args[0], args[1], args[2]
-                    print(model_name)
 
                     for combination in combination_methods:
                         for uni in unigrams:
@@ -378,7 +375,6 @@ def neural_comb(test_dimensions, data_dir):
 
 
 def main():
-    print('started')
     run_topics_experiment()
 
     '''
