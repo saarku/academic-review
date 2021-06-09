@@ -421,7 +421,7 @@ def neural_comb(test_dimensions, data_dir):
 
 
 def main():
-    run_topics_experiment()
+    run_embeddings_experiment()
 
     '''
     #[LDA, LSTM, CNN]
