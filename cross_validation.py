@@ -232,8 +232,8 @@ def get_embedding_vectors(data_dir, arch, test_dims, vec_dim):
         train_features[test_dim], test_features[test_dim] = defaultdict(list), defaultdict(list)
         for dim_feat in test_dims:
             for d in vec_dims:
-                vectors_dir = vectors_dir + arch + '.dim.' + str(dim_feat) + '.ldim.' + str(d) + '.' + config
-                output = builder.build_topic_features(test_dim, vectors_dir + '.train', vectors_dir + '.test.val', 1)
+                curr_vectors_dir = vectors_dir + arch + '.dim.' + str(dim_feat) + '.ldim.' + str(d) + '.' + config
+                output = builder.build_topic_features(test_dim, curr_vectors_dir + '.train', curr_vectors_dir + '.test.val', 1)
                 x_train, _, x_test, _ = output[0], output[1], output[2], output[3]
                 train_features[test_dim][d].append(x_train)
                 test_features[test_dim][d].append(x_test)
