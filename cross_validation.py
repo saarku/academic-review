@@ -202,7 +202,7 @@ def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, mode
         for topics in topic_model_dims:
             for para in num_paragraphs:
                 for dim_feat in dimension_features:
-                    if dim_feat != dim and same_dim_flag: continue
+                    if str(dim_feat) != str(dim) and dim_feat != 'all' and same_dim_flag: continue
                     for mode in dimension_features[dim_feat]:
                         vec_dir = topics_dir
                         vec_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(topics, dim_feat, mode, para, topics)
@@ -271,7 +271,7 @@ def run_topics_experiment():
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
     topic_model_dims = ['cv']
-    same_dim_flag = [True, False]
+    same_dim_flag = [False, True]
 
     modes, pos_modes, neg_modes = ['pos', 'neg'], ['pos'], ['neg']
     dimension_features, pos_features, neg_features, pos_neg_features = {'all': ['neu']}, {}, {}, {}
