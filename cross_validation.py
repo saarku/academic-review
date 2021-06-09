@@ -72,7 +72,6 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, tes
         test_features = np.hstack(all_aspects_test)
         print('b2')
 
-        train_features, test_features = train_features.todense(), test_features.todense()
         print('b3')
 
         print('c')
