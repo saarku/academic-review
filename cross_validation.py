@@ -67,6 +67,8 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, tes
         print('a')
         temp_model_dir = 'val.' + str(time.time())
         print('b')
+        print(len(all_aspects_train))
+        print(len(all_aspects_test))
         all_aspects_train, all_aspects_test = np.hstack(all_aspects_train), np.hstack(all_aspects_test)
         print('c')
         a_transformer = MinMaxScaler()
