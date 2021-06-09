@@ -36,7 +36,7 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, tes
             train_features, test_features = train_features.todense(), test_features.todense()
         except:
             pass
-        
+
         transformer = MinMaxScaler()
         transformer.fit(train_features)
         train_features, test_features = transformer.transform(train_features), transformer.transform(test_features)
@@ -412,7 +412,7 @@ def neural_comb(test_dimensions, data_dir):
         error = sqrt(mean_squared_error(y_test, final_grades))
         kendall, _ = kendalltau(y_test, final_grades)
         pearson, _ = pearsonr(y_test, np.reshape(final_grades, (1, -1)).tolist()[0])
-        performance = '{},{},{},{}\n'.format(dim, error, kendall, pearson)
+        performance = '{},{},{},{}'.format(dim, error, kendall, pearson)
         print(performance)
 
         #- need also to get the train scores as output
@@ -430,8 +430,8 @@ def main():
     education_dimensions = {0: [5, 5, 5], 1: [25, 5, 5], 2: [5, 25, 25], 3: [25, 15, 25], 4: [15, 5, 15],
                             5: [5, 25, 15], 6: [15, 15, 25]}
     iclr_dimensions = {1: [15, 15, 15], 2: [15, 5, 15], 3: [15, 15, 5], 5: [5, 15, 25], 6: [25, 15, 15]}
-    data_dir = '/home/skuzi2/{}_dataset'.format('education')
-    neural_comb(education_dimensions, data_dir)
+    data_dir = '/home/skuzi2/{}_dataset'.format('iclr17')
+    neural_comb(iclr_dimensions, data_dir)
 
 if __name__ == '__main__':
     main()
