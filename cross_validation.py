@@ -356,7 +356,7 @@ def neural_comb(test_dimensions, data_dir):
     for dim in test_dimensions:
 
         x_unigram_train, y_train, x_unigram_test, y_test = builder.build_unigram_features(dim)
-        unigram_grades,  unigram_train_grades= run_sum_comb_method(x_unigram_train, y_train, x_unigram_test, y_test,
+        unigram_grades,  unigram_train_grades= run_sum_comb_method([x_unigram_train], y_train, [x_unigram_test], y_test,
                                                                    'regression', 'comb_sum')
         topic_model_train_features, topic_model_test_features = [], []
         topics = test_dimensions[dim][0]
@@ -379,7 +379,7 @@ def neural_comb(test_dimensions, data_dir):
         lstm_dir = embedding_dir + 'lstm.dim.' + str(dim) + '.ldim.' + str(lstm_dim) + '.' + lstm_model_name
         output = builder.build_topic_features(dim, lstm_dir + '.train', lstm_dir + '.test.val', 1)
         lstm_train, _, lstm_test, _ = output[0], output[1], output[2], output[3]
-        lstm_grades, lstm_train_grades = run_sum_comb_method(lstm_train, y_train, lstm_test, y_test, 'regression',
+        lstm_grades, lstm_train_grades = run_sum_comb_method([lstm_train], y_train, [lstm_test], y_test, 'regression',
                                                              'comb_sum')
 
         cnn_dim = test_dimensions[dim][2]
@@ -387,19 +387,19 @@ def neural_comb(test_dimensions, data_dir):
         cnn_dir = embedding_dir + 'cnn.dim.' + str(dim) + '.ldim.' + str(cnn_dim) + '.' + cnn_model_name
         output = builder.build_topic_features(dim, cnn_dir + '.train', cnn_dir + '.test.val', 1)
         cnn_train, _, cnn_test, _ = output[0], output[1], output[2], output[3]
-        cnn_grades, cnn_train_grades = run_sum_comb_method(cnn_train, y_train, cnn_test, y_test, 'regression',
+        cnn_grades, cnn_train_grades = run_sum_comb_method([cnn_train], y_train, [cnn_test], y_test, 'regression',
                                                            'comb_sum')
 
         bert_vec_dir = bert_dir + 'dim.' + str(dim)
         output = builder.build_topic_features(dim, bert_vec_dir + '.train', bert_vec_dir + '.test.val', 1)
         bert_train, _, bert_test, _ = output[0], output[1], output[2], output[3]
-        bert_grades, bert_train_grades = run_sum_comb_method(bert_train, y_train, bert_test, y_test, 'regression',
+        bert_grades, bert_train_grades = run_sum_comb_method([bert_train], y_train, [bert_test], y_test, 'regression',
                                                              'comb_sum')
 
         combined_grades = np.hstack([unigram_grades, topic_grades, lstm_grades, cnn_grades, bert_grades])
         combined_train_grades = np.hstack([unigram_train_grades, topic_train_grades, lstm_train_grades,
                                            cnn_train_grades, bert_train_grades])
-        final_grades, _ = run_sum_comb_method(combined_train_grades, y_train, combined_grades, y_test, 'regression',
+        final_grades, _ = run_sum_comb_method([combined_train_grades], y_train, [combined_grades], y_test, 'regression',
                                                              'comb_sum')
 
         error = sqrt(mean_squared_error(y_test, final_grades))
