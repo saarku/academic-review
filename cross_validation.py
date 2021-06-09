@@ -162,6 +162,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
                     validation_features.append(features[validation_ids, :])
                 val_grades, _ = run_sum_comb_method(small_train_features, small_train_labels, validation_features,
                                                  validation_labels, algorithm, combination_method)
+                print('exit2')
                 kendall, _ = kendalltau(validation_labels, np.reshape(val_grades, (-1, 1)))
                 if kendall > optimal_kendall:
                     optimal_kendall = kendall
