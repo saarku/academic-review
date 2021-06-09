@@ -149,7 +149,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
         else:
             optimal_dim, optimal_kendall = 0, -1
             for vec_dim in train_vectors[test_dim]:
-                train_features = train_vectors[test_dim][vec_dim] + uni_features_train
+                train_features = train_vectors[test_dim][vec_dim]# + uni_features_train
                 print(train_features)
                 all_train_ids = list(range(len(y_train)))
                 random.shuffle(all_train_ids)
@@ -169,8 +169,8 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
                     optimal_kendall = kendall
                     optimal_dim = vec_dim
 
-            train_features = train_vectors[test_dim][optimal_dim] + uni_features_train
-            test_features = test_vectors[test_dim][optimal_dim] + uni_features_test
+            train_features = train_vectors[test_dim][optimal_dim]# + uni_features_train
+            test_features = test_vectors[test_dim][optimal_dim]# + uni_features_test
             grades, _ = run_sum_comb_method(train_features, y_train, test_features, y_test, algorithm, combination_method)
 
             open(model_dir + '.comb.' + combination_method + '.predict', 'w').write(
