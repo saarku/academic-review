@@ -36,6 +36,7 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, tes
     for i in range(len(all_train_features)):
         train_features, test_features = all_train_features[i], all_test_features[i]
         train_features, test_features = train_features.todense(), test_features.todense()
+        print(train_features.shape)
 
         transformer = MinMaxScaler()
         transformer.fit(train_features)
@@ -62,7 +63,6 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, tes
             all_aspects_train.append(aspect_grades_train)
             all_aspects_test.append(aspect_grades)
 
-    print('exit')
     if method == 'comb_model':
         temp_model_dir = 'val.' + str(time.time())
         train_features = np.hstack(all_aspects_train)
@@ -92,11 +92,10 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
     args = model_name.split('.')
     header = ','.join([str(args[i]) for i in range(0, len(args), 2)])
     config = ','.join([str(args[i+1]) for i in range(0, len(args), 2)])
-    header += 'dim,unigrams_flag,combination_method,cv_flag,optimal_dim,error,kendall\n'
+    header += 'dim,unigrams_flag,combination_method,cv_flag,optimal_dim,error,pearson,kendall\n'
     output_performance = ''
 
     for test_dim in test_dimensions:
-        print('test_dim:{}'.format(test_dim))
         model_dir = models_dir + 'dim.' + str(test_dim) + '.algo.' + algorithm + '.uni.' + str(unigrams_flag).lower()
         model_dir += '.comb.' + combination_method + '.' + model_name
         uni_features_train, uni_features_test, y_train, y_test = [], [], [], []
@@ -180,8 +179,8 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
         kendall, _ = kendalltau(y_test, grades)
         pearson, _ = pearsonr(y_test, np.reshape(grades, (1, -1)).tolist()[0])
 
-        performance = '{},{},{},{},{},{},{}\n'.format(test_dim, unigrams_flag, combination_method, cv_flag, optimal_dim,
-                                                      error, kendall)
+        performance = '{},{},{},{},{},{},{},{}\n'.format(test_dim, unigrams_flag, combination_method, cv_flag, optimal_dim,
+                                                      error, pearson, kendall)
         output_performance += config + ',' + performance
     return output_performance, header
 
@@ -276,7 +275,7 @@ def run_topics_experiment():
     num_paragraphs = [[1, 3]] #, [1], [3]]
     algorithms = ['regression']#, 'ranking']#, 'ranking']#, 'mlp']
 
-    unigrams = [True, False]#, True]#, True]
+    unigrams = [False, True]#, True]#, True]
     kl_flags = ['kl']#[True, False]
 
     output_file = open('report_model_comb_{}.txt'.format(data_name), 'w+')
