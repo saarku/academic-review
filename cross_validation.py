@@ -150,6 +150,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
             print('cv')
             optimal_dim, optimal_kendall = 0, -1
             for vec_dim in train_vectors[test_dim]:
+                print(vec_dim)
                 train_features = train_vectors[test_dim][vec_dim] + uni_features_train
                 all_train_ids = list(range(len(y_train)))
                 random.shuffle(all_train_ids)
@@ -225,14 +226,15 @@ def get_embedding_vectors(data_dir, arch, test_dims, vec_dim):
     vec_dims = [5, 15, 25] if vec_dim == 'cv' else [vec_dim]
     builder = FeatureBuilder(data_dir)
 
-    for dim in test_dims:
-        train_features[dim], test_features[dim] = defaultdict(list), defaultdict(list)
-        for d in vec_dims:
-            vectors_dir = vectors_dir + arch + '.dim.' + str(dim) + '.ldim.' + str(d) + '.' + config
-            output = builder.build_topic_features(dim, vectors_dir + '.train', vectors_dir + '.test.val', 1)
-            x_train, _, x_test, _ = output[0], output[1], output[2], output[3]
-            train_features[dim][d].append(x_train)
-            test_features[dim][d].append(x_test)
+    for test_dim in test_dims:
+        train_features[test_dim], test_features[test_dim] = defaultdict(list), defaultdict(list)
+        for dim_feat in test_dims:
+            for d in vec_dims:
+                vectors_dir = vectors_dir + arch + '.dim.' + str(dim_feat) + '.ldim.' + str(d) + '.' + config
+                output = builder.build_topic_features(test_dim, vectors_dir + '.train', vectors_dir + '.test.val', 1)
+                x_train, _, x_test, _ = output[0], output[1], output[2], output[3]
+                train_features[test_dim][d].append(x_train)
+                test_features[test_dim][d].append(x_test)
 
     model_name = 'model.{}.dim.{}'.format(arch, vec_dim)
     return train_features, test_features, model_name
