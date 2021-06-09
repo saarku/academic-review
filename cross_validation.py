@@ -64,6 +64,7 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, tes
 
     print('exit')
     if method == 'comb_model':
+        print('a')
         temp_model_dir = 'val.' + str(time.time())
         all_aspects_train, all_aspects_test = np.hstack(all_aspects_train), np.hstack(all_aspects_test)
         a_transformer = MinMaxScaler()
@@ -76,6 +77,7 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, tes
         train_grades = clf.predict(all_aspects_train)
         return grades, train_grades
     else:
+        print('b')
         grades /= float(len(all_train_features))
         train_grades /= float(len(all_train_features))
         return grades, train_grades
