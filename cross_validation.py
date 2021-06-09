@@ -261,7 +261,7 @@ def get_bert_vectors(data_dir, test_dims, same_dim_flag=True):
             train_features[test_dim][25].append(x_train)
             test_features[test_dim][25].append(x_test)
 
-    model_name = 'model.bert'
+    model_name = 'model.bert.samedim.{}'.format(same_dim_flag)
     return train_features, test_features, model_name
 
 
