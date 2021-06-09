@@ -69,15 +69,14 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, tes
         print('b')
 
 
-        for vec in all_aspects_train:
-            print(vec.shape)
-        train_features = np.hstack(all_aspects_train)
 
+        train_features = sp.hstack(all_aspects_train, format='csr')
+        print('b1')
+        test_features = sp.hstack(all_aspects_test, format='csr')
+        print('b2')
 
-
-
-
-        test_features = np.hstack(all_aspects_test)
+        train_features, test_features = train_features.todense(), test_features.todense()
+        print('b3')
 
         print('c')
         a_transformer = MinMaxScaler()
@@ -379,9 +378,10 @@ def neural_comb(test_dimensions, data_dir):
         bert_grades, bert_train_grades = run_sum_comb_method([bert_train], y_train, [bert_test], y_test, 'regression',
                                                              'comb_sum')
 
-        combined_grades = np.hstack([unigram_grades, topic_grades, lstm_grades, cnn_grades, bert_grades])
-        combined_train_grades = np.hstack([unigram_train_grades, topic_train_grades, lstm_train_grades,
-                                           cnn_train_grades, bert_train_grades])
+        combined_grades = sp.hstack([unigram_grades, topic_grades, lstm_grades, cnn_grades, bert_grades], format='csr')
+        combined_train_grades = sp.hstack([unigram_train_grades, topic_train_grades, lstm_train_grades,
+                                           cnn_train_grades, bert_train_grades], format='csr')
+
         final_grades, _ = run_sum_comb_method([combined_train_grades], y_train, [combined_grades], y_test, 'regression',
                                                              'comb_sum')
 
