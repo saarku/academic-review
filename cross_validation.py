@@ -60,19 +60,16 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, tes
             grades += aspect_grades
             train_grades += aspect_grades_train
             all_aspects_train.append(aspect_grades_train)
-            all_aspects_test.append(all_aspects_test)
+            all_aspects_test.append(aspect_grades)
 
     print('exit')
     if method == 'comb_model':
         print('a')
         temp_model_dir = 'val.' + str(time.time())
         print('b')
-
-
-
-        train_features = sp.hstack(all_aspects_train, format='csr')
+        train_features = np.hstack(all_aspects_train)
         print('b1')
-        test_features = sp.hstack(all_aspects_test, format='csr')
+        test_features = np.hstack(all_aspects_test)
         print('b2')
 
         train_features, test_features = train_features.todense(), test_features.todense()
