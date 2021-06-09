@@ -95,6 +95,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
     output_performance = ''
 
     for test_dim in test_dimensions:
+        print('test_dim:{}'.format(test_dim))
         model_dir = models_dir + 'dim.' + str(test_dim) + '.algo.' + algorithm + '.uni.' + str(unigrams_flag).lower()
         model_dir += '.comb.' + combination_method + '.' + model_name
         uni_features_train, uni_features_test, y_train, y_test = [], [], [], []
@@ -146,6 +147,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
             open(model_dir + '.predict', 'w').write('\n'.join([str(grades[i,0]) for i in range(grades.shape[0])]))
 
         else:
+            print('cv')
             optimal_dim, optimal_kendall = 0, -1
             for vec_dim in train_vectors[test_dim]:
                 train_features = train_vectors[test_dim][vec_dim] + uni_features_train
@@ -167,6 +169,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
                     optimal_kendall = kendall
                     optimal_dim = vec_dim
 
+            print('final')
             train_features = train_vectors[test_dim][optimal_dim] + uni_features_train
             test_features = test_vectors[test_dim][optimal_dim] + uni_features_test
             grades, _ = run_sum_comb_method(train_features, y_train, test_features, y_test, algorithm, combination_method)
