@@ -35,10 +35,7 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, tes
 
     for i in range(len(all_train_features)):
         train_features, test_features = all_train_features[i], all_test_features[i]
-        try:
-            train_features, test_features = train_features.todense(), test_features.todense()
-        except:
-            pass
+        train_features, test_features = train_features.todense(), test_features.todense()
 
         transformer = MinMaxScaler()
         transformer.fit(train_features)
@@ -65,6 +62,7 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, tes
             all_aspects_train.append(aspect_grades_train)
             all_aspects_test.append(all_aspects_test)
 
+    print('exit')
     if method == 'comb_model':
         temp_model_dir = 'val.' + str(time.time())
         all_aspects_train, all_aspects_test = np.hstack(all_aspects_train), np.hstack(all_aspects_test)
@@ -150,7 +148,6 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
             print('cv')
             optimal_dim, optimal_kendall = 0, -1
             for vec_dim in train_vectors[test_dim]:
-                print(vec_dim)
                 train_features = train_vectors[test_dim][vec_dim] + uni_features_train
                 all_train_ids = list(range(len(y_train)))
                 random.shuffle(all_train_ids)
@@ -163,10 +160,8 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
                 for features in train_features:
                     small_train_features.append(features[small_train_ids, :])
                     validation_features.append(features[validation_ids, :])
-                print('1')
                 val_grades, _ = run_sum_comb_method(small_train_features, small_train_labels, validation_features,
                                                  validation_labels, algorithm, combination_method)
-                print('2')
                 kendall, _ = kendalltau(validation_labels, np.reshape(val_grades, (-1, 1)))
                 if kendall > optimal_kendall:
                     optimal_kendall = kendall
