@@ -150,6 +150,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
             optimal_dim, optimal_kendall = 0, -1
             for vec_dim in train_vectors[test_dim]:
                 train_features = train_vectors[test_dim][vec_dim] + uni_features_train
+                print(train_features)
                 all_train_ids = list(range(len(y_train)))
                 random.shuffle(all_train_ids)
                 val_split = int(len(all_train_ids) * 0.15)
