@@ -318,7 +318,7 @@ def run_embeddings_experiment():
     data_name = sys.argv[1]
     arch = sys.argv[2]
 
-    same_dim_flag = True
+    same_dim_flag = [True, False]
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
     combination_methods = ['feature_comb', 'comb_sum', 'comb_model']
@@ -327,20 +327,22 @@ def run_embeddings_experiment():
     output_file = open('report_{}_{}.txt'.format(arch, data_name), 'w+')
     output_lines, header = '', ''
 
-    if arch in ['lstm', 'cnn']:
-        train_features, test_features, model_name = get_embedding_vectors(data_dir, arch, test_dimensions, 'cv',
-                                                                          same_dim_flag=same_dim_flag)
-    else:
-        train_features, test_features, model_name = get_bert_vectors(data_dir, test_dimensions,
-                                                                     same_dim_flag=same_dim_flag)
+    for f in same_dim_flag:
+        if arch in ['lstm', 'cnn']:
+            train_features, test_features, model_name = get_embedding_vectors(data_dir, arch, test_dimensions, 'cv',
+                                                                              same_dim_flag=f)
+        else:
+            train_features, test_features, model_name = get_bert_vectors(data_dir, test_dimensions,
+                                                                         same_dim_flag=f)
 
-    for combination in combination_methods:
         for uni in unigrams:
-            for algo in algorithms:
-                output, header = cv_experiment(test_dimensions, data_dir, uni, combination, train_features,
-                                               test_features, algo, model_name, 'cv')
-                output_lines += output
-                print(output)
+            for combination in combination_methods:
+                if not uni and combination != 'feature_comb': continue
+                for algo in algorithms:
+                    output, header = cv_experiment(test_dimensions, data_dir, uni, combination, train_features,
+                                                   test_features, algo, model_name, 'cv')
+                    output_lines += output
+                    print(output)
 
     output_file.write(header)
     output_file.write(output_lines)
