@@ -252,9 +252,9 @@ def get_bert_vectors(data_dir, test_dims, same_dim_flag=True):
     builder = FeatureBuilder(data_dir)
 
     for test_dim in test_dims:
+        train_features[test_dim], test_features[test_dim] = defaultdict(list), defaultdict(list)
         for feature_dim in test_dims:
             if test_dim != feature_dim and same_dim_flag: continue
-            train_features[test_dim], test_features[test_dim] = defaultdict(list), defaultdict(list)
             bert_dir = vectors_dir + 'dim.' + str(feature_dim)
             output = builder.build_topic_features(test_dim, bert_dir + '.train', bert_dir + '.test.val', 1)
             x_train, y_train, x_test, y_test = output[0], output[1], output[2], output[3]
@@ -321,10 +321,10 @@ def run_embeddings_experiment():
     same_dim_flag = [False]
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
-    combination_methods = ['comb_sum', 'comb_model'] #'feature_comb',
+    combination_methods = ['comb_sum', 'comb_model', 'feature_comb']
     algorithms = ['mlp_star', 'regression', 'ranking']#, ]
-    unigrams = [False]
-    output_file = open('report_more_{}_{}.txt'.format(arch, data_name), 'w+')
+    unigrams = [False, True]
+    output_file = open('report_fixed_bert_{}_{}.txt'.format(arch, data_name), 'w+')
     output_lines, header = '', ''
 
     for f in same_dim_flag:
@@ -332,8 +332,7 @@ def run_embeddings_experiment():
             train_features, test_features, model_name = get_embedding_vectors(data_dir, arch, test_dimensions, 'cv',
                                                                               same_dim_flag=f)
         else:
-            train_features, test_features, model_name = get_bert_vectors(data_dir, test_dimensions,
-                                                                         same_dim_flag=f)
+            train_features, test_features, model_name = get_bert_vectors(data_dir, test_dimensions, same_dim_flag=f)
 
         for uni in unigrams:
             for combination in combination_methods:
