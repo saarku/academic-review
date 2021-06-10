@@ -79,7 +79,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 clf.fit(train_features, y_train)
                 joblib.dump(clf, comb_model_dir)
             elif algorithm == 'mlp':
-                clf = MLPRegressor(solver='sgd', verbose=False)
+                clf = MLPRegressor(batch_size=16, max_iter=500)
                 clf.fit(train_features, y_train)
                 joblib.dump(clf, comb_model_dir)
             else:
@@ -266,10 +266,10 @@ def run_experiments():
 
 
 def unigram_baseline():
-    data_name = {1: 'iclr17', 2: 'education'}[int(sys.argv[1])]
+    data_name = sys.argv[1] #{1: 'iclr17', 2: 'education'}[int(sys.argv[1])]
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
-    algorithms = ['regression', 'ranking']
+    algorithms = ['mlp']
     header = 'test_dimension,unigrams,combination_method,num_topic_models,num_paragraphs'
     header += ',algorithm,modes,kl,rmse,kendall,pearson\n'
     output_file = open('report_unigrams_{}.txt'.format(data_name), 'w+')
@@ -318,7 +318,7 @@ def lstm_baseline():
 
 
 def main():
-    run_experiments()
+    unigram_baseline()
 
 
 if __name__ == '__main__':
