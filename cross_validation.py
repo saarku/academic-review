@@ -24,7 +24,7 @@ def learn_model(algorithm, features, labels, model_dir):
         joblib.dump(clf, model_dir)
 
     elif algorithm == 'mlp':
-        clf = MLPRegressor(hidden_layer_sizes=50)
+        clf = MLPRegressor(hidden_layer_sizes=50, max_iter=1000)
         clf.fit(features, labels)
         joblib.dump(clf, model_dir)
 
