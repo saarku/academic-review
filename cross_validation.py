@@ -318,13 +318,13 @@ def run_embeddings_experiment():
     data_name = sys.argv[1]
     arch = sys.argv[2]
 
-    same_dim_flag = [True, False]
+    same_dim_flag = [False]
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
-    combination_methods = ['feature_comb', 'comb_sum', 'comb_model']
-    algorithms = ['mlp_star']#, 'regression', 'ranking']
-    unigrams = [False, True]
-    output_file = open('report_mlp_{}_{}.txt'.format(arch, data_name), 'w+')
+    combination_methods = ['comb_sum', 'comb_model'] #'feature_comb',
+    algorithms = ['mlp_star', 'regression', 'ranking']#, ]
+    unigrams = [False]
+    output_file = open('report_more_{}_{}.txt'.format(arch, data_name), 'w+')
     output_lines, header = '', ''
 
     for f in same_dim_flag:
@@ -337,7 +337,6 @@ def run_embeddings_experiment():
 
         for uni in unigrams:
             for combination in combination_methods:
-                if not uni and combination != 'feature_comb': continue
                 for algo in algorithms:
                     output, header = cv_experiment(test_dimensions, data_dir, uni, combination, train_features,
                                                    test_features, algo, model_name, 'cv')
