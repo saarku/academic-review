@@ -322,9 +322,9 @@ def run_embeddings_experiment():
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
     combination_methods = ['feature_comb', 'comb_sum', 'comb_model']
-    algorithms = ['mlp', 'regression', 'ranking']
+    algorithms = ['mlp_star']#, 'regression', 'ranking']
     unigrams = [False, True]
-    output_file = open('report_{}_{}.txt'.format(arch, data_name), 'w+')
+    output_file = open('report_mlp_{}_{}.txt'.format(arch, data_name), 'w+')
     output_lines, header = '', ''
 
     for f in same_dim_flag:
@@ -423,7 +423,7 @@ def neural_comb(test_dimensions, data_dir):
 
 
 def main():
-    run_topics_experiment()
+    run_embeddings_experiment()
 
     '''
     #[LDA, LSTM, CNN]
