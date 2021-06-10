@@ -24,7 +24,7 @@ def learn_model(algorithm, features, labels, model_dir):
         joblib.dump(clf, model_dir)
 
     elif algorithm == 'mlp':
-        clf = MLPRegressor(batch_size=16, max_iter=1000)
+        clf = MLPRegressor(batch_size=16, max_iter=500)
         clf.fit(features, labels)
         joblib.dump(clf, model_dir)
 
@@ -283,7 +283,7 @@ def run_topics_experiment():
         pos_neg_features[str(dim)] = modes
     features = [dimension_features] #[pos_features, neg_features, pos_neg_features, neutral_features] #dimension_features] # dimension_features] #
 
-    combination_methods = ['feature_comb']#, 'comb_sum', 'comb_model'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
+    combination_methods = ['comb_sum'] #['feature_comb']#, 'comb_sum', 'comb_model'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3]] #, [1], [3]]
     algorithms = ['mlp']#, 'regression', 'ranking']#, 'ranking']#, 'ranking']#, 'mlp']
 
