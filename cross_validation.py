@@ -112,6 +112,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
 
         if combination_method == 'feature_comb':
             optimal_dim, optimal_kendall = 0, -1
+            print('cv')
             for vec_dim in train_vectors[test_dim]:
                 train_features = tuple(train_vectors[test_dim][vec_dim] + uni_features_train)
                 train_features = sp.hstack(train_features, format='csr')
@@ -139,7 +140,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
                 if kendall > optimal_kendall:
                     optimal_kendall = kendall
                     optimal_dim = vec_dim
-
+            print('final')
             train_features = sp.hstack(tuple(train_vectors[test_dim][optimal_dim] + uni_features_train), format='csr')
             test_features = sp.hstack(tuple(test_vectors[test_dim][optimal_dim] + uni_features_test), format='csr')
             train_features, test_features = train_features.todense(), test_features.todense()
@@ -153,6 +154,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
 
         else:
             optimal_dim, optimal_kendall = 0, -1
+            print('cv')
             for vec_dim in train_vectors[test_dim]:
                 train_features = train_vectors[test_dim][vec_dim] + uni_features_train
                 all_train_ids = list(range(len(y_train)))
@@ -172,7 +174,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
                 if kendall > optimal_kendall:
                     optimal_kendall = kendall
                     optimal_dim = vec_dim
-
+            print('final')
             train_features = train_vectors[test_dim][optimal_dim] + uni_features_train
             test_features = test_vectors[test_dim][optimal_dim] + uni_features_test
             grades, _ = run_sum_comb_method(train_features, y_train, test_features, y_test, algorithm, combination_method)
@@ -318,29 +320,30 @@ def run_embeddings_experiment():
     data_name = sys.argv[1]
     arch = sys.argv[2]
 
-    same_dim_flag = [False]
+    same_dim_flag = [False, True]
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
-    combination_methods = ['comb_sum', 'comb_model', 'feature_comb']
-    algorithms = ['mlp_star', 'regression', 'ranking']#, ]
-    unigrams = [False, True]
-    output_file = open('report_fixed_bert_{}_{}.txt'.format(arch, data_name), 'w+')
+    combination_methods = ['comb_sum', 'feature_comb']
+    algorithms = ['regression']
+    unigrams = [False]
+    output_file = open('report_graph_{}_{}.txt'.format(arch, data_name), 'w+')
     output_lines, header = '', ''
 
-    for f in same_dim_flag:
-        if arch in ['lstm', 'cnn']:
-            train_features, test_features, model_name = get_embedding_vectors(data_dir, arch, test_dimensions, 'cv',
-                                                                              same_dim_flag=f)
-        else:
-            train_features, test_features, model_name = get_bert_vectors(data_dir, test_dimensions, same_dim_flag=f)
+    for d in [5, 15, 25]:
+        for f in same_dim_flag:
+            if arch in ['lstm', 'cnn']:
+                train_features, test_features, model_name = get_embedding_vectors(data_dir, arch, test_dimensions, d,
+                                                                                  same_dim_flag=f)
+            else:
+                train_features, test_features, model_name = get_bert_vectors(data_dir, test_dimensions, same_dim_flag=f)
 
-        for uni in unigrams:
-            for combination in combination_methods:
-                for algo in algorithms:
-                    output, header = cv_experiment(test_dimensions, data_dir, uni, combination, train_features,
-                                                   test_features, algo, model_name, 'cv')
-                    output_lines += output
-                    print(output)
+            for uni in unigrams:
+                for combination in combination_methods:
+                    for algo in algorithms:
+                        output, header = cv_experiment(test_dimensions, data_dir, uni, combination, train_features,
+                                                       test_features, algo, model_name, 'no_cv')
+                        output_lines += output
+                        print(output)
 
     output_file.write(header)
     output_file.write(output_lines)
@@ -367,16 +370,19 @@ def neural_comb():
                                 'lda': {0: 'multi', 1: 'multi', 2: 'multi', 3: 'multi', 4: 'multi', 5: 'multi', 6: 'multi'}}
                   }
 
+    print('load lstm')
     lstm_train_single, lstm_test_single, _ = get_embedding_vectors(data_dir, 'lstm', dims, 'cv', same_dim_flag=True)
     lstm_train_multi, lstm_test_multi, _ = get_embedding_vectors(data_dir, 'lstm', dims, 'cv', same_dim_flag=False)
     lstm_train = {'multi': lstm_train_multi, 'single': lstm_train_single}
     lstm_test = {'multi': lstm_test_multi, 'single': lstm_test_single}
 
+    print('load bert')
     bert_train_single, bert_test_single, _ = get_bert_vectors(data_dir, dims, same_dim_flag=True)
     bert_train_multi, bert_test_multi, _ = get_bert_vectors(data_dir, dims, same_dim_flag=False)
     bert_train = {'multi': bert_train_multi, 'single': bert_train_single}
     bert_test = {'multi': bert_test_multi, 'single': bert_test_single}
 
+    print('load lda')
     args = get_topic_model_vectors('cv', [1, 3], dimension_features, 'ovb', 'kl', dims, data_dir, same_dim_flag=True)
     lda_train_single, lda_test_single = args[0], args[1]
     args = get_topic_model_vectors('cv', [1, 3], dimension_features, 'ovb', 'kl', dims, data_dir, same_dim_flag=False)
@@ -384,6 +390,7 @@ def neural_comb():
     lda_train = {'multi': lda_train_multi, 'single': lda_train_single}
     lda_test = {'multi': lda_test_multi, 'single': lda_test_single}
 
+    print('combine features')
     train_features, test_features = {}, {}
     for lda_dim in feature_dims:
         for lstm_dim in feature_dims:
@@ -407,6 +414,7 @@ def neural_comb():
 
     for uni in unigrams:
         for comb in combination_methods:
+            print('{}_{}'.format(uni, comb))
             output, header = cv_experiment(dims, data_dir, uni, comb, train_features, test_features, algorithm,
                                            'fusion.true', 'cv')
             output_lines += output
@@ -416,7 +424,7 @@ def neural_comb():
 
 
 def main():
-    neural_comb()
+    run_embeddings_experiment()
 
 
 if __name__ == '__main__':
