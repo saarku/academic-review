@@ -80,7 +80,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
                 clf.fit(train_features, y_train)
                 joblib.dump(clf, comb_model_dir)
             elif algorithm == 'mlp':
-                clf = MLPRegressor(batch_size=32, max_iter=500)
+                clf = MLPRegressor(batch_size=16, max_iter=500)
                 clf.fit(train_features, y_train)
                 joblib.dump(clf, comb_model_dir)
             else:

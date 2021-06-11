@@ -90,7 +90,7 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, tes
 
 
 def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, train_vectors, test_vectors,
-                      algorithm, model_name, cv_flag):
+                  algorithm, model_name, cv_flag):
 
     builder = FeatureBuilder(data_dir)
     models_dir = data_dir + '/models/'
@@ -346,91 +346,77 @@ def run_embeddings_experiment():
     output_file.write(output_lines)
 
 
-def neural_comb(test_dimensions, data_dir):
+def neural_comb():
+    data_name = sys.argv[1]
 
-    output_performance = ''
-    builder = FeatureBuilder(data_dir)
-    topics_dir, models_dir = data_dir + '/lda_vectors_ovb/', data_dir + '/models/'
-    embedding_dir, bert_dir = data_dir + '/embeddings_vectors/', data_dir + '/bert_embeddings/'
+    dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
+    combination_methods = ['comb_sum', 'feature_comb']
+    unigrams = [False, True]
+    data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
+    feature_dims, algorithm = [5, 15, 25], 'regression'
+    output_file = open('report_fusion_{}.txt'.format(data_name), 'w+')
+    modes, dimension_features = ['pos', 'neg'], {'all': ['neu']}
+    for dim in dims: dimension_features[str(dim)] = modes
+    output_lines, header = '', ''
 
-    for dim in test_dimensions:
+    multi_dict = {'iclr17': {'lstm': {1:'single', 2:'single', 3:'multi', 5:'single', 6:'single'},
+                             'bert': {1:'single', 2:'single', 3:'multi', 5:'multi', 6:'multi'},
+                             'lda': {1:'multi', 2:'multi', 3:'single', 5:'multi', 6:'multi'}},
+                  'education': {'lstm': {0: 'multi', 1: 'multi', 2: 'multi', 3: 'multi', 4: 'single', 5: 'single', 6: 'single'},
+                                'bert': {0: 'multi', 1: 'multi', 2: 'multi', 3: 'multi', 4: 'multi', 5: 'multi', 6: 'multi'},
+                                'lda': {0: 'multi', 1: 'multi', 2: 'multi', 3: 'multi', 4: 'multi', 5: 'multi', 6: 'multi'}}
+                  }
 
-        x_unigram_train, y_train, x_unigram_test, y_test = builder.build_unigram_features(dim)
-        unigram_grades,  unigram_train_grades= run_sum_comb_method([x_unigram_train], y_train, [x_unigram_test], y_test,
-                                                                   'regression', 'comb_sum')
-        topic_model_train_features, topic_model_test_features = [], []
-        topics = test_dimensions[dim][0]
-        dimension_features = list(test_dimensions.keys()) + ['all']
-        for dim_feat in dimension_features:
-            for para in [1, 3]:
-                for mode in ['pos', 'neg', 'neu']:
-                    if dim_feat == 'all' and mode != 'neu': continue
-                    if dim_feat != 'all' and mode == 'neu': continue
-                    vec_dir = topics_dir
-                    vec_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}.kl'.format(topics, dim_feat, mode, para, topics)
-                    output = builder.build_topic_features(dim, vec_dir + '.train', vec_dir + '.test.val', para)
-                    x_topics_train, y_train, x_topics_test, y_test = output[0], output[1], output[2], output[3]
-                    topic_model_train_features.append(x_topics_train)
-                    topic_model_test_features.append(x_topics_test)
+    lstm_train_single, lstm_test_single, _ = get_embedding_vectors(data_dir, 'lstm', dims, 'cv', same_dim_flag=True)
+    lstm_train_multi, lstm_test_multi, _ = get_embedding_vectors(data_dir, 'lstm', dims, 'cv', same_dim_flag=False)
+    lstm_train = {'multi': lstm_train_multi, 'single': lstm_train_single}
+    lstm_test = {'multi': lstm_test_multi, 'single': lstm_test_single}
 
-        topic_grades, topic_train_grades = run_sum_comb_method(topic_model_train_features, y_train,
-                                                               topic_model_test_features, y_test, 'regression',
-                                                               'comb_sum')
+    bert_train_single, bert_test_single, _ = get_bert_vectors(data_dir, dims, same_dim_flag=True)
+    bert_train_multi, bert_test_multi, _ = get_bert_vectors(data_dir, dims, same_dim_flag=False)
+    bert_train = {'multi': bert_train_multi, 'single': bert_train_single}
+    bert_test = {'multi': bert_test_multi, 'single': bert_test_single}
 
-        lstm_dim = test_dimensions[dim][1]
-        lstm_model_name = 'wdim.20.epoch.5.batch.16.opt.adam.vocab.1000.length.100'
-        lstm_dir = embedding_dir + 'lstm.dim.' + str(dim) + '.ldim.' + str(lstm_dim) + '.' + lstm_model_name
-        output = builder.build_topic_features(dim, lstm_dir + '.train', lstm_dir + '.test.val', 1)
-        lstm_train, _, lstm_test, _ = output[0], output[1], output[2], output[3]
-        lstm_grades, lstm_train_grades = run_sum_comb_method([lstm_train], y_train, [lstm_test], y_test, 'regression',
-                                                             'comb_sum')
+    args = get_topic_model_vectors('cv', [1, 3], dimension_features, 'ovb', 'kl', dims, data_dir, same_dim_flag=True)
+    lda_train_single, lda_test_single = args[0], args[1]
+    args = get_topic_model_vectors('cv', [1, 3], dimension_features, 'ovb', 'kl', dims, data_dir, same_dim_flag=False)
+    lda_train_multi, lda_test_multi = args[0], args[1]
+    lda_train = {'multi': lda_train_multi, 'single': lda_train_single}
+    lda_test = {'multi': lda_test_multi, 'single': lda_test_single}
 
-        cnn_dim = test_dimensions[dim][2]
-        cnn_model_name = 'wdim.20.epoch.5.batch.16.opt.adam.vocab.1000.length.100'
-        cnn_dir = embedding_dir + 'cnn.dim.' + str(dim) + '.ldim.' + str(cnn_dim) + '.' + cnn_model_name
-        output = builder.build_topic_features(dim, cnn_dir + '.train', cnn_dir + '.test.val', 1)
-        cnn_train, _, cnn_test, _ = output[0], output[1], output[2], output[3]
-        cnn_grades, cnn_train_grades = run_sum_comb_method([cnn_train], y_train, [cnn_test], y_test, 'regression',
-                                                           'comb_sum')
+    train_features, test_features = {}, {}
+    for lda_dim in feature_dims:
+        for lstm_dim in feature_dims:
+            comb = '{}_{}'.format(lda_dim, lstm_dim)
+            for test_dim in lda_train_multi:
 
-        bert_vec_dir = bert_dir + 'dim.' + str(dim)
-        output = builder.build_topic_features(dim, bert_vec_dir + '.train', bert_vec_dir + '.test.val', 1)
-        bert_train, _, bert_test, _ = output[0], output[1], output[2], output[3]
-        bert_grades, bert_train_grades = run_sum_comb_method([bert_train], y_train, [bert_test], y_test, 'regression',
-                                                             'comb_sum')
+                if test_dim not in train_features:
+                    train_features[test_dim], test_features[test_dim] = defaultdict(list), defaultdict(list)
 
-        combined_grades = sp.hstack([unigram_grades, topic_grades, lstm_grades, cnn_grades, bert_grades], format='csr')
-        combined_train_grades = sp.hstack([unigram_train_grades, topic_train_grades, lstm_train_grades,
-                                           cnn_train_grades, bert_train_grades], format='csr')
+                multi_lda = multi_dict[data_name]['lda'][test_dim]
+                train_features[test_dim][comb] += lda_train[multi_lda][test_dim][lda_dim]
+                test_features[test_dim][comb] += lda_test[multi_lda][test_dim][lda_dim]
 
-        final_grades, _ = run_sum_comb_method([combined_train_grades], y_train, [combined_grades], y_test, 'regression',
-                                                             'comb_sum')
+                multi_bert = multi_dict[data_name]['bert'][test_dim]
+                train_features[test_dim][comb] += bert_train[multi_bert][test_dim][25]
+                test_features[test_dim][comb] += bert_test[multi_bert][test_dim][25]
 
-        error = sqrt(mean_squared_error(y_test, final_grades))
-        kendall, _ = kendalltau(y_test, final_grades)
-        pearson, _ = pearsonr(y_test, np.reshape(final_grades, (1, -1)).tolist()[0])
-        performance = '{},{},{},{}'.format(dim, error, kendall, pearson)
-        print(performance)
+                multi_lstm = multi_dict[data_name]['lstm'][test_dim]
+                train_features[test_dim][comb] += lstm_train[multi_lstm][test_dim][lstm_dim]
+                test_features[test_dim][comb] += lstm_test[multi_lstm][test_dim][lstm_dim]
 
-        #- need also to get the train scores as output
-        #- need to get the optimal model dimesion
-        #- try both summasion and regression
-        #- should we try summation in the topics part
-        #- look at the main table and decide the setting
-    return output_performance
+    for uni in unigrams:
+        for comb in combination_methods:
+            output, header = cv_experiment(dims, data_dir, uni, comb, train_features, test_features, algorithm,
+                                           'fusion.true', 'cv')
+            output_lines += output
+
+    output_file.write(header)
+    output_file.write(output_lines)
 
 
 def main():
-    run_embeddings_experiment()
-
-    '''
-    #[LDA, LSTM, CNN]
-    education_dimensions = {0: [5, 5, 5], 1: [25, 5, 5], 2: [5, 25, 25], 3: [25, 15, 25], 4: [15, 5, 15],
-                            5: [5, 25, 15], 6: [15, 15, 25]}
-    iclr_dimensions = {1: [15, 15, 15], 2: [15, 5, 15], 3: [15, 15, 5], 5: [5, 15, 25], 6: [25, 15, 15]}
-    data_dir = '/home/skuzi2/{}_dataset'.format('iclr17')
-    neural_comb(iclr_dimensions, data_dir)
-    '''
+    neural_comb()
 
 
 if __name__ == '__main__':

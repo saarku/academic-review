@@ -629,3 +629,77 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+def neural_comb(test_dimensions, data_dir):
+
+    output_performance = ''
+    builder = FeatureBuilder(data_dir)
+    topics_dir, models_dir = data_dir + '/lda_vectors_ovb/', data_dir + '/models/'
+    embedding_dir, bert_dir = data_dir + '/embeddings_vectors/', data_dir + '/bert_embeddings/'
+
+    for dim in test_dimensions:
+
+        x_unigram_train, y_train, x_unigram_test, y_test = builder.build_unigram_features(dim)
+        unigram_grades,  unigram_train_grades= run_sum_comb_method([x_unigram_train], y_train, [x_unigram_test], y_test,
+                                                                   'regression', 'comb_sum')
+        topic_model_train_features, topic_model_test_features = [], []
+        topics = test_dimensions[dim][0]
+        dimension_features = list(test_dimensions.keys()) + ['all']
+        for dim_feat in dimension_features:
+            for para in [1, 3]:
+                for mode in ['pos', 'neg', 'neu']:
+                    if dim_feat == 'all' and mode != 'neu': continue
+                    if dim_feat != 'all' and mode == 'neu': continue
+                    vec_dir = topics_dir
+                    vec_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}.kl'.format(topics, dim_feat, mode, para, topics)
+                    output = builder.build_topic_features(dim, vec_dir + '.train', vec_dir + '.test.val', para)
+                    x_topics_train, y_train, x_topics_test, y_test = output[0], output[1], output[2], output[3]
+                    topic_model_train_features.append(x_topics_train)
+                    topic_model_test_features.append(x_topics_test)
+
+        topic_grades, topic_train_grades = run_sum_comb_method(topic_model_train_features, y_train,
+                                                               topic_model_test_features, y_test, 'regression',
+                                                               'comb_sum')
+
+        lstm_dim = test_dimensions[dim][1]
+        lstm_model_name = 'wdim.20.epoch.5.batch.16.opt.adam.vocab.1000.length.100'
+        lstm_dir = embedding_dir + 'lstm.dim.' + str(dim) + '.ldim.' + str(lstm_dim) + '.' + lstm_model_name
+        output = builder.build_topic_features(dim, lstm_dir + '.train', lstm_dir + '.test.val', 1)
+        lstm_train, _, lstm_test, _ = output[0], output[1], output[2], output[3]
+        lstm_grades, lstm_train_grades = run_sum_comb_method([lstm_train], y_train, [lstm_test], y_test, 'regression',
+                                                             'comb_sum')
+
+        cnn_dim = test_dimensions[dim][2]
+        cnn_model_name = 'wdim.20.epoch.5.batch.16.opt.adam.vocab.1000.length.100'
+        cnn_dir = embedding_dir + 'cnn.dim.' + str(dim) + '.ldim.' + str(cnn_dim) + '.' + cnn_model_name
+        output = builder.build_topic_features(dim, cnn_dir + '.train', cnn_dir + '.test.val', 1)
+        cnn_train, _, cnn_test, _ = output[0], output[1], output[2], output[3]
+        cnn_grades, cnn_train_grades = run_sum_comb_method([cnn_train], y_train, [cnn_test], y_test, 'regression',
+                                                           'comb_sum')
+
+        bert_vec_dir = bert_dir + 'dim.' + str(dim)
+        output = builder.build_topic_features(dim, bert_vec_dir + '.train', bert_vec_dir + '.test.val', 1)
+        bert_train, _, bert_test, _ = output[0], output[1], output[2], output[3]
+        bert_grades, bert_train_grades = run_sum_comb_method([bert_train], y_train, [bert_test], y_test, 'regression',
+                                                             'comb_sum')
+
+        combined_grades = sp.hstack([unigram_grades, topic_grades, lstm_grades, cnn_grades, bert_grades], format='csr')
+        combined_train_grades = sp.hstack([unigram_train_grades, topic_train_grades, lstm_train_grades,
+                                           cnn_train_grades, bert_train_grades], format='csr')
+
+        final_grades, _ = run_sum_comb_method([combined_train_grades], y_train, [combined_grades], y_test, 'regression',
+                                                             'comb_sum')
+
+        error = sqrt(mean_squared_error(y_test, final_grades))
+        kendall, _ = kendalltau(y_test, final_grades)
+        pearson, _ = pearsonr(y_test, np.reshape(final_grades, (1, -1)).tolist()[0])
+        performance = '{},{},{},{}'.format(dim, error, kendall, pearson)
+        print(performance)
+
+        #- need also to get the train scores as output
+        #- need to get the optimal model dimesion
+        #- try both summasion and regression
+        #- should we try summation in the topics part
+        #- look at the main table and decide the setting
+    return output_performance
