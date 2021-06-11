@@ -7,7 +7,7 @@ from utils import to_sparse, from_sparse, pre_process_text
 class FeatureBuilder:
 
     def __init__(self, data_dir):
-        self.count_vector = CountVectorizer(min_df=5, max_features=1000)
+        self.count_vector = CountVectorizer(min_df=5)
         self.tf_idf_transformer = TfidfTransformer()
         train_data_dir = data_dir + '/data_splits/dim.all.mod.neu.para.1.train.text'
         test_data_dir = data_dir + '/data_splits/dim.all.mod.neu.para.1.test.val.text'
