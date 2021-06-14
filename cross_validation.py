@@ -195,12 +195,14 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
 def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, model_type, kl_flag, test_dims, data_dir,
                             same_dim_flag=True):
     topics_dir = data_dir + '/lda_vectors_{}/'.format(model_type)
-    topic_model_train_features, topic_model_test_features = {}, {}
+    topic_model_train_features, topic_model_test_features, topic_model_names = {}, {}, {}
+    y_train, y_test = [], []
     topic_model_dims = [5, 15, 25] if num_topics == 'cv' else [num_topics]
     builder = FeatureBuilder(data_dir)
 
     for dim in test_dims:
         topic_model_train_features[dim], topic_model_test_features[dim] = defaultdict(list), defaultdict(list)
+        topic_model_names[dim] = defaultdict(list)
         for topics in topic_model_dims:
             for para in num_paragraphs:
                 for dim_feat in dimension_features:
@@ -215,6 +217,7 @@ def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, mode
                         x_topics_train, y_train, x_topics_test, y_test = output[0], output[1], output[2], output[3]
                         topic_model_train_features[dim][topics].append(x_topics_train)
                         topic_model_test_features[dim][topics].append(x_topics_test)
+                        topic_model_names[dim][topics].append('{}_{}_{}'.format(para, dim_feat, mode))
 
     modes = set()
     for i in dimension_features: modes = modes.union(set(dimension_features[i]))
@@ -223,7 +226,37 @@ def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, mode
     model_name = 'model.lda.para.{}.topics.{}.kl.{}.mode.{}.type.{}.samedim.{}'.format(paragraph_id, num_topics,
                                                                                        kl_flag, modes, model_type,
                                                                                        same_dim_flag)
-    return topic_model_train_features, topic_model_test_features, model_name
+    return topic_model_train_features, topic_model_test_features, model_name, y_train, y_test, topic_model_names
+
+
+def get_most_correlated_topics():
+    data_name = sys.argv[1]
+    data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
+    test_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
+    output_file = open('correlations_{}.txt'.format(data_name))
+
+    modes, dim_features = ['pos', 'neg'], {'all': ['neu']}
+    for dim in test_dims: dim_features[str(dim)] = modes
+    _, x, _, _, y, names = get_topic_model_vectors('cv', [1, 3], dim_features, 'ovb', 'kl', test_dims, data_dir,
+                                                   same_dim_flag=False)
+
+    for dim in x:
+        for num in x[dim]:
+            correlations = {}
+            topics = x[dim][num]
+            topic_names = names[dim][num]
+            for i, topic_model in enumerate(topics):
+                for topic_num in range(topic_model.shape[1]):
+                    topic_name = topic_names[i] + '_' + str(topic_num)
+                    f = topic_model[:,topic_num]
+                    kendall, _ = kendalltau(f.todense(), y)
+                    correlations[topic_name] = kendall
+            sorted_kendall = sorted(correlations, key=correlations.get, reverse=True)
+            output_line = '{},{}'.format(dim, num)
+            for i in sorted_kendall:
+                output_line += ',' + sorted_kendall[i] + ',' + str(correlations[sorted_kendall[i]])
+            output_file.write(output_line + '\n')
+            output_file.flush()
 
 
 def get_embedding_vectors(data_dir, arch, test_dims, vec_dim, same_dim_flag=True):
@@ -424,7 +457,7 @@ def neural_comb():
 
 
 def main():
-    run_topics_experiment()
+    get_most_correlated_topics()
 
 
 if __name__ == '__main__':
