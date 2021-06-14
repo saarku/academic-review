@@ -230,7 +230,7 @@ def main():
                             #tm.generate_topic_kl(model_dir, vectors_dir + '.kl.train', model_type)
                             #tm.generate_topic_dists(model_dir, vectors_dir + '.train', model_type)
                             tm = TopicModels(test_data_dir, vocab_dir)
-                            tm.generate_topic_kl(model_dir, vectors_dir + '.kl.test.val', model_type)
+                            #tm.generate_topic_kl(model_dir, vectors_dir + '.kl.test.val', model_type)
                             tm.generate_topic_dists(model_dir, vectors_dir + '.test.val', model_type)
 
 

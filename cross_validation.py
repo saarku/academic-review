@@ -194,7 +194,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
 
 
 def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, model_type, kl_flag, test_dims, data_dir,
-                            same_dim_flag=True):
+                            same_dim_flag=True, train_flag=True):
     topics_dir = data_dir + '/lda_vectors_{}/'.format(model_type)
     topic_model_train_features, topic_model_test_features, topic_model_names = {}, {}, {}
     y_train_dict, y_test_dict = {}, {}
@@ -214,7 +214,7 @@ def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, mode
                         if kl_flag == 'kl' or kl_flag == 'normkl': vec_dir += '.kl'
                         norm = True if kl_flag == 'normkl' else False
                         output = builder.build_topic_features(dim, vec_dir + '.train', vec_dir + '.test.val', para,
-                                                              norm=norm)
+                                                              norm=norm, train_flag=train_flag)
                         x_topics_train, y_train, x_topics_test, y_test = output[0], output[1], output[2], output[3]
                         y_train_dict[dim], y_test_dict[dim] = y_train, y_test
                         topic_model_train_features[dim][topics].append(x_topics_train)

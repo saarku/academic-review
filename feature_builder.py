@@ -32,9 +32,12 @@ class FeatureBuilder:
         y_train = np.asarray(y_train, dtype=float)
         return x_train_tf_idf, y_train, x_test_tf_idf, y_test, self.count_vector.get_feature_names()
 
-    def build_topic_features(self, dimension_id, topics_train_dir, topics_test_dir, num_paragraphs, norm=False):
-        x_train, y_train = get_topics_vec(topics_train_dir, self.train_labels, dimension_id, num_paragraphs, norm)
+    def build_topic_features(self, dimension_id, topics_train_dir, topics_test_dir, num_paragraphs, norm=False,
+                             train_flag=True):
+        x_train, y_train = [], []
         x_test, y_test = get_topics_vec(topics_test_dir, self.test_labels, dimension_id, num_paragraphs, norm)
+        if train_flag:
+            x_train, y_train = get_topics_vec(topics_train_dir, self.train_labels, dimension_id, num_paragraphs, norm)
         return x_train, y_train, x_test, y_test
 
     @staticmethod
