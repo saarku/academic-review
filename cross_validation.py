@@ -261,7 +261,7 @@ def get_topic_representations():
 
     for topic_id in final_words:
         output_line = topic_id
-        for word in final_words[topic_id][:15]:
+        for word in final_words[topic_id][:20]:
             output_line += ',' + word
         print(output_line)
 
