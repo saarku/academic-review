@@ -243,9 +243,10 @@ def get_topic_representations():
         args = topic_id.split('_')
         topic_data_dir = data_dir + 'data_splits/dim.{}.mod.{}.para.{}.train.text'.format(args[1], args[2], args[0])
         tm = TopicModels(topic_data_dir, topic_data_dir)
-        topic_model_dir = data_dir + 'lda_models/{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(num_topics, args[1],
-                                                                                                args[2], args[0],
-                                                                                                num_topics)
+        topic_model_dir = data_dir + 'lda_models/{}_topics/dim.{}.mod.{}.para.{}.num.{}/model'.format(num_topics,
+                                                                                                      args[1], args[2],
+                                                                                                      args[0],
+                                                                                                      num_topics)
         words = tm.generate_topic_words(topic_model_dir)
         topic_words[topic_id] = words[int(args[3])]
 
