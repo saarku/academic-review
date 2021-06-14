@@ -234,7 +234,7 @@ def get_most_correlated_topics():
     data_name = sys.argv[1]
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     test_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
-    output_file = open('correlations_{}.txt'.format(data_name))
+    output_file = open('correlations_{}.txt'.format(data_name), 'w')
 
     modes, dim_features = ['pos', 'neg'], {'all': ['neu']}
     for dim in test_dims: dim_features[str(dim)] = modes
