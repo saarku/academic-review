@@ -280,13 +280,11 @@ def get_unigram_representations():
     for feature_id in range(x_unigram_test.shape[1]):
         features = x_unigram_test[:, feature_id].todense()
         kendall, _ = kendalltau(features, y_test)
-        correlations[feature_id] = kendall
-        print(kendall)
+        if kendall is not np.nan:
+            correlations[feature_id] = kendall
     sorted_kendall = sorted(correlations, key=correlations.get, reverse=True)
     output_lines = ''
 
-    print(sorted_kendall[:20])
-    print(sorted_kendall[len(sorted_kendall)-20:])
     for i in sorted_kendall[:100]:
         output_lines += feature_names[i] + ','
     output_lines += '\n'
