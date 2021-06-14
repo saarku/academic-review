@@ -196,7 +196,7 @@ def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, mode
                             same_dim_flag=True):
     topics_dir = data_dir + '/lda_vectors_{}/'.format(model_type)
     topic_model_train_features, topic_model_test_features, topic_model_names = {}, {}, {}
-    y_train, y_test = [], []
+    y_train_dict, y_test_dict = {}, {}
     topic_model_dims = [5, 15, 25] if num_topics == 'cv' else [num_topics]
     builder = FeatureBuilder(data_dir)
 
@@ -215,6 +215,7 @@ def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, mode
                         output = builder.build_topic_features(dim, vec_dir + '.train', vec_dir + '.test.val', para,
                                                               norm=norm)
                         x_topics_train, y_train, x_topics_test, y_test = output[0], output[1], output[2], output[3]
+                        y_train_dict[dim], y_test_dict[dim] = y_train, y_test
                         topic_model_train_features[dim][topics].append(x_topics_train)
                         topic_model_test_features[dim][topics].append(x_topics_test)
                         topic_model_names[dim][topics].append('{}_{}_{}'.format(para, dim_feat, mode))
@@ -226,7 +227,7 @@ def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, mode
     model_name = 'model.lda.para.{}.topics.{}.kl.{}.mode.{}.type.{}.samedim.{}'.format(paragraph_id, num_topics,
                                                                                        kl_flag, modes, model_type,
                                                                                        same_dim_flag)
-    return topic_model_train_features, topic_model_test_features, model_name, y_train, y_test, topic_model_names
+    return topic_model_train_features, topic_model_test_features, model_name, y_train_dict, y_test_dict, topic_model_names
 
 
 def get_most_correlated_topics():
@@ -249,7 +250,7 @@ def get_most_correlated_topics():
                 for topic_num in range(topic_model.shape[1]):
                     topic_name = topic_names[i] + '_' + str(topic_num)
                     f = topic_model[:,topic_num]
-                    kendall, _ = kendalltau(f.todense(), y)
+                    kendall, _ = kendalltau(f.todense(), y[dim])
                     correlations[topic_name] = kendall
             sorted_kendall = sorted(correlations, key=correlations.get, reverse=True)
             output_line = '{},{}'.format(dim, num)
