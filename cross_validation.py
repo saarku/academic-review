@@ -285,6 +285,7 @@ def get_unigram_representations():
     output_lines = ''
 
     print(sorted_kendall[:20])
+    print(sorted_kendall[len(sorted_kendall)-20:])
     for i in sorted_kendall[:100]:
         output_lines += feature_names[i] + ','
     output_lines += '\n'
