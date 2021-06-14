@@ -255,7 +255,7 @@ def get_most_correlated_topics():
             sorted_kendall = sorted(correlations, key=correlations.get, reverse=True)
             output_line = '{},{}'.format(dim, num)
             for i in sorted_kendall:
-                output_line += ',' + sorted_kendall[i] + ',' + str(correlations[sorted_kendall[i]])
+                output_line += ',' + i + ',' + str(correlations[i])
             output_file.write(output_line + '\n')
             output_file.flush()
 
