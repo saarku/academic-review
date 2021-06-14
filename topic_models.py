@@ -50,7 +50,9 @@ def get_topics_vec(dists_dir, labels, dimension_id, num_paragraphs, norm):
 class TopicModels:
 
     def __init__(self, data_dir, vocabulary_data_dir):
+        print('process data')
         self.data_lines = [pre_process_text(line) for line in open(data_dir, 'r').read().split('\n')][0:-1]
+        print('process vocab')
         self.vocab_lines = [pre_process_text(line) for line in open(vocabulary_data_dir, 'r').read().split('\n')][0:-1]
 
     def learn_lda(self, num_topics, output_dir, model_type):
@@ -171,6 +173,7 @@ class TopicModels:
                 doc_topics.append((topic_id, kl_score))
 
             lda_file.write(str(doc_topics) + '\n')
+            lda_file.flush()
         lda_file.close()
 
 
@@ -230,8 +233,8 @@ def main():
                             #tm.generate_topic_kl(model_dir, vectors_dir + '.kl.train', model_type)
                             #tm.generate_topic_dists(model_dir, vectors_dir + '.train', model_type)
                             tm = TopicModels(test_data_dir, vocab_dir)
-                            #tm.generate_topic_kl(model_dir, vectors_dir + '.kl.test.val', model_type)
-                            tm.generate_topic_dists(model_dir, vectors_dir + '.test.val', model_type)
+                            tm.generate_topic_kl(model_dir, vectors_dir + '.kl.test.val', model_type)
+                            #tm.generate_topic_dists(model_dir, vectors_dir + '.test.val', model_type)
 
 
 if __name__ == '__main__':
