@@ -43,7 +43,7 @@ def single_experiment(test_dimensions, data_dir, unigrams_flag, combination_meth
         all_features_train, all_features_test, feature_names, y_train, y_test = [], [], [], [], []
 
         if unigrams_flag:
-            x_unigram_train, y_train, x_unigram_test, y_test = builder.build_unigram_features(dim)
+            x_unigram_train, y_train, x_unigram_test, y_test, _ = builder.build_unigram_features(dim)
             all_features_train.append(x_unigram_train)
             print(x_unigram_train.shape)
             all_features_test.append(x_unigram_test)

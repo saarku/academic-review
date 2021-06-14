@@ -30,7 +30,7 @@ class FeatureBuilder:
         x_train_tf_idf = self.tf_idf_transformer.fit_transform(x_train_counts)
         x_test_tf_idf = self.tf_idf_transformer.transform(x_test_counts)
         y_train = np.asarray(y_train, dtype=float)
-        return x_train_tf_idf, y_train, x_test_tf_idf, y_test
+        return x_train_tf_idf, y_train, x_test_tf_idf, y_test, self.count_vector.get_feature_names()
 
     def build_topic_features(self, dimension_id, topics_train_dir, topics_test_dir, num_paragraphs, norm=False):
         x_train, y_train = get_topics_vec(topics_train_dir, self.train_labels, dimension_id, num_paragraphs, norm)
