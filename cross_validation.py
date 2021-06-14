@@ -521,7 +521,7 @@ def neural_comb():
 
 
 def main():
-    get_topic_representations()
+    get_unigram_representations()
 
 
 if __name__ == '__main__':
