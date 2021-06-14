@@ -234,7 +234,10 @@ def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, mode
 def get_topic_representations():
     data_name = 'iclr17'
     num_topics = '25'
-    topic_identifiers = ['1_6_pos_23', '1_1_pos_12', '1_1_neg_7', '1_2_pos_13']
+    topic_identifiers_2 = ['1_6_pos_23', '1_1_pos_12', '1_1_neg_7', '1_2_pos_13']
+    topic_identifiers_1 = ['1_all_neu_0', '1_3_neg_4', '1_5_pos_17', '1_all_neu_15']
+
+    topic_identifiers = topic_identifiers_1
     # 'para_dimfeat_mode_num'
     data_dir = '/home/skuzi2/{}_dataset/'.format(data_name)
     topic_words = {}
