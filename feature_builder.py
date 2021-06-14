@@ -13,7 +13,6 @@ class FeatureBuilder:
         test_data_dir = data_dir + '/data_splits/dim.all.mod.neu.para.1.test.val.text'
         grades_dir = data_dir + '/annotations/annotation_aggregated.tsv'
         self.train_labels = self.build_labels(data_dir + '/data_splits/dim.all.mod.neu.para.1.train.ids', grades_dir)
-        self.test_labels = self.build_labels(data_dir + '/data_splits/dim.all.mod.neu.para.1.test.val.ids', grades_dir)
         self.train_lines = [pre_process_text(line) for line in open(train_data_dir, 'r').read().split('\n')][0:-1]
         self.test_lines = [pre_process_text(line) for line in open(test_data_dir, 'r').read().split('\n')][0:-1]
 
