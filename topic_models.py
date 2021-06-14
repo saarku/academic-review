@@ -51,8 +51,17 @@ class TopicModels:
 
     def __init__(self, data_dir, vocabulary_data_dir):
         print('process data')
-        self.data_lines = [pre_process_text(line) for line in open(data_dir, 'r').read().split('\n')][0:-1]
+        self.data_lines = []
+        for i, line in enumerate(open(data_dir, 'r').read().split('\n')):
+            if i%1000 == 0:
+                print('{} completed'.format(i))
+            self.data_lines.append(pre_process_text(line))
+
         print('process vocab')
+        if vocabulary_data_dir is not None:
+            self.vocab_lines = [pre_process_text(line) for line in open(vocabulary_data_dir, 'r').read().split('\n')][0:-1]
+
+    def upload_vocab(self, vocabulary_data_dir):
         self.vocab_lines = [pre_process_text(line) for line in open(vocabulary_data_dir, 'r').read().split('\n')][0:-1]
 
     def learn_lda(self, num_topics, output_dir, model_type):
@@ -207,18 +216,21 @@ def main():
                             tm.learn_lda(topic, model_dir + '/model', model_type)
 
     if infer_flag:
-        for dim in dimensions:
-            for mode in dimensions[dim]:
-                for para in paragraphs:
+        for para in paragraphs:
+            test_data_dir = '../acl_dataset/data_splits/dim.all.mod.neu.para.{}.test.val.text'.format(para)
+            tm = TopicModels(test_data_dir, None)
+            for dim in dimensions:
+                for mode in dimensions[dim]:
                     for model_type in model_types:
                         for topic in topics:
                             #train_data_dir = base_dir + '/data_splits/dim.all.mod.neu.para.{}.train.text'.format(para)
                             #test_data_dir = base_dir + '/data_splits/dim.all.mod.neu.para.{}.test.val.text'.format(para)
-                            test_data_dir = '../acl_dataset/data_splits/dim.all.mod.neu.para.{}.test.val.text'.format(para)
 
                             vocab_dir = base_dir + '/data_splits/dim.{}.mod.{}.para.{}.train.text'.format(dim, mode,
                                                                                                           para)
+                            tm.upload_vocab(vocab_dir)
                             model_dir = base_dir + '/lda_models/'
+
 
                             #vectors_dir = base_dir + '/lda_vectors_{}/'.format(model_type)
                             vectors_dir = '../acl_dataset/lda_vectors_{}/'.format(model_type)
@@ -232,7 +244,7 @@ def main():
                             #tm = TopicModels(train_data_dir, vocab_dir)
                             #tm.generate_topic_kl(model_dir, vectors_dir + '.kl.train', model_type)
                             #tm.generate_topic_dists(model_dir, vectors_dir + '.train', model_type)
-                            tm = TopicModels(test_data_dir, vocab_dir)
+
                             tm.generate_topic_kl(model_dir, vectors_dir + '.kl.test.val', model_type)
                             #tm.generate_topic_dists(model_dir, vectors_dir + '.test.val', model_type)
 
