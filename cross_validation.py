@@ -284,11 +284,11 @@ def get_unigram_representations():
     sorted_kendall = sorted(correlations, key=correlations.get, reverse=True)
     output_lines = ''
 
-    for i in sorted_kendall[:20]:
+    for i in sorted_kendall[:100]:
         output_lines += feature_names[i] + ','
     output_lines += '\n'
 
-    for i in sorted_kendall[len(sorted_kendall)-20:]:
+    for i in sorted_kendall[len(sorted_kendall)-100:]:
         output_lines += feature_names[i] + ','
     print(output_lines)
 
