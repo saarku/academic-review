@@ -281,6 +281,7 @@ def get_unigram_representations():
         features = x_unigram_test[:, feature_id].todense()
         kendall, _ = kendalltau(features, y_test)
         correlations[feature_id] = kendall
+        print(kendall)
     sorted_kendall = sorted(correlations, key=correlations.get, reverse=True)
     output_lines = ''
 
