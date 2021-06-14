@@ -15,6 +15,7 @@ import random
 import time
 import os
 from collections import defaultdict
+from topic_models import TopicModels
 
 
 def learn_model(algorithm, features, labels, model_dir):
@@ -228,6 +229,40 @@ def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, mode
                                                                                        kl_flag, modes, model_type,
                                                                                        same_dim_flag)
     return topic_model_train_features, topic_model_test_features, model_name, y_train_dict, y_test_dict, topic_model_names
+
+
+def get_topic_representations():
+    data_name = 'iclr17'
+    num_topics = '25'
+    topic_identifiers = ['1_6_pos_23', '1_1_pos_12', '1_1_neg_7', '1_2_pos_13']
+    # 'para_dimfeat_mode_num'
+    data_dir = '/home/skuzi2/{}_dataset/'.format(data_name)
+    topic_words = {}
+
+    for topic_id in topic_identifiers:
+        args = topic_id.split('_')
+        topic_data_dir = data_dir + 'data_splits/dim.{}.mod.{}.para.{}.train.text'.format(args[1], args[2], args[0])
+        tm = TopicModels(topic_data_dir, topic_data_dir)
+        topic_model_dir = data_dir + 'lda_models/{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(num_topics, args[1],
+                                                                                                args[2], args[0],
+                                                                                                num_topics)
+        words = tm.generate_topic_words(topic_model_dir)
+        topic_words[topic_id] = words[int(args[3])]
+
+    final_words = defaultdict(list)
+    for topic_id in topic_words:
+        words_set = set(topic_words[topic_id])
+        for other_topic_id in topic_words:
+            if other_topic_id != topic_id: words_set = words_set - set(topic_words[other_topic_id])
+        for word in topic_words[topic_id]:
+            if word in words_set:
+                final_words[topic_id].append(word)
+
+    for topic_id in final_words:
+        output_line = topic_id
+        for word in final_words[topic_id][:15]:
+            output_line += ',' + word
+        print(output_line)
 
 
 def get_most_correlated_topics():
@@ -458,7 +493,7 @@ def neural_comb():
 
 
 def main():
-    get_most_correlated_topics()
+    get_topic_representations()
 
 
 if __name__ == '__main__':

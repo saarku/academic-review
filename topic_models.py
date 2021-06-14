@@ -110,6 +110,28 @@ class TopicModels:
             print(str(model_type) + ' not supported')
             return -1
 
+    def generate_topic_words(self, topic_model_dir):
+        """ Generate topic representation for training/test data.
+
+        :param topic_model_dir: (string) directory of the topic model.
+        :param output_dir: (string).
+        :param model_type: (string) either gibbs or ovb.
+        :return: None.
+        """
+        n_top_words = 100
+        count_vector_lda = CountVectorizer()
+        count_vector_lda.fit(self.vocab_lines)
+        feature_names = count_vector_lda.get_feature_names()
+
+        lda = joblib.load(topic_model_dir + '.ovb')
+        words = {}
+
+        for topic_idx, topic in enumerate(lda.components_):
+            top_features_ind = topic.argsort()[:-n_top_words - 1:-1]
+            top_features = [feature_names[i] for i in top_features_ind]
+            words[topic_idx] = top_features
+        return words
+
     def generate_topic_kl(self, topic_model_dir, output_dir, model_type):
         """ Generate topic representation (with kl-divergence) for training/test data.
 
