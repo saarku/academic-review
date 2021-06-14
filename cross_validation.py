@@ -106,7 +106,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
         model_dir += '.comb.' + combination_method + '.' + model_name
         uni_features_train, uni_features_test, y_train, y_test = [], [], [], []
 
-        x_unigram_train, y_train, x_unigram_test, y_test, _, counter, tf_idf = builder.build_unigram_features(test_dim)
+        x_unigram_train, y_train, x_unigram_test, y_test, _ = builder.build_unigram_features(test_dim)
 
         if unigrams_flag:
             uni_features_train.append(x_unigram_train)
