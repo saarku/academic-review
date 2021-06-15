@@ -16,8 +16,6 @@ import time
 import os
 from collections import defaultdict
 from topic_models import TopicModels, get_vectors
-from sklearn.tree import DecisionTreeRegressor
-from collections import Counter
 
 
 def learn_model(algorithm, features, labels, model_dir):
@@ -31,10 +29,6 @@ def learn_model(algorithm, features, labels, model_dir):
         clf.fit(features, labels)
         joblib.dump(clf, model_dir)
 
-    elif algorithm == 'forest':
-        clf = DecisionTreeRegressor()
-        clf.fit(features, labels)
-        joblib.dump(clf, model_dir)
     else:
         clf = SVMRank()
         clf.fit(features, labels, model_dir, 0.01)
@@ -80,10 +74,10 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, alg
         temp_model_dir = 'val.' + str(time.time())
         train_features = np.hstack(all_aspects_train)
         test_features = np.hstack(all_aspects_test)
-        #a_transformer = MinMaxScaler()
-        #a_transformer.fit(train_features)
-        #train_features = a_transformer.transform(train_features)
-        #test_features = a_transformer.transform(test_features)
+        a_transformer = MinMaxScaler()
+        a_transformer.fit(train_features)
+        train_features = a_transformer.transform(train_features)
+        test_features = a_transformer.transform(test_features)
         clf = learn_model('regression', train_features, train_labels, temp_model_dir)
         os.system('rm -rf ' + temp_model_dir)
         grades = clf.predict(test_features)
@@ -125,8 +119,8 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
                 train_features = tuple(train_vectors[test_dim][vec_dim] + uni_features_train)
                 train_features = sp.hstack(train_features, format='csr')
                 all_train_ids = list(range(len(y_train)))
-                random.shuffle(all_train_ids)
                 random.seed(2)
+                random.shuffle(all_train_ids)
                 val_split = int(len(all_train_ids) * 0.15)
                 validation_ids, small_train_ids = all_train_ids[:val_split], all_train_ids[val_split:]
                 validation_labels = [y_train[i] for i in range(len(y_train)) if i in validation_ids]
@@ -171,7 +165,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
                 all_train_ids = list(range(len(y_train)))
                 random.seed(2)
                 random.shuffle(all_train_ids)
-                val_split = int(len(all_train_ids) * 0.2)
+                val_split = int(len(all_train_ids) * 0.15)
                 validation_ids, small_train_ids = all_train_ids[:val_split], all_train_ids[val_split:]
                 validation_labels = [y_train[i] for i in range(len(y_train)) if i in validation_ids]
                 small_train_labels = [y_train[i] for i in range(len(y_train)) if i in small_train_ids]
@@ -191,7 +185,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
             test_features = test_vectors[test_dim][optimal_dim] + uni_features_test
             grades, _ = run_sum_comb_method(train_features, y_train, test_features, algorithm, combination_method)
 
-            predication_dir = model_dir + '.comb.' + combination_method + '.predict'
+            predication_dir = model_dir + '.predict'
             if not eval_flag: predication_dir += '.acl'
             open(predication_dir, 'w').write('\n'.join([str(grades[i, 0]) for i in range(grades.shape[0])]))
 
@@ -250,99 +244,6 @@ def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, mode
     return train_features, test_features, model_name, y_train_dict, y_test_dict, model_names
 
 
-def get_topic_representations():
-    data_name = 'iclr17'
-    num_topics = '25'
-    topic_identifiers_2 = ['1_6_pos_23', '1_1_pos_12', '1_1_neg_7', '1_2_pos_13']
-    topic_identifiers_1 = ['1_all_neu_0', '1_3_neg_4', '1_5_pos_17', '1_all_neu_15']
-
-    topic_identifiers = topic_identifiers_1
-    # 'para_dimfeat_mode_num'
-    data_dir = '/home/skuzi2/{}_dataset/'.format(data_name)
-    topic_words = {}
-
-    for topic_id in topic_identifiers:
-        args = topic_id.split('_')
-        topic_data_dir = data_dir + 'data_splits/dim.{}.mod.{}.para.{}.train.text'.format(args[1], args[2], args[0])
-        tm = TopicModels(topic_data_dir, topic_data_dir)
-        topic_model_dir = data_dir + 'lda_models/{}_topics/dim.{}.mod.{}.para.{}.num.{}/model'.format(num_topics,
-                                                                                                      args[1], args[2],
-                                                                                                      args[0],
-                                                                                                      num_topics)
-        words = tm.generate_topic_words(topic_model_dir)
-        topic_words[topic_id] = words[int(args[3])]
-
-    final_words = defaultdict(list)
-    for topic_id in topic_words:
-        words_set = set(topic_words[topic_id])
-        for other_topic_id in topic_words:
-            if other_topic_id != topic_id: words_set = words_set - set(topic_words[other_topic_id])
-        for word in topic_words[topic_id]:
-            if word in words_set:
-                final_words[topic_id].append(word)
-
-    for topic_id in final_words:
-        output_line = topic_id
-        for word in final_words[topic_id][:20]:
-            output_line += ',' + word
-        print(output_line)
-
-
-def get_unigram_representations():
-    test_dim = int(sys.argv[1])
-    data_name = 'iclr17'
-    data_dir = '/home/skuzi2/{}_dataset/'.format(data_name)
-    builder = FeatureBuilder(data_dir)
-    x_unigram_train, y_train, x_unigram_test, y_test, feature_names = builder.build_unigram_features(test_dim)
-
-    correlations = {}
-    for feature_id in range(x_unigram_test.shape[1]):
-        features = x_unigram_test[:, feature_id].todense()
-        kendall, _ = kendalltau(features, y_test)
-        if kendall is not np.nan:
-            correlations[feature_id] = kendall
-    sorted_kendall = sorted(correlations, key=correlations.get, reverse=True)
-    output_lines = ''
-
-    for i in sorted_kendall[:100]:
-        output_lines += feature_names[i] + ','
-    output_lines += '\n'
-
-    for i in sorted_kendall[len(sorted_kendall)-100:]:
-        output_lines += feature_names[i] + ','
-    print(output_lines)
-
-
-def get_most_correlated_topics():
-    data_name = sys.argv[1]
-    data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
-    test_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
-    output_file = open('correlations_{}.txt'.format(data_name), 'w')
-
-    modes, dim_features = ['pos', 'neg'], {'all': ['neu']}
-    for dim in test_dims: dim_features[str(dim)] = modes
-    _, x, _, _, y, names = get_topic_model_vectors('cv', [1, 3], dim_features, 'ovb', 'kl', test_dims, data_dir,
-                                                   same_dim_flag=False)
-
-    for dim in x:
-        for num in x[dim]:
-            correlations = {}
-            topics = x[dim][num]
-            topic_names = names[dim][num]
-            for i, topic_model in enumerate(topics):
-                for topic_num in range(topic_model.shape[1]):
-                    topic_name = topic_names[i] + '_' + str(topic_num)
-                    f = topic_model[:,topic_num]
-                    kendall, _ = kendalltau(f.todense(), y[dim])
-                    correlations[topic_name] = kendall
-            sorted_kendall = sorted(correlations, key=correlations.get, reverse=True)
-            output_line = '{},{}'.format(dim, num)
-            for i in sorted_kendall:
-                output_line += ',' + i + ',' + str(correlations[i])
-            output_file.write(output_line + '\n')
-            output_file.flush()
-
-
 def get_embedding_vectors(data_dir, arch, test_dims, vec_dim, same_dim_flag=True):
     vectors_dir = data_dir + '/embeddings_vectors/'
     config = 'wdim.20.epoch.5.batch.16.opt.adam.vocab.1000.length.100'
@@ -390,7 +291,7 @@ def run_topics_experiment():
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
     topic_model_dims = ['cv']
-    same_dim_flag = [False]
+    same_dim_flag = [False, True]
 
     modes, pos_modes, neg_modes = ['pos', 'neg'], ['pos'], ['neg']
     dimension_features, pos_features, neg_features, pos_neg_features, pos_neu_features = {'all': ['neu']}, {}, {}, {}, {'all': ['neu']}
@@ -403,14 +304,14 @@ def run_topics_experiment():
         pos_neg_features[str(dim)] = modes
     features = [dimension_features] #[pos_features, neg_features, pos_neg_features, neutral_features] #dimension_features] # dimension_features] #
 
-    combination_methods = ['comb_sum'] #['feature_comb']#, 'comb_sum', 'comb_model'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
+    combination_methods = ['comb_sum', 'feature_comb'] #['feature_comb']#, 'comb_sum', 'comb_model'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3]] #, [1], [3]]
     algorithms = ['regression']#, 'regression', 'ranking']#, 'ranking']#, 'ranking']#, 'mlp']
 
-    unigrams = [False] #[True, False]#, True]#, True]
+    unigrams = [False, True] #[True, False]#, True]#, True]
     kl_flags = ['kl'] #[True, False]
 
-    output_file = open('report_aspects_{}.txt'.format(data_name), 'w+')
+    output_file = open('report_main_{}.txt'.format(data_name), 'w+')
     output_lines, header = '', ''
 
     for topic_dim in topic_model_dims:

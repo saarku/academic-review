@@ -6,6 +6,47 @@ import os
 import numpy as np
 import joblib
 import sys
+from collections import defaultdict
+from cross_validation import get_topic_model_vectors
+from scipy.stats import kendalltau
+
+
+def get_topic_representations():
+    data_name = 'iclr17'
+    num_topics = '25'
+    topic_identifiers_2 = ['1_6_pos_23', '1_1_pos_12', '1_1_neg_7', '1_2_pos_13']
+    topic_identifiers_1 = ['1_all_neu_0', '1_3_neg_4', '1_5_pos_17', '1_all_neu_15']
+
+    topic_identifiers = topic_identifiers_1
+    # 'para_dimfeat_mode_num'
+    data_dir = '/home/skuzi2/{}_dataset/'.format(data_name)
+    topic_words = {}
+
+    for topic_id in topic_identifiers:
+        args = topic_id.split('_')
+        topic_data_dir = data_dir + 'data_splits/dim.{}.mod.{}.para.{}.train.text'.format(args[1], args[2], args[0])
+        tm = TopicModels(topic_data_dir, topic_data_dir)
+        topic_model_dir = data_dir + 'lda_models/{}_topics/dim.{}.mod.{}.para.{}.num.{}/model'.format(num_topics,
+                                                                                                      args[1], args[2],
+                                                                                                      args[0],
+                                                                                                      num_topics)
+        words = tm.generate_topic_words(topic_model_dir)
+        topic_words[topic_id] = words[int(args[3])]
+
+    final_words = defaultdict(list)
+    for topic_id in topic_words:
+        words_set = set(topic_words[topic_id])
+        for other_topic_id in topic_words:
+            if other_topic_id != topic_id: words_set = words_set - set(topic_words[other_topic_id])
+        for word in topic_words[topic_id]:
+            if word in words_set:
+                final_words[topic_id].append(word)
+
+    for topic_id in final_words:
+        output_line = topic_id
+        for word in final_words[topic_id][:20]:
+            output_line += ',' + word
+        print(output_line)
 
 
 def get_topics_vec(dists_dir, labels, dimension_id, num_paragraphs, norm):
@@ -60,6 +101,36 @@ def get_vectors(dists_dir, num_paragraphs, norm):
 
     num_topics = len(all_topic_vectors[0])
     return to_sparse(all_topic_vectors, (len(all_topic_vectors), num_topics))
+
+
+def get_most_correlated_topics():
+    data_name = sys.argv[1]
+    data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
+    test_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
+    output_file = open('correlations_{}.txt'.format(data_name), 'w')
+
+    modes, dim_features = ['pos', 'neg'], {'all': ['neu']}
+    for dim in test_dims: dim_features[str(dim)] = modes
+    _, x, _, _, y, names = get_topic_model_vectors('cv', [1, 3], dim_features, 'ovb', 'kl', test_dims, data_dir,
+                                                   same_dim_flag=False)
+
+    for dim in x:
+        for num in x[dim]:
+            correlations = {}
+            topics = x[dim][num]
+            topic_names = names[dim][num]
+            for i, topic_model in enumerate(topics):
+                for topic_num in range(topic_model.shape[1]):
+                    topic_name = topic_names[i] + '_' + str(topic_num)
+                    f = topic_model[:,topic_num]
+                    kendall, _ = kendalltau(f.todense(), y[dim])
+                    correlations[topic_name] = kendall
+            sorted_kendall = sorted(correlations, key=correlations.get, reverse=True)
+            output_line = '{},{}'.format(dim, num)
+            for i in sorted_kendall:
+                output_line += ',' + i + ',' + str(correlations[i])
+            output_file.write(output_line + '\n')
+            output_file.flush()
 
 
 class TopicModels:

@@ -2,6 +2,8 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 import numpy as np
 from topic_models import get_topics_vec
 from utils import to_sparse, from_sparse, pre_process_text
+import sys
+from scipy.stats import kendalltau
 
 
 class FeatureBuilder:
@@ -121,3 +123,28 @@ class FeatureBuilder:
         for i in range(len(sorted_grades)):
             grades[sorted_grades[i], 0] = 1 / float(i+1)
         return grades
+
+
+def get_unigram_representations():
+    test_dim = int(sys.argv[1])
+    data_name = 'iclr17'
+    data_dir = '/home/skuzi2/{}_dataset/'.format(data_name)
+    builder = FeatureBuilder(data_dir)
+    x_unigram_train, y_train, x_unigram_test, y_test, feature_names = builder.build_unigram_features(test_dim)
+
+    correlations = {}
+    for feature_id in range(x_unigram_test.shape[1]):
+        features = x_unigram_test[:, feature_id].todense()
+        kendall, _ = kendalltau(features, y_test)
+        if kendall is not np.nan:
+            correlations[feature_id] = kendall
+    sorted_kendall = sorted(correlations, key=correlations.get, reverse=True)
+    output_lines = ''
+
+    for i in sorted_kendall[:100]:
+        output_lines += feature_names[i] + ','
+    output_lines += '\n'
+
+    for i in sorted_kendall[len(sorted_kendall)-100:]:
+        output_lines += feature_names[i] + ','
+    print(output_lines)
