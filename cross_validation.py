@@ -163,8 +163,8 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
             open(predication_dir, 'w').write('\n'.join([str(grades[i,0]) for i in range(grades.shape[0])]))
 
         else:
-            optimal_dims, optimal_kendalls = [0]*5, [-1]*5
-            for trail in range(5):
+            optimal_dims, optimal_kendalls = [0]*10, [-1]*10
+            for trail in range(10):
                 for vec_dim in train_vectors[test_dim]:
                     train_features = train_vectors[test_dim][vec_dim] + uni_features_train
                     all_train_ids = list(range(len(y_train)))
