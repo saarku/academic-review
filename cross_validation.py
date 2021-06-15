@@ -356,16 +356,16 @@ def run_topics_experiment():
         pos_neu_features[str(dim)] = pos_modes
         neg_features[str(dim)] = neg_modes
         pos_neg_features[str(dim)] = modes
-    features = [pos_features,  neg_features, pos_neg_features, neutral_features] #[pos_features, neg_features, pos_neg_features, neutral_features] #dimension_features] # dimension_features] #
+    features = [dimension_features] #[pos_features, neg_features, pos_neg_features, neutral_features] #dimension_features] # dimension_features] #
 
     combination_methods = ['comb_sum'] #['feature_comb']#, 'comb_sum', 'comb_model'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3]] #, [1], [3]]
     algorithms = ['regression']#, 'regression', 'ranking']#, 'ranking']#, 'ranking']#, 'mlp']
 
     unigrams = [False] #[True, False]#, True]#, True]
-    kl_flags = ['kl'] #[True, False]
+    kl_flags = ['nokl', 'normkl'] #[True, False]
 
-    output_file = open('report_aspects_{}.txt'.format(data_name), 'w+')
+    output_file = open('report_kl_ovb_{}.txt'.format(data_name), 'w+')
     output_lines, header = '', ''
 
     for topic_dim in topic_model_dims:
@@ -526,7 +526,7 @@ def get_acl_scores():
 
 
 def main():
-    run_embeddings_experiment()
+    run_topics_experiment()
 
 
 if __name__ == '__main__':
