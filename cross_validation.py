@@ -185,6 +185,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
                         optimal_kendalls[trail] = kendall
                         optimal_dims[trail] = vec_dim
 
+            print(optimal_dims)
             optimal_dims = dict(Counter(optimal_dims))
             optimal_dim = max(optimal_dims, key=optimal_dims.get)
             train_features = train_vectors[test_dim][optimal_dim] + uni_features_train
