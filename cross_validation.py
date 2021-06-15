@@ -125,7 +125,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
                 train_features = sp.hstack(train_features, format='csr')
                 all_train_ids = list(range(len(y_train)))
                 random.shuffle(all_train_ids)
-                val_split = int(len(all_train_ids) * 0.15)
+                val_split = int(len(all_train_ids) * 0.2)
                 validation_ids, small_train_ids = all_train_ids[:val_split], all_train_ids[val_split:]
                 validation_labels = [y_train[i] for i in range(len(y_train)) if i in validation_ids]
                 small_train_labels = [y_train[i] for i in range(len(y_train)) if i in small_train_ids]
@@ -167,7 +167,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
                 train_features = train_vectors[test_dim][vec_dim] + uni_features_train
                 all_train_ids = list(range(len(y_train)))
                 random.shuffle(all_train_ids)
-                val_split = int(len(all_train_ids) * 0.15)
+                val_split = int(len(all_train_ids) * 0.2)
                 validation_ids, small_train_ids = all_train_ids[:val_split], all_train_ids[val_split:]
                 validation_labels = [y_train[i] for i in range(len(y_train)) if i in validation_ids]
                 small_train_labels = [y_train[i] for i in range(len(y_train)) if i in small_train_ids]
