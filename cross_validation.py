@@ -164,7 +164,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
 
         else:
             optimal_dims, optimal_kendalls = [0]*5, [-1]*5
-            for trail in range(10):
+            for trail in range(5):
                 for vec_dim in train_vectors[test_dim]:
                     train_features = train_vectors[test_dim][vec_dim] + uni_features_train
                     all_train_ids = list(range(len(y_train)))
