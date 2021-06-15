@@ -344,8 +344,8 @@ def run_topics_experiment():
     model_type = 'ovb'
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
-    topic_model_dims = [5, 15, 25]
-    same_dim_flag = [False, True]
+    topic_model_dims = ['cv']
+    same_dim_flag = [False]
 
     modes, pos_modes, neg_modes = ['pos', 'neg'], ['pos'], ['neg']
     dimension_features, pos_features, neg_features, pos_neg_features, pos_neu_features = {'all': ['neu']}, {}, {}, {}, {'all': ['neu']}
@@ -358,14 +358,14 @@ def run_topics_experiment():
         pos_neg_features[str(dim)] = modes
     features = [dimension_features] #[pos_features, neg_features, pos_neg_features, neutral_features] #dimension_features] # dimension_features] #
 
-    combination_methods = ['comb_sum', 'feature_comb'] #['feature_comb']#, 'comb_sum', 'comb_model'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
-    num_paragraphs = [[1, 3]] #, [1], [3]]
+    combination_methods = ['comb_sum'] #['feature_comb']#, 'comb_sum', 'comb_model'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
+    num_paragraphs = [[1], [3]] #, [1], [3]] [1, 3]
     algorithms = ['regression']#, 'regression', 'ranking']#, 'ranking']#, 'ranking']#, 'mlp']
 
     unigrams = [False] #[True, False]#, True]#, True]
     kl_flags = ['kl'] #[True, False]
 
-    output_file = open('report_graph_{}.txt'.format(data_name), 'w+')
+    output_file = open('report_para_{}.txt'.format(data_name), 'w+')
     output_lines, header = '', ''
 
     for topic_dim in topic_model_dims:
