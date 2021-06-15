@@ -79,10 +79,10 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, alg
         temp_model_dir = 'val.' + str(time.time())
         train_features = np.hstack(all_aspects_train)
         test_features = np.hstack(all_aspects_test)
-        a_transformer = MinMaxScaler()
-        a_transformer.fit(train_features)
-        train_features = a_transformer.transform(train_features)
-        test_features = a_transformer.transform(test_features)
+        #a_transformer = MinMaxScaler()
+        #a_transformer.fit(train_features)
+        #train_features = a_transformer.transform(train_features)
+        #test_features = a_transformer.transform(test_features)
         clf = learn_model('regression', train_features, train_labels, temp_model_dir)
         os.system('rm -rf ' + temp_model_dir)
         grades = clf.predict(test_features)
@@ -398,7 +398,7 @@ def run_topics_experiment():
         pos_neg_features[str(dim)] = modes
     features = [dimension_features] #[pos_features, neg_features, pos_neg_features, neutral_features] #dimension_features] # dimension_features] #
 
-    combination_methods = ['comb_rank'] #['feature_comb']#, 'comb_sum', 'comb_model'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
+    combination_methods = ['comb_model'] #['feature_comb']#, 'comb_sum', 'comb_model'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3]] #, [1], [3]]
     algorithms = ['regression']#, 'regression', 'ranking']#, 'ranking']#, 'ranking']#, 'mlp']
 
