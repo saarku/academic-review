@@ -222,7 +222,6 @@ def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, mode
                                                                   norm=norm)
                             x_topics_train, y_train, x_topics_test, y_test = output[0], output[1], output[2], output[3]
                         else:
-                            print(vec_dir + '.test.val')
                             x_topics_test = get_vectors(vec_dir + '.test.val', para, norm)
 
                         y_train_dict[dim], y_test_dict[dim] = y_train, y_test
@@ -544,16 +543,18 @@ def get_acl_scores():
     para = [1, 3]
 
     for f in same_dim_flag:
+        print('loading training features ({})'.format(f))
         args = get_topic_model_vectors('cv', para, dimension_features, model_type, 'kl', test_dimensions,
                                        train_data_dir, same_dim_flag=f, train_flag=True)
         train_features, model_name = args[0], args[2]
 
+        print('loading test features ({})'.format(f))
         args = get_topic_model_vectors('cv', para, dimension_features, model_type, 'kl', test_dimensions,
                                        test_data_dir, same_dim_flag=f, train_flag=False)
         test_features = args[1]
 
         for combination in combination_methods:
-            print('{},{}'.format(f, combination))
+            print('learning: {},{}'.format(f, combination))
             cv_experiment(test_dimensions, train_data_dir, False, combination, train_features, test_features,
                           'regression', model_name, 'cv', eval_flag=False)
 
