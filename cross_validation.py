@@ -66,8 +66,10 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, alg
         else:
             #grades += aspect_grades
             #train_grades += aspect_grades_train
-            grades += softmax(aspect_grades)
-            train_grades += softmax(aspect_grades_train)
+            t = MinMaxScaler()
+            grades += t.fit_transform(aspect_grades)
+            train_grades += t.fit_transform(aspect_grades_train)
+
             all_aspects_train.append(aspect_grades_train)
             all_aspects_test.append(aspect_grades)
 
