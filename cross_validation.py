@@ -526,7 +526,7 @@ def get_acl_scores():
 
 
 def main():
-    run_topics_experiment()
+    get_acl_scores()
 
 
 if __name__ == '__main__':
