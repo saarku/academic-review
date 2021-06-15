@@ -382,14 +382,15 @@ def run_topics_experiment():
     same_dim_flag = [False]
 
     modes, pos_modes, neg_modes = ['pos', 'neg'], ['pos'], ['neg']
-    dimension_features, pos_features, neg_features, pos_neg_features = {'all': ['neu']}, {}, {}, {}
+    dimension_features, pos_features, neg_features, pos_neg_features, pos_neu_features = {'all': ['neu']}, {}, {}, {}, {'all': ['neu']}
     neutral_features = {'all': ['neu']}
     for dim in test_dimensions:
         dimension_features[str(dim)] = modes
         pos_features[str(dim)] = pos_modes
+        pos_neu_features[str(dim)] = pos_modes
         neg_features[str(dim)] = neg_modes
         pos_neg_features[str(dim)] = modes
-    features = [pos_features, neg_features, pos_neg_features, neutral_features] #[pos_features, neg_features, pos_neg_features, neutral_features] #dimension_features] # dimension_features] #
+    features = [pos_neu_features] #[pos_features, neg_features, pos_neg_features, neutral_features] #dimension_features] # dimension_features] #
 
     combination_methods = ['comb_sum'] #['feature_comb']#, 'comb_sum', 'comb_model'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3]] #, [1], [3]]
