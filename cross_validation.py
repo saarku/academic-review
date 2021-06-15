@@ -375,7 +375,7 @@ def get_bert_vectors(data_dir, test_dims, same_dim_flag=True):
 
 def run_topics_experiment():
     data_name = sys.argv[1]
-    model_type = 'ovb'
+    model_type = 'gibbs'
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
     topic_model_dims = ['cv']
@@ -396,9 +396,9 @@ def run_topics_experiment():
     algorithms = ['regression']#, 'regression', 'ranking']#, 'ranking']#, 'ranking']#, 'mlp']
 
     unigrams = [False] #[True, False]#, True]#, True]
-    kl_flags = ['nokl', 'normkl'] #[True, False]
+    kl_flags = ['kl', 'nokl', 'normkl'] #[True, False]
 
-    output_file = open('report_kl_{}.txt'.format(data_name), 'w+')
+    output_file = open('report_kl_gibbs_{}.txt'.format(data_name), 'w+')
     output_lines, header = '', ''
 
     for topic_dim in topic_model_dims:
@@ -560,7 +560,7 @@ def get_acl_scores():
 
 
 def main():
-    get_acl_scores()
+    run_topics_experiment()
 
 
 if __name__ == '__main__':
