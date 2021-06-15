@@ -102,7 +102,6 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
     output_performance = ''
 
     for test_dim in test_dimensions:
-        print('dim:{}'.format(test_dim))
         y_train, y_test = FeatureBuilder.get_labels(data_dir, test_dim)
         model_dir = models_dir + 'dim.' + str(test_dim) + '.algo.' + algorithm + '.uni.' + str(unigrams_flag).lower()
         model_dir += '.comb.' + combination_method + '.' + model_name
