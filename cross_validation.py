@@ -222,7 +222,7 @@ def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, mode
                                                                   norm=norm)
                             x_topics_train, y_train, x_topics_test, y_test = output[0], output[1], output[2], output[3]
                         else:
-
+                            print(vec_dir + '.test.val')
                             x_topics_test = get_vectors(vec_dir + '.test.val', para, norm)
 
                         y_train_dict[dim], y_test_dict[dim] = y_train, y_test
