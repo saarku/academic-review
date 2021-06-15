@@ -15,7 +15,7 @@ import random
 import time
 import os
 from collections import defaultdict
-from topic_models import TopicModels
+from topic_models import TopicModels, get_vectors
 
 
 def learn_model(algorithm, features, labels, model_dir):
@@ -223,7 +223,7 @@ def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, mode
                             x_topics_train, y_train, x_topics_test, y_test = output[0], output[1], output[2], output[3]
                         else:
 
-                            x_topics_test = TopicModels.get_vectors(vec_dir + '.test.val', para, norm)
+                            x_topics_test = get_vectors(vec_dir + '.test.val', para, norm)
 
                         y_train_dict[dim], y_test_dict[dim] = y_train, y_test
                         train_features[dim][topics].append(x_topics_train)
