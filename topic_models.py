@@ -41,9 +41,9 @@ def get_vectors(dists_dir, num_paragraphs, norm):
     all_topic_vectors = []
     distributions = open(dists_dir, 'r').readlines()
     for i in range(0, len(distributions), num_paragraphs):
-        print(i)
         single_vec = {}
         for j in range(num_paragraphs):
+            if i+j >= len(distributions): continue
             args = distributions[i+j].rstrip('\n').rstrip(']').lstrip('[').split('),') #here
             for a in args:
                 index = int(a.split(',')[0].split('(')[1])
