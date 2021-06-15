@@ -202,7 +202,7 @@ def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, mode
     train_features, test_features, model_names = {}, {}, {}
     y_train_dict, y_test_dict = {}, {}
     topic_model_dims = [5, 15, 25] if num_topics == 'cv' else [num_topics]
-    builder = FeatureBuilder(data_dir)
+    builder = FeatureBuilder(data_dir) if train_flag else None
 
     for dim in test_dims:
         train_features[dim], test_features[dim] = defaultdict(list), defaultdict(list)
