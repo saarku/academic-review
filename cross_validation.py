@@ -126,6 +126,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
                 train_features = sp.hstack(train_features, format='csr')
                 all_train_ids = list(range(len(y_train)))
                 random.shuffle(all_train_ids)
+                random.seed(1)
                 val_split = int(len(all_train_ids) * 0.15)
                 validation_ids, small_train_ids = all_train_ids[:val_split], all_train_ids[val_split:]
                 validation_labels = [y_train[i] for i in range(len(y_train)) if i in validation_ids]
@@ -163,32 +164,29 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
             open(predication_dir, 'w').write('\n'.join([str(grades[i,0]) for i in range(grades.shape[0])]))
 
         else:
-            optimal_dims, optimal_kendalls = [0]*1, [-1]*1
-            for trail in range(1):
-                for vec_dim in train_vectors[test_dim]:
-                    train_features = train_vectors[test_dim][vec_dim] + uni_features_train
-                    all_train_ids = list(range(len(y_train)))
-                    random.seed(1)
-                    random.shuffle(all_train_ids)
-                    val_split = int(len(all_train_ids) * 0.15)
-                    validation_ids, small_train_ids = all_train_ids[:val_split], all_train_ids[val_split:]
-                    validation_labels = [y_train[i] for i in range(len(y_train)) if i in validation_ids]
-                    small_train_labels = [y_train[i] for i in range(len(y_train)) if i in small_train_ids]
+            optimal_dim, optimal_kendall = 0, -1
 
-                    small_train_features, validation_features = [], []
-                    for features in train_features:
-                        small_train_features.append(features[small_train_ids, :])
-                        validation_features.append(features[validation_ids, :])
-                    val_grades, _ = run_sum_comb_method(small_train_features, small_train_labels, validation_features,
-                                                        algorithm, combination_method)
-                    kendall, _ = kendalltau(validation_labels, np.reshape(val_grades, (-1, 1)))
-                    if kendall > optimal_kendalls[trail]:
-                        optimal_kendalls[trail] = kendall
-                        optimal_dims[trail] = vec_dim
+            for vec_dim in train_vectors[test_dim]:
+                train_features = train_vectors[test_dim][vec_dim] + uni_features_train
+                all_train_ids = list(range(len(y_train)))
+                random.seed(1)
+                random.shuffle(all_train_ids)
+                val_split = int(len(all_train_ids) * 0.15)
+                validation_ids, small_train_ids = all_train_ids[:val_split], all_train_ids[val_split:]
+                validation_labels = [y_train[i] for i in range(len(y_train)) if i in validation_ids]
+                small_train_labels = [y_train[i] for i in range(len(y_train)) if i in small_train_ids]
 
-            print(optimal_dims)
-            optimal_dims = dict(Counter(optimal_dims))
-            optimal_dim = max(optimal_dims, key=optimal_dims.get)
+                small_train_features, validation_features = [], []
+                for features in train_features:
+                    small_train_features.append(features[small_train_ids, :])
+                    validation_features.append(features[validation_ids, :])
+                val_grades, _ = run_sum_comb_method(small_train_features, small_train_labels, validation_features,
+                                                    algorithm, combination_method)
+                kendall, _ = kendalltau(validation_labels, np.reshape(val_grades, (-1, 1)))
+                if kendall > optimal_kendall:
+                    optimal_kendall = kendall
+                    optimal_dim = vec_dim
+
             train_features = train_vectors[test_dim][optimal_dim] + uni_features_train
             test_features = test_vectors[test_dim][optimal_dim] + uni_features_test
             grades, _ = run_sum_comb_method(train_features, y_train, test_features, algorithm, combination_method)
