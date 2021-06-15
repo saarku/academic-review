@@ -93,22 +93,22 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, alg
 def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, train_vectors, test_vectors,
                   algorithm, model_name, cv_flag, eval_flag=True):
 
-    builder = FeatureBuilder(data_dir)
-    models_dir = data_dir + '/models/'
-    args = model_name.split('.')
+    builder = FeatureBuilder(data_dir) if unigrams_flag else None
+    models_dir, args = data_dir + '/models/', model_name.split('.')
     header = ','.join([str(args[i]) for i in range(0, len(args), 2)])
     config = ','.join([str(args[i+1]) for i in range(0, len(args), 2)])
     header += ',dim,unigrams_flag,algo,combination_method,cv_flag,optimal_dim,error,pearson,kendall\n'
     output_performance = ''
 
     for test_dim in test_dimensions:
+        print('dim:{}'.format(test_dim))
+        y_train, y_test = FeatureBuilder.get_labels(data_dir, test_dim)
         model_dir = models_dir + 'dim.' + str(test_dim) + '.algo.' + algorithm + '.uni.' + str(unigrams_flag).lower()
         model_dir += '.comb.' + combination_method + '.' + model_name
-        uni_features_train, uni_features_test, y_train, y_test = [], [], [], []
-
-        x_unigram_train, y_train, x_unigram_test, y_test, _ = builder.build_unigram_features(test_dim)
+        uni_features_train, uni_features_test = [], []
 
         if unigrams_flag:
+            x_unigram_train, _, x_unigram_test, _, _ = builder.build_unigram_features(test_dim)
             uni_features_train.append(x_unigram_train)
             uni_features_test.append(x_unigram_test)
 
@@ -182,8 +182,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
 
             predication_dir = model_dir + '.comb.' + combination_method + '.predict'
             if not eval_flag: predication_dir += '.acl'
-            open(predication_dir, 'w').write(
-                '\n'.join([str(grades[i, 0]) for i in range(grades.shape[0])]))
+            open(predication_dir, 'w').write('\n'.join([str(grades[i, 0]) for i in range(grades.shape[0])]))
 
         if eval_flag:
             error = sqrt(mean_squared_error(y_test, grades))
@@ -200,14 +199,14 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
 def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, model_type, kl_flag, test_dims, data_dir,
                             same_dim_flag=True, train_flag=True):
     topics_dir = data_dir + '/lda_vectors_{}/'.format(model_type)
-    topic_model_train_features, topic_model_test_features, topic_model_names = {}, {}, {}
+    train_features, test_features, model_names = {}, {}, {}
     y_train_dict, y_test_dict = {}, {}
     topic_model_dims = [5, 15, 25] if num_topics == 'cv' else [num_topics]
     builder = FeatureBuilder(data_dir)
 
     for dim in test_dims:
-        topic_model_train_features[dim], topic_model_test_features[dim] = defaultdict(list), defaultdict(list)
-        topic_model_names[dim] = defaultdict(list)
+        train_features[dim], test_features[dim] = defaultdict(list), defaultdict(list)
+        model_names[dim] = defaultdict(list)
         for topics in topic_model_dims:
             for para in num_paragraphs:
                 for dim_feat in dimension_features:
@@ -221,9 +220,9 @@ def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, mode
                                                               norm=norm, train_flag=train_flag)
                         x_topics_train, y_train, x_topics_test, y_test = output[0], output[1], output[2], output[3]
                         y_train_dict[dim], y_test_dict[dim] = y_train, y_test
-                        topic_model_train_features[dim][topics].append(x_topics_train)
-                        topic_model_test_features[dim][topics].append(x_topics_test)
-                        topic_model_names[dim][topics].append('{}_{}_{}'.format(para, dim_feat, mode))
+                        train_features[dim][topics].append(x_topics_train)
+                        test_features[dim][topics].append(x_topics_test)
+                        model_names[dim][topics].append('{}_{}_{}'.format(para, dim_feat, mode))
 
     modes = set()
     for i in dimension_features: modes = modes.union(set(dimension_features[i]))
@@ -232,7 +231,7 @@ def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, mode
     model_name = 'model.lda.para.{}.topics.{}.kl.{}.mode.{}.type.{}.samedim.{}'.format(paragraph_id, num_topics,
                                                                                        kl_flag, modes, model_type,
                                                                                        same_dim_flag)
-    return topic_model_train_features, topic_model_test_features, model_name, y_train_dict, y_test_dict, topic_model_names
+    return train_features, test_features, model_name, y_train_dict, y_test_dict, model_names
 
 
 def get_topic_representations():
@@ -527,10 +526,10 @@ def neural_comb():
 
 def get_acl_scores():
     model_type = 'ovb'
-    data_dir = '/home/skuzi2/iclr17_dataset'
+    train_data_dir = '/home/skuzi2/iclr17_dataset'
     test_data_dir = '/home/skuzi2/acl_dataset'
     test_dimensions = [1, 2, 3, 5, 6]
-    topic_model_dims = [5, 15, 25]
+
     same_dim_flag = [True, False]
 
     modes, dimension_features = ['pos', 'neg'], {'all': ['neu']}
@@ -538,23 +537,23 @@ def get_acl_scores():
     combination_methods = ['comb_sum', 'feature_comb']
     para = [1, 3]
 
-    for topic_dim in topic_model_dims:
-        for f in same_dim_flag:
-            args = get_topic_model_vectors(topic_dim, para, dimension_features, model_type, 'kl', test_dimensions,
-                                           data_dir, same_dim_flag=f, train_flag=True)
-            train_features, model_name = args[0], args[2]
+    for f in same_dim_flag:
+        args = get_topic_model_vectors('cv', para, dimension_features, model_type, 'kl', test_dimensions,
+                                       train_data_dir, same_dim_flag=f, train_flag=True)
+        train_features, model_name = args[0], args[2]
 
-            args = get_topic_model_vectors(topic_dim, para, dimension_features, model_type, 'kl', test_dimensions,
-                                           test_data_dir, same_dim_flag=f, train_flag=True)
-            test_features, _ = args[1]
+        args = get_topic_model_vectors('cv', para, dimension_features, model_type, 'kl', test_dimensions,
+                                       test_data_dir, same_dim_flag=f, train_flag=True)
+        test_features = args[1]
 
-            for combination in combination_methods:
-                cv_experiment(test_dimensions, data_dir, True, combination, train_features, test_features, 'regression',
-                              model_name, topic_dim)
+        for combination in combination_methods:
+            print('{},{}'.format(f, combination))
+            cv_experiment(test_dimensions, train_data_dir, False, combination, train_features, test_features,
+                          'regression', model_name, 'cv', eval_flag=False)
 
 
 def main():
-    run_topics_experiment()
+    get_acl_scores()
 
 
 if __name__ == '__main__':

@@ -82,6 +82,21 @@ class FeatureBuilder:
         return modified_lines, modified_grades
 
     @staticmethod
+    def get_labels(data_dir, dimension_id):
+        grades_dir = data_dir + '/annotations/annotation_aggregated.tsv'
+        base_dir = data_dir + '/data_splits/dim.all.mod.neu.para.1'
+        train_labels = FeatureBuilder.build_labels(base_dir + '.train.ids', grades_dir)
+        test_labels = FeatureBuilder.build_labels(base_dir + '.test.val.ids', grades_dir)
+        y_train, y_test = [], []
+        for i in range(train_labels.shape[0]):
+            grade = train_labels[i, dimension_id]
+            if grade > 0: y_train.append(grade)
+        for i in range(test_labels.shape[0]):
+            grade = test_labels[i, dimension_id]
+            if grade > 0: y_test.append(grade)
+        return y_train, y_test
+
+    @staticmethod
     def modify_topics_to_dimension(topics_matrix, grades_matrix, dimension_id):
         """ Modify a data set for papers with an actual grade in a dimension.
 
