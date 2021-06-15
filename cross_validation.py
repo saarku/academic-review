@@ -541,7 +541,7 @@ def get_acl_scores():
     modes, dimension_features = ['pos', 'neg'], {'all': ['neu']}
     for dim in test_dimensions: dimension_features[str(dim)] = modes
     combination_methods = ['comb_sum', 'feature_comb']
-    para = [1, 3]
+    para = [3, 1]
 
     for f in same_dim_flag:
         args = get_topic_model_vectors('cv', para, dimension_features, model_type, 'kl', test_dimensions,
