@@ -169,7 +169,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
             for vec_dim in train_vectors[test_dim]:
                 train_features = train_vectors[test_dim][vec_dim] + uni_features_train
                 all_train_ids = list(range(len(y_train)))
-                random.seed(4)
+                random.seed(5)
                 random.shuffle(all_train_ids)
                 val_split = int(len(all_train_ids) * 0.15)
                 validation_ids, small_train_ids = all_train_ids[:val_split], all_train_ids[val_split:]
