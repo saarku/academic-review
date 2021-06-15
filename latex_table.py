@@ -1,6 +1,6 @@
 output_file = open('table.txt', 'w+')
 
-'''
+
 with open('temp.txt', 'r') as input_file:
     for line in input_file:
         values = line.rstrip('\n').split('\t')
@@ -23,5 +23,6 @@ with open('temp.txt', 'r') as input_file:
             str_values.append(v)
         output_file.write(' & '.join(str_values) + '\n')
 output_file.close()
+'''
 
 
