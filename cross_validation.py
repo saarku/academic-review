@@ -18,6 +18,36 @@ from collections import defaultdict
 from topic_models import TopicModels, get_vectors
 
 
+def get_most_correlated_topics():
+    data_name = sys.argv[1]
+    data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
+    test_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
+    output_file = open('correlations_{}.txt'.format(data_name), 'w')
+
+    modes, dim_features = ['pos', 'neg'], {'all': ['neu']}
+    for dim in test_dims: dim_features[str(dim)] = modes
+    _, x, _, _, y, names = get_topic_model_vectors('cv', [1, 3], dim_features, 'ovb', 'kl', test_dims, data_dir,
+                                                   same_dim_flag=False)
+
+    for dim in x:
+        for num in x[dim]:
+            correlations = {}
+            topics = x[dim][num]
+            topic_names = names[dim][num]
+            for i, topic_model in enumerate(topics):
+                for topic_num in range(topic_model.shape[1]):
+                    topic_name = topic_names[i] + '_' + str(topic_num)
+                    f = topic_model[:,topic_num]
+                    kendall, _ = kendalltau(f.todense(), y[dim])
+                    correlations[topic_name] = kendall
+            sorted_kendall = sorted(correlations, key=correlations.get, reverse=True)
+            output_line = '{},{}'.format(dim, num)
+            for i in sorted_kendall:
+                output_line += ',' + i + ',' + str(correlations[i])
+            output_file.write(output_line + '\n')
+            output_file.flush()
+
+
 def get_unigram_representations():
     test_dim = int(sys.argv[1])
     data_name = 'iclr17'

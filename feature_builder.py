@@ -2,8 +2,6 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 import numpy as np
 from topic_models import get_topics_vec
 from utils import to_sparse, from_sparse, pre_process_text
-import sys
-from scipy.stats import kendalltau
 
 
 class FeatureBuilder:
