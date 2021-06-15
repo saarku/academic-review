@@ -30,7 +30,7 @@ ids = [i.rstrip('\n') for i in open(ids_dir, 'r').readlines()]
 
 output_file = open('acl_aspects.txt', 'w')
 dims = ['Clarity', 'Originality', 'Soundness', 'Sunstance']
-output_file.write('id,' ','.join(dims) + '\n')
+output_file.write('id,' + ','.join(dims) + '\n')
 
 for dim in dims:
     grades = [i.rstrip('\n') for i in open(base_dir + directories[dim], 'r').readlines()]
