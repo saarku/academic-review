@@ -16,6 +16,7 @@ import time
 import os
 from collections import defaultdict
 from topic_models import TopicModels, get_vectors
+from sklearn.ensemble import RandomForestRegressor
 
 
 def learn_model(algorithm, features, labels, model_dir):
@@ -28,7 +29,10 @@ def learn_model(algorithm, features, labels, model_dir):
         clf = MLPRegressor(batch_size=16, max_iter=500)
         clf.fit(features, labels)
         joblib.dump(clf, model_dir)
-
+    elif algorithm == 'forest':
+        clf = RandomForestRegressor()
+        clf.fit(features, labels)
+        joblib.dump(clf, model_dir)
     else:
         clf = SVMRank()
         clf.fit(features, labels, model_dir, 0.01)
@@ -64,12 +68,8 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, alg
             grades += softmax(aspect_grades)
             train_grades += softmax(aspect_grades_train)
         else:
-            #grades += aspect_grades
-            #train_grades += aspect_grades_train
-            t = MinMaxScaler()
-            grades += t.fit_transform(aspect_grades)
-            train_grades += t.fit_transform(aspect_grades_train)
-
+            grades += aspect_grades
+            train_grades += aspect_grades_train
             all_aspects_train.append(aspect_grades_train)
             all_aspects_test.append(aspect_grades)
 
@@ -398,7 +398,7 @@ def run_topics_experiment():
 
     combination_methods = ['comb_sum'] #['feature_comb']#, 'comb_sum', 'comb_model'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3]] #, [1], [3]]
-    algorithms = ['regression']#, 'regression', 'ranking']#, 'ranking']#, 'ranking']#, 'mlp']
+    algorithms = ['forest']#, 'regression', 'ranking']#, 'ranking']#, 'ranking']#, 'mlp']
 
     unigrams = [False] #[True, False]#, True]#, True]
     kl_flags = ['kl'] #[True, False]
