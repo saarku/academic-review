@@ -16,7 +16,7 @@ import time
 import os
 from collections import defaultdict
 from topic_models import TopicModels, get_vectors
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.tree import DecisionTreeRegressor
 
 
 def learn_model(algorithm, features, labels, model_dir):
@@ -30,7 +30,7 @@ def learn_model(algorithm, features, labels, model_dir):
         clf.fit(features, labels)
         joblib.dump(clf, model_dir)
     elif algorithm == 'forest':
-        clf = RandomForestRegressor()
+        clf = DecisionTreeRegressor()
         clf.fit(features, labels)
         joblib.dump(clf, model_dir)
     else:
