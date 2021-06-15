@@ -29,6 +29,7 @@ def learn_model(algorithm, features, labels, model_dir):
         clf = MLPRegressor(batch_size=16, max_iter=500)
         clf.fit(features, labels)
         joblib.dump(clf, model_dir)
+
     elif algorithm == 'forest':
         clf = DecisionTreeRegressor()
         clf.fit(features, labels)
@@ -67,6 +68,7 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, alg
         if algorithm == 'ranking' and method == 'comb_sum':
             grades += softmax(aspect_grades)
             train_grades += softmax(aspect_grades_train)
+
         else:
             grades += aspect_grades
             train_grades += aspect_grades_train
@@ -396,9 +398,9 @@ def run_topics_experiment():
         pos_neg_features[str(dim)] = modes
     features = [dimension_features] #[pos_features, neg_features, pos_neg_features, neutral_features] #dimension_features] # dimension_features] #
 
-    combination_methods = ['comb_sum'] #['feature_comb']#, 'comb_sum', 'comb_model'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
+    combination_methods = ['comb_rank'] #['feature_comb']#, 'comb_sum', 'comb_model'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3]] #, [1], [3]]
-    algorithms = ['forest']#, 'regression', 'ranking']#, 'ranking']#, 'ranking']#, 'mlp']
+    algorithms = ['regression']#, 'regression', 'ranking']#, 'ranking']#, 'ranking']#, 'mlp']
 
     unigrams = [False] #[True, False]#, True]#, True]
     kl_flags = ['kl'] #[True, False]
