@@ -216,9 +216,15 @@ def get_topic_model_vectors(num_topics, num_paragraphs, dimension_features, mode
                         vec_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(topics, dim_feat, mode, para, topics)
                         if kl_flag == 'kl' or kl_flag == 'normkl': vec_dir += '.kl'
                         norm = True if kl_flag == 'normkl' else False
-                        output = builder.build_topic_features(dim, vec_dir + '.train', vec_dir + '.test.val', para,
-                                                              norm=norm, train_flag=train_flag)
-                        x_topics_train, y_train, x_topics_test, y_test = output[0], output[1], output[2], output[3]
+                        x_topics_train, x_topics_test, y_train, y_test = [], [], [], []
+                        if train_flag:
+                            output = builder.build_topic_features(dim, vec_dir + '.train', vec_dir + '.test.val', para,
+                                                                  norm=norm)
+                            x_topics_train, y_train, x_topics_test, y_test = output[0], output[1], output[2], output[3]
+                        else:
+
+                            x_topics_test = TopicModels.get_vectors(vec_dir + '.test.val', para, norm)
+
                         y_train_dict[dim], y_test_dict[dim] = y_train, y_test
                         train_features[dim][topics].append(x_topics_train)
                         test_features[dim][topics].append(x_topics_test)
@@ -543,7 +549,7 @@ def get_acl_scores():
         train_features, model_name = args[0], args[2]
 
         args = get_topic_model_vectors('cv', para, dimension_features, model_type, 'kl', test_dimensions,
-                                       test_data_dir, same_dim_flag=f, train_flag=True)
+                                       test_data_dir, same_dim_flag=f, train_flag=False)
         test_features = args[1]
 
         for combination in combination_methods:

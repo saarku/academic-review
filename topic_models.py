@@ -17,6 +17,27 @@ def get_topics_vec(dists_dir, labels, dimension_id, num_paragraphs, norm):
     :param norm: (bool) whether to to l1 norm.
     :return: csr_matrix.
     """
+    all_vectors = get_vectors(dists_dir, num_paragraphs, norm)
+    modified_grades = []
+    indexes = []
+
+    for i in range(all_vectors.shape[0]):
+        grade = labels[i, dimension_id]
+        if grade > 0:
+            indexes.append(i)
+            modified_grades.append(grade)
+
+    return all_vectors[indexes, :], modified_grades
+
+
+def get_vectors(dists_dir, num_paragraphs, norm):
+    """ Read topic distributions from a file and construct a sparse matrix.
+
+    :param dists_dir: a file with the distributions.
+    :param num_paragraphs: number of paragraphs.
+    :param norm: (bool) whether to to l1 norm.
+    :return: csr_matrix.
+    """
     all_topic_vectors = []
     distributions = open(dists_dir, 'r').readlines()
     for i in range(0, len(distributions), num_paragraphs):
@@ -36,15 +57,8 @@ def get_topics_vec(dists_dir, labels, dimension_id, num_paragraphs, norm):
         single_vec = list(single_vec.items())
         all_topic_vectors.append(single_vec)
 
-    topic_vectors = []
-    modified_grades = []
-    for i, vector in enumerate(all_topic_vectors):
-        grade = labels[i, dimension_id]
-        if grade > 0:
-            modified_grades.append(grade)
-            topic_vectors.append(vector)
-    num_topics = len(topic_vectors[0])
-    return to_sparse(topic_vectors, (len(topic_vectors), num_topics)), modified_grades
+    num_topics = len(all_topic_vectors[0])
+    return to_sparse(all_topic_vectors, (len(all_topic_vectors), num_topics))
 
 
 class TopicModels:
