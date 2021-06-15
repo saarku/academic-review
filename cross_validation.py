@@ -114,7 +114,6 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
 
         if combination_method == 'feature_comb':
             optimal_dim, optimal_kendall = 0, -1
-            print('cv')
             for vec_dim in train_vectors[test_dim]:
                 train_features = tuple(train_vectors[test_dim][vec_dim] + uni_features_train)
                 train_features = sp.hstack(train_features, format='csr')
@@ -142,7 +141,6 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
                 if kendall > optimal_kendall:
                     optimal_kendall = kendall
                     optimal_dim = vec_dim
-            print('final')
 
             train_features = sp.hstack(tuple(train_vectors[test_dim][optimal_dim] + uni_features_train), format='csr')
             test_features = sp.hstack(tuple(test_vectors[test_dim][optimal_dim] + uni_features_test), format='csr')
@@ -159,7 +157,6 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
 
         else:
             optimal_dim, optimal_kendall = 0, -1
-            print('cv')
             for vec_dim in train_vectors[test_dim]:
                 train_features = train_vectors[test_dim][vec_dim] + uni_features_train
                 all_train_ids = list(range(len(y_train)))
@@ -179,7 +176,6 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
                 if kendall > optimal_kendall:
                     optimal_kendall = kendall
                     optimal_dim = vec_dim
-            print('final')
             train_features = train_vectors[test_dim][optimal_dim] + uni_features_train
             test_features = test_vectors[test_dim][optimal_dim] + uni_features_test
             grades, _ = run_sum_comb_method(train_features, y_train, test_features, algorithm, combination_method)
@@ -378,7 +374,7 @@ def run_topics_experiment():
     model_type = 'ovb'
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
     test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
-    topic_model_dims = [5, 15, 25]
+    topic_model_dims = ['cv']
     same_dim_flag = [False]
 
     modes, pos_modes, neg_modes = ['pos', 'neg'], ['pos'], ['neg']
