@@ -434,12 +434,12 @@ def neural_comb():
     for dim in dims: dimension_features[str(dim)] = modes
     output_lines, header = '', ''
 
-    multi_dict = {'iclr17': {'lstm': {1:'single', 2:'single', 3:'multi', 5:'single', 6:'single'},
+    multi_dict = {'iclr17': {'lstm': {1:'multi', 2:'multi', 3:'multi', 5:'single', 6:'single'},
                              'bert': {1:'single', 2:'single', 3:'multi', 5:'multi', 6:'multi'},
-                             'lda': {1:'multi', 2:'multi', 3:'single', 5:'multi', 6:'multi'}},
+                             'lda': {1:'multi', 2:'multi', 3:'single', 5:'multi', 6:'single'}},
                   'education': {'lstm': {0: 'multi', 1: 'multi', 2: 'multi', 3: 'multi', 4: 'single', 5: 'single', 6: 'single'},
                                 'bert': {0: 'multi', 1: 'multi', 2: 'multi', 3: 'multi', 4: 'multi', 5: 'multi', 6: 'multi'},
-                                'lda': {0: 'multi', 1: 'multi', 2: 'multi', 3: 'multi', 4: 'multi', 5: 'multi', 6: 'multi'}}
+                                'lda': {0: 'multi', 1: 'multi', 2: 'single', 3: 'multi', 4: 'single', 5: 'multi', 6: 'single'}}
                   }
 
     print('load lstm')
@@ -526,7 +526,7 @@ def get_acl_scores():
 
 
 def main():
-    get_acl_scores()
+    neural_comb()
 
 
 if __name__ == '__main__':
