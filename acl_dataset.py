@@ -19,10 +19,10 @@ for file_name in os.listdir(input_dir):
 base_dir = '/home/skuzi2/iclr17_dataset/models/'
 
 directories = {
-    'Clarity': 'dim.1.algo.regression.uni.false.comb.comb_sum.model.lda.para.1_3.topics.cv.kl.kl.mode.neg_neu_pos.type.ovb.samedim.False.comb.comb_sum.predict.acl',
-    'Originality': 'dim.2.algo.regression.uni.false.comb.comb_sum.model.lda.para.1_3.topics.cv.kl.kl.mode.neg_neu_pos.type.ovb.samedim.False.comb.comb_sum.predict.acl',
+    'Clarity': 'dim.1.algo.regression.uni.false.comb.comb_sum.model.lda.para.1_3.topics.cv.kl.kl.mode.neg_neu_pos.type.ovb.samedim.False.predict.acl',
+    'Originality': 'dim.2.algo.regression.uni.false.comb.comb_sum.model.lda.para.1_3.topics.cv.kl.kl.mode.neg_neu_pos.type.ovb.samedim.False.predict.acl',
     'Soundness': 'dim.3.algo.regression.uni.false.comb.feature_comb.model.lda.para.1_3.topics.cv.kl.kl.mode.neg_neu_pos.type.ovb.samedim.True.predict.acl',
-    'Sunstance': 'dim.5.algo.regression.uni.false.comb.comb_sum.model.lda.para.1_3.topics.cv.kl.kl.mode.neg_neu_pos.type.ovb.samedim.False.comb.comb_sum.predict.acl'
+    'Sunstance': 'dim.5.algo.regression.uni.false.comb.comb_sum.model.lda.para.1_3.topics.cv.kl.kl.mode.neg_neu_pos.type.ovb.samedim.False.predict.acl'
 }
 
 ids_dir = '/home/skuzi2/acl_dataset/data_splits/dim.all.mod.neu.para.1.test.val.ids'
