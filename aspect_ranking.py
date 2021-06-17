@@ -3,6 +3,7 @@ from sklearn.neighbors import NearestNeighbors
 import numpy as np
 from nltk import stem
 from utils import pre_process_text
+import sys
 
 
 def process_data(data_dir):
@@ -55,6 +56,7 @@ class SearchEngine:
         result_list = []
         for i in range(len(neighbor_indexes[0])):
             result_list.append(self.paper_ids[i])
+        print(result_list)
         top_words['Relevance'] = self.get_top_words(result_list)
 
         for aspect in self.aspects:
@@ -95,7 +97,7 @@ class SearchEngine:
 
 
 def main():
-    query = ['language model']
+    query = [sys.argv[1]]
     data_dir = '/home/skuzi2/acl_dataset/data_splits/dim.all.mod.neu.para.1.test.val'
     aspects_dir = '/home/skuzi2/academic-review/acl_aspects.txt'
     se = SearchEngine(data_dir + '.text.processed', data_dir + '.ids', aspects_dir)
