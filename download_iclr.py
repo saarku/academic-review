@@ -22,7 +22,12 @@ for y in ['17', '18', '19', '20']:
     for i, o in enumerate(data):
         if i%100 == 0: print('year:{} {}/{}'.format(y, i, num_papers))
         paper_id = o['url'].split('=')[1]
-        pdf_binary = client.get_pdf(paper_id)
-        pdf_outfile = os.path.join(output_dir, '{}.pdf'.format(paper_id))
-        with open(pdf_outfile, 'wb') as file_handle:
-            file_handle.write(pdf_binary)
+        try:
+            pdf_binary = client.get_pdf(paper_id)
+        except:
+            pdf_binary = None
+            
+        if pdf_binary is not None:
+            pdf_outfile = os.path.join(output_dir, '{}.pdf'.format(paper_id))
+            with open(pdf_outfile, 'wb') as file_handle:
+                file_handle.write(pdf_binary)
