@@ -39,6 +39,7 @@ def get_paper_affiliation(paper_dir):
             processed = []
             for w in words:
                 w = w.replace('-', '')
+                w = w.replace('~', '')
                 predicate = True
                 for s in ['(', ')']:
                     if s in w: predicate = False
