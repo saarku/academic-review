@@ -6,13 +6,19 @@ from utils import pre_process_text
 class SearchEngine:
 
     def __init__(self, data_dir, ids_dir):
-        paper_ids = [i.rstrip('\n') for i in open(ids_dir, 'r').readlines()]
+        self.paper_ids = [i.rstrip('\n') for i in open(ids_dir, 'r').readlines()]
         vectors, names, self.tf_idf, self.counter = self.get_tf_idf_embeddings(data_dir)
         self.knn_engine = NearestNeighbors(n_neighbors=50 + 1, algorithm='brute', metric='cosine').fit(vectors)
 
     @staticmethod
     def get_tf_idf_embeddings(data_dir, num_features=1000):
-        data_lines = [pre_process_text(line.rstrip('\n')) for line in open(data_dir, 'r').readlines()]
+
+        data_lines = []
+        with open(data_dir, 'r') as input_file:
+            for i, line in enumerate(input_file):
+                if i==1000: break
+                data_lines.append(pre_process_text(line.rstrip('\n')))
+
         count_vector = CountVectorizer(max_features=num_features)
         tf_vectors = count_vector.fit_transform(data_lines)
         tf_idf_transformer = TfidfTransformer()
