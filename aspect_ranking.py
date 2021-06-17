@@ -13,12 +13,13 @@ class SearchEngine:
 
     @staticmethod
     def get_tf_idf_embeddings(data_dir, num_features=1000):
-
         data_lines = []
+
+        print('read')
         with open(data_dir, 'r') as input_file:
             for i, line in enumerate(input_file):
-                if i==1000: break
-                data_lines.append(pre_process_text(line.rstrip('\n')))
+                data_lines.append(line.rstrip('\n'))
+        print('finished')
 
         count_vector = CountVectorizer(max_features=num_features)
         tf_vectors = count_vector.fit_transform(data_lines)
