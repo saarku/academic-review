@@ -17,7 +17,7 @@ def get_paper_fields(paper_dir):
     for line in paper_lines:
         if '<orgName type=\"institution\">' in line:
             institution = TAG_RE.sub('', line.rstrip('\n'))
-            institution.replace('\t', '')
+            institution = institution.replace('\t', '')
             institutions.append(institution)
     print(institutions)
 
