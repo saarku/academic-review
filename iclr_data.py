@@ -10,44 +10,33 @@ year = '18'
 def download_iclr19(client, outdir='./', get_pdfs=False):
 
     print('getting metadata...')
-    # get all ICLR '19 submissions, reviews, and meta reviews, and organize them by forum ID
-    # (a unique identifier for each paper; as in "discussion forum").
     submissions = openreview.tools.iterget_notes(
         client, invitation='ICLR.cc/20{}/Conference/-/Blind_Submission'.format(year))
     submissions_by_forum = {n.forum: n for n in submissions}
-    acceptance = {n.forum: n.decision for n in submissions}
-    print(acceptance)
-    
-    # There should be 3 reviews per forum.
+
     reviews = openreview.tools.iterget_notes(
         client, invitation='ICLR.cc/20{}/Conference/-/Paper.*/Official_Review'.format(year))
     reviews_by_forum = defaultdict(list)
     for review in reviews:
         reviews_by_forum[review.forum].append(review)
 
-
-    # Because of the way the Program Chairs chose to run ICLR '19, there are no "decision notes";
-    # instead, decisions are taken directly from Meta Reviews.
     meta_reviews = openreview.tools.iterget_notes(
         client, invitation='ICLR.cc/20{}/Conference/-/Paper.*/Meta_Review'.format(year))
-    meta_reviews_by_forum = [n for n in meta_reviews]
     meta_reviews_by_forum = {n.forum: n for n in meta_reviews}
 
+    all_decision_notes = openreview.tools.iterget_notes(
+        client, invitation='ICLR.cc/20{}/Conference/-/Paper.*/Decision'.format(year))
+    notes = [n for n in all_decision_notes]
+    print(notes)
 
-
-    # Build a list of metadata.
-    # For every paper (forum), get the review ratings, the decision, and the paper's content.
     metadata = []
     for forum in submissions_by_forum:
 
         forum_reviews = reviews_by_forum[forum]
         review_ratings = [n.content['rating'] for n in forum_reviews]
 
-
         forum_meta_review = meta_reviews_by_forum[forum]
         decision = forum_meta_review.content['recommendation']
-
-        #decision = accepted_submissions[forum]
 
         submission_content = submissions_by_forum[forum].content
 
