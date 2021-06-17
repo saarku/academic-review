@@ -57,6 +57,7 @@ def get_paper_authors(paper_dir):
     persons = []
 
     for line in paper_lines:
+        if '<abstract>' in line: break
         if '<persName' in line:
             person = TAG_RE.sub(' ', line.rstrip('\n'))
             person = person.replace('\t', ' ')
