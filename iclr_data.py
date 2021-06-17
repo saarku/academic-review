@@ -29,23 +29,17 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
     meta_reviews = openreview.tools.iterget_notes(
         client, invitation='ICLR.cc/20{}/Conference/-/Paper.*/Meta_Review'.format(year))
     meta_reviews_by_forum = [n for n in meta_reviews]
-    print(meta_reviews_by_forum)
-
-
     meta_reviews_by_forum = {n.forum: n for n in meta_reviews}
-    #print(meta_reviews_by_forum)
 
-    #id_to_submission = {
-    #    note.id: note for note in
-    #    openreview.tools.iterget_notes(client, invitation='MIDL.io/20{}/Conference/-/Full_Submission'.format(year))
-    #}
+    blind_notes = {note.id: note for note in
+                   openreview.tools.iterget_notes(client, invitation='auai.org/UAI/20{}/Conference/-/Blind_Submission'.format(year),
+                                                  details='original')}
+    all_decision_notes = openreview.tools.iterget_notes(client,
+                                                        invitation='auai.org/UAI/20{}/Conference/-/Paper.*/Decision'.format(year))
 
-    all_decision_notes = openreview.tools.iterget_notes(client, invitation='MIDL.io/20{}/Conference/-/Paper.*/Decision'.format(year))
-    accepted_submissions = [note for note in all_decision_notes]
+    accepted_submissions = [blind_notes[decision_note.forum].details['original'] for decision_note in all_decision_notes
+                            if 'Accept' in decision_note.content['decision']]
     print(accepted_submissions)
-
-    #print(all_decision_notes)
-    #meta_reviews_by_forum = {n.forum: n for n in all_decision_notes}
 
     # Build a list of metadata.
     # For every paper (forum), get the review ratings, the decision, and the paper's content.
