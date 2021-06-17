@@ -2,6 +2,9 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk import stem
 from scipy.sparse import csr_matrix
+from nltk.stem import WordNetLemmatizer
+
+
 
 
 def to_sparse(vectors, shape):
@@ -21,7 +24,7 @@ def to_sparse(vectors, shape):
     return csr_matrix((data, (rows, cols)), shape=shape)
 
 
-def pre_process_text(text):
+def pre_process_text(text, lemmatize=False):
     """ Pre-process text including tokenization, stemming, and stopwords removal.
 
     :param text: (string) the input text for processing.
@@ -31,8 +34,13 @@ def pre_process_text(text):
     stop_words = set(stopwords.words('english'))
     word_tokens = word_tokenize(text)
     word_tokens = [w for w in word_tokens if not w in stop_words]
-    stemmer = stem.PorterStemmer()
-    stemmed_text = [stemmer.stem(w) for w in word_tokens]
+    if not lemmatize:
+        stemmer = stem.PorterStemmer()
+        stemmed_text = [stemmer.stem(w) for w in word_tokens]
+    else:
+        lemmatizer = WordNetLemmatizer()
+        stemmed_text = [lemmatizer.lemmatize(w) for w in word_tokens]
+
     filtered_text = [w for w in stemmed_text if not w in stop_words]
     text_len = min(1000, len(filtered_text))
     return " ".join(filtered_text[0:text_len])

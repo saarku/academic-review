@@ -7,11 +7,11 @@ import sys
 
 
 def process_data(data_dir):
-    output_file = open(data_dir + '.processed', 'w')
+    output_file = open(data_dir + '.lemmarize', 'w')
     with open(data_dir, 'r') as input_file:
         for i, line in enumerate(input_file):
             if i % 1000 == 0: print(i)
-            output_file.write(pre_process_text(line.rstrip('\n')) + '\n')
+            output_file.write(pre_process_text(line.rstrip('\n'), lemmatize=True) + '\n')
             output_file.flush()
 
 
@@ -49,7 +49,7 @@ class SearchEngine:
 
     def search(self, query):
         top_words = {}
-        query = pre_process_text(query)
+        query = pre_process_text(query, lemmatize=True)
         query = self.counter.transform([query])
         query = self.tf_idf.transform(query)
         distances, neighbor_indexes = self.knn_engine.kneighbors(query)
@@ -72,7 +72,7 @@ class SearchEngine:
         return sorted(result_scores, key=result_scores.get, reverse=True)
 
     def get_top_words(self, result_list, num_words=20):
-        stopwords = ['de', 'et', 'al', 'une', 'la', 'po', 'le', 'use']
+        stopwords = ['de', 'et', 'al', 'une', 'la', 'po', 'le', 'use', 'aa', 'sc']
         avg_vec = np.zeros((1, self.vectors.shape[1]))
         weights = [1/float(i+1) for i in range(10)]
         normalizer = sum(weights)
@@ -105,11 +105,15 @@ class SearchEngine:
 
 
 def main():
+    process_data('/home/skuzi2/acl_dataset/data_splits/dim.all.mod.neu.para.1.test.val.text')
+
+    '''
     query = ['language model', 'lda', 'word embeddings']
     data_dir = '/home/skuzi2/acl_dataset/data_splits/dim.all.mod.neu.para.1.test.val'
     aspects_dir = '/home/skuzi2/academic-review/acl_aspects.txt'
     se = SearchEngine(data_dir + '.text.processed', data_dir + '.ids', aspects_dir)
     se.analyze_queries(query)
+    '''
 
 
 if __name__ == '__main__':
