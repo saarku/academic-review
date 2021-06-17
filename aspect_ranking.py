@@ -16,24 +16,38 @@ def process_data(data_dir):
 
 class SearchEngine:
 
-    def __init__(self, data_dir, ids_dir):
+    def __init__(self, data_dir, ids_dir, aspect_dir):
         self.paper_ids = [i.rstrip('\n') for i in open(ids_dir, 'r').readlines()]
         self.vectors, self.names, self.tf_idf, self.counter = self.get_tf_idf_embeddings(data_dir)
         self.knn_engine = NearestNeighbors(n_neighbors=50 + 1, algorithm='brute', metric='cosine').fit(self.vectors)
+        self.aspects = self.load_aspects(aspect_dir)
 
     @staticmethod
     def get_tf_idf_embeddings(data_dir, num_features=1000):
-        data_lines = []
-
-
-
+        data_lines = open(data_dir, 'r').readlines()
         count_vector = CountVectorizer(max_features=num_features)
         tf_vectors = count_vector.fit_transform(data_lines)
         tf_idf_transformer = TfidfTransformer()
         tf_idf_vectors = tf_idf_transformer.fit_transform(tf_vectors)
         return tf_idf_vectors, count_vector.get_feature_names(), tf_idf_transformer, count_vector
 
+    @staticmethod
+    def load_aspects(aspect_dir):
+        lines = open(aspect_dir, 'r').readlines()
+        aspects = lines[0].rstrip('\n').split(',')[1:]
+        aspect_scores = {aspect: {} for aspect in aspects}
+
+        for line in lines[1:]:
+            args = line.rstrip('\n').split(',')
+            paper_id = args[0]
+            scores = args[1:]
+
+            for i, score in enumerate(scores):
+                aspect_scores[aspects[i]][paper_id] = float(score)
+        return aspect_scores
+
     def search(self, query):
+        top_words = {}
         query = pre_process_text(query)
         query = self.counter.transform([query])
         query = self.tf_idf.transform(query)
@@ -41,9 +55,20 @@ class SearchEngine:
         result_list = []
         for i in range(len(neighbor_indexes[0])):
             result_list.append(self.paper_ids[i])
-        self.get_top_words(result_list)
+        top_words['Relevance'] = self.get_top_words(result_list)
 
-    def get_top_words(self, result_list):
+        for aspect in self.aspects:
+            sorted_list = self.re_rank(result_list, aspect)
+            top_words[aspect] = self.get_top_words(sorted_list)
+        return top_words
+
+    def re_rank(self, result_list, aspect):
+        result_scores = {}
+        for paper_id in result_list:
+            result_scores[paper_id] = self.aspects[aspect][paper_id]
+        return sorted(result_scores, key=result_scores.get, reverse=True)
+
+    def get_top_words(self, result_list, num_words=20):
         avg_vec = np.zeros((1, self.vectors.shape[1]))
 
         for paper_id in result_list:
@@ -55,18 +80,26 @@ class SearchEngine:
         for i in range(avg_vec.shape[1]):
             word_id_dict[i] = avg_vec[0, i]
         sorted_words = sorted(word_id_dict, key=word_id_dict.get, reverse=True)
-        for i in range(10):
-            print(self.names[sorted_words[i]])
+        top_words = []
+        for i in range(num_words):
+            top_words.append(self.names[sorted_words[i]])
+        return top_words
+
+    def analyze_queries(self, queries):
+        output_file = open('queries.txt', 'w')
+        for q in queries:
+            top_words = self.search(q)
+            for aspect in top_words:
+                output_file.write(q + ',' + aspect + ',' + ','.join(top_words[aspect]) + '\n')
+                output_file.flush()
 
 
 def main():
-    #query = 'neural network'
+    query = ['neural network']
     data_dir = '/home/skuzi2/acl_dataset/data_splits/dim.all.mod.neu.para.1.test.val.text'
-    #se = SearchEngine(data_dir + '.text', data_dir + '.ids')
-    #se.search(query)
-
-    process_data(data_dir)
-
+    aspects_dir = '/home/skuzi2/academic-review/acl_aspects.txt'
+    se = SearchEngine(data_dir + '.text.processed', data_dir + '.ids', aspects_dir)
+    se.analyze_queries(query)
 
 
 if __name__ == '__main__':
