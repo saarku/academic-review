@@ -50,8 +50,10 @@ class SearchEngine:
     def search(self, query):
         top_words = {}
         query = pre_process_text(query)
+        print(query)
         query = self.counter.transform([query])
         query = self.tf_idf.transform(query)
+        print(query)
         distances, neighbor_indexes = self.knn_engine.kneighbors(query)
         result_list = []
         for i in range(len(neighbor_indexes[0])):
