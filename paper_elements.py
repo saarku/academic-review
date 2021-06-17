@@ -69,6 +69,7 @@ def get_paper_conference(paper_dir):
 
     conferences = set()
     for line in paper_lines:
+        if '<abstract>' in line: break
         if '<title level=\"m\">' in line:
             conference = TAG_RE.sub('', line.rstrip('\n'))
             conference = conference.replace('\t', '')
