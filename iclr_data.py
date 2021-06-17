@@ -22,13 +22,15 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
     reviews_by_forum = defaultdict(list)
     for review in reviews:
         reviews_by_forum[review.forum].append(review)
+    print(reviews_by_forum)
+
 
     # Because of the way the Program Chairs chose to run ICLR '19, there are no "decision notes";
     # instead, decisions are taken directly from Meta Reviews.
     meta_reviews = openreview.tools.iterget_notes(
         client, invitation='ICLR.cc/20{}/Conference/-/Paper.*/Meta_Review'.format(year))
     meta_reviews_by_forum = {n.forum: n for n in meta_reviews}
-    print(meta_reviews_by_forum)
+
 
     # Build a list of metadata.
     # For every paper (forum), get the review ratings, the decision, and the paper's content.
