@@ -1,25 +1,17 @@
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.neighbors import NearestNeighbors
 import numpy as np
-from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
 from nltk import stem
+from utils import pre_process_text
 
-stemmer = stem.PorterStemmer()
 
-def pre_process_text(text):
-    """ Pre-process text including tokenization, stemming, and stopwords removal.
-
-    :param text: (string) the input text for processing.
-    :return: String. The processed text.
-    """
-    text = text.lower()
-    stop_words = set(stopwords.words('english'))
-    word_tokens = word_tokenize(text)
-    word_tokens = [w for w in word_tokens if not w in stop_words]
-    text = ' '.join(word_tokens)
-    text = stemmer.stem(text)
-    return text
+def process_data(data_dir):
+    output_file = open(data_dir + '.processed', 'w')
+    with open(data_dir, 'r') as input_file:
+        for i, line in enumerate(input_file):
+            if i % 1000 == 0: print(i)
+            output_file.write(pre_process_text(line.rstrip('\n')) + '\n')
+            output_file.flush()
 
 
 class SearchEngine:
@@ -33,13 +25,7 @@ class SearchEngine:
     def get_tf_idf_embeddings(data_dir, num_features=1000):
         data_lines = []
 
-        print('read')
-        with open(data_dir, 'r') as input_file:
-            for i, line in enumerate(input_file):
-                if i%1000 == 0:
-                    print(i)
-                data_lines.append(pre_process_text(line.rstrip('\n')))
-        print('finished')
+
 
         count_vector = CountVectorizer(max_features=num_features)
         tf_vectors = count_vector.fit_transform(data_lines)
@@ -74,10 +60,12 @@ class SearchEngine:
 
 
 def main():
-    query = 'neural network'
+    #query = 'neural network'
     data_dir = '/home/skuzi2/acl_dataset/data_splits/dim.all.mod.neu.para.1.test.val'
-    se = SearchEngine(data_dir + '.text', data_dir + '.ids')
-    se.search(query)
+    #se = SearchEngine(data_dir + '.text', data_dir + '.ids')
+    #se.search(query)
+
+    process_data(data_dir)
 
 
 
