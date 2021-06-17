@@ -27,7 +27,7 @@ def pre_process_nltk(text, additional_stopwords=None):
     return " ".join(filtered_text)
 
 
-def get_paper_fields(paper_dir):
+def get_paper_affiliation(paper_dir):
     paper_lines = open(paper_dir, 'r').readlines()
 
     institutions = []
@@ -52,4 +52,20 @@ def get_paper_fields(paper_dir):
     print(stemmed_institutions)
 
 
-get_paper_fields(sys.argv[1])
+def get_paper_authors(paper_dir):
+    paper_lines = open(paper_dir, 'r').readlines()
+    names = []
+
+    for line in paper_lines:
+        if '<persName' in line:
+            person = TAG_RE.sub(' ', line.rstrip('\n'))
+            person = person.replace('\t', ' ')
+            names = person.split()
+            person = ' '.join(names)
+            names.append(person)
+    print(names)
+
+
+
+
+get_paper_authors(sys.argv[1])
