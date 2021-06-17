@@ -34,7 +34,13 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
     #meta_reviews_by_forum = {n.forum: n for n in meta_reviews}
     #print(meta_reviews_by_forum)
 
+    id_to_submission = {
+        note.id: note for note in
+        openreview.tools.iterget_notes(client, invitation='MIDL.io/20{}/Conference/-/Full_Submission'.format(year))
+    }
     all_decision_notes = openreview.tools.iterget_notes(client, invitation='MIDL.io/20{}/Conference/-/Paper.*/Decision'.format(year))
+    accepted_submissions = {note.forum:  note.content['decision'] for note in all_decision_notes}
+
     print(all_decision_notes)
     meta_reviews_by_forum = {n.forum: n for n in all_decision_notes}
 
@@ -46,8 +52,10 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
         forum_reviews = reviews_by_forum[forum]
         review_ratings = [n.content['rating'] for n in forum_reviews]
 
-        forum_meta_review = meta_reviews_by_forum[forum]
-        decision = forum_meta_review.content['recommendation']
+        #forum_meta_review = meta_reviews_by_forum[forum]
+        #decision = forum_meta_review.content['recommendation']
+
+        decision = accepted_submissions[forum]
 
         submission_content = submissions_by_forum[forum].content
 
