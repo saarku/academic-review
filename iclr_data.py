@@ -5,7 +5,7 @@ from collections import defaultdict
 from tqdm import tqdm
 import openreview
 
-year = '20'
+year = '18'
 
 def download_iclr19(client, outdir='./', get_pdfs=False):
 
@@ -26,24 +26,24 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
 
     # Because of the way the Program Chairs chose to run ICLR '19, there are no "decision notes";
     # instead, decisions are taken directly from Meta Reviews.
-    #meta_reviews = openreview.tools.iterget_notes(
-    #    client, invitation='ICLR.cc/20{}/Conference/-/Paper.*/Meta_Review'.format(year))
+    meta_reviews = openreview.tools.iterget_notes(
+        client, invitation='ICLR.cc/20{}/Conference/-/Paper.*/Meta_Review'.format(year))
 
     #meta_reviews = openreview.tools.iterget_notes(
     #    client, invitation='ICLR.cc/20{}/Conference/-/Paper.*/Decision_Notes'.format(year))
-    #meta_reviews_by_forum = {n.forum: n for n in meta_reviews}
+    meta_reviews_by_forum = {n.forum: n for n in meta_reviews}
     #print(meta_reviews_by_forum)
 
-    id_to_submission = {
-        note.id: note for note in
-        openreview.tools.iterget_notes(client, invitation='MIDL.io/20{}/Conference/-/Full_Submission'.format(year))
-    }
-    all_decision_notes = openreview.tools.iterget_notes(client, invitation='MIDL.io/20{}/Conference/-/Paper.*/Decision'.format(year))
-    accepted_submissions = {note.forum:  note.content['decision'] for note in all_decision_notes}
-    print(accepted_submissions)
+    #id_to_submission = {
+    #    note.id: note for note in
+    #    openreview.tools.iterget_notes(client, invitation='MIDL.io/20{}/Conference/-/Full_Submission'.format(year))
+    #}
+    #all_decision_notes = openreview.tools.iterget_notes(client, invitation='MIDL.io/20{}/Conference/-/Paper.*/Decision'.format(year))
+    #accepted_submissions = {note.forum:  note.content['decision'] for note in all_decision_notes}
+    #print(accepted_submissions)
 
-    print(all_decision_notes)
-    meta_reviews_by_forum = {n.forum: n for n in all_decision_notes}
+    #print(all_decision_notes)
+    #meta_reviews_by_forum = {n.forum: n for n in all_decision_notes}
 
     # Build a list of metadata.
     # For every paper (forum), get the review ratings, the decision, and the paper's content.
@@ -53,10 +53,10 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
         forum_reviews = reviews_by_forum[forum]
         review_ratings = [n.content['rating'] for n in forum_reviews]
 
-        #forum_meta_review = meta_reviews_by_forum[forum]
-        #decision = forum_meta_review.content['recommendation']
+        forum_meta_review = meta_reviews_by_forum[forum]
+        decision = forum_meta_review.content['recommendation']
 
-        decision = accepted_submissions[forum]
+        #decision = accepted_submissions[forum]
 
         submission_content = submissions_by_forum[forum].content
 
