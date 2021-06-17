@@ -30,7 +30,10 @@ class SearchEngine:
         query = self.counter.transform([query])
         query = self.tf_idf.transform(query)
         distances, neighbor_indexes = self.knn_engine.kneighbors(query)
-        print(neighbor_indexes)
+        result_list = []
+        for i in range(len(neighbor_indexes[0])):
+            result_list.append(self.paper_ids[i])
+        print(result_list)
 
 
 def main():
@@ -38,6 +41,7 @@ def main():
     data_dir = '/home/skuzi2/acl_dataset/data_splits/dim.all.mod.neu.para.1.test.val'
     se = SearchEngine(data_dir + '.text', data_dir + '.ids')
     se.search(query)
+
 
 
 if __name__ == '__main__':
