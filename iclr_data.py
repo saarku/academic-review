@@ -32,10 +32,10 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
     meta_reviews_by_forum = {n.forum: n for n in meta_reviews}
 
     blind_notes = {note.id: note for note in
-                   openreview.tools.iterget_notes(client, invitation='auai.org/UAI/20{}/Conference/-/Blind_Submission'.format(year),
+                   openreview.tools.iterget_notes(client, invitation='ICLR.cc/20{}/Conference/-/Blind_Submission'.format(year),
                                                   details='original')}
     all_decision_notes = openreview.tools.iterget_notes(client,
-                                                        invitation='auai.org/UAI/20{}/Conference/-/Paper.*/Decision'.format(year))
+                                                        invitation='ICLR.cc/20{}/Conference/-/Paper.*/Decision'.format(year))
 
     accepted_submissions = [blind_notes[decision_note.forum].details['original'] for decision_note in all_decision_notes
                             if 'Accept' in decision_note.content['decision']]
