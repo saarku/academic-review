@@ -15,7 +15,9 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
     submissions = openreview.tools.iterget_notes(
         client, invitation='ICLR.cc/20{}/Conference/-/Blind_Submission'.format(year))
     submissions_by_forum = {n.forum: n for n in submissions}
-
+    acceptance = {n.forum: n.decision for n in submissions}
+    print(acceptance)
+    
     # There should be 3 reviews per forum.
     reviews = openreview.tools.iterget_notes(
         client, invitation='ICLR.cc/20{}/Conference/-/Paper.*/Official_Review'.format(year))
@@ -31,15 +33,7 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
     meta_reviews_by_forum = [n for n in meta_reviews]
     meta_reviews_by_forum = {n.forum: n for n in meta_reviews}
 
-    blind_notes = {note.id: note for note in
-                   openreview.tools.iterget_notes(client, invitation='ICLR.cc/20{}/Conference/-/Blind_Submission'.format(year),
-                                                  details='original')}
-    all_decision_notes = openreview.tools.iterget_notes(client,
-                                                        invitation='ICLR.cc/20{}/Conference/-/Paper.*/Decision'.format(year))
 
-    accepted_submissions = [blind_notes[decision_note.forum].details['original'] for decision_note in all_decision_notes
-                            if 'Accept' in decision_note.content['decision']]
-    print(accepted_submissions)
 
     # Build a list of metadata.
     # For every paper (forum), get the review ratings, the decision, and the paper's content.
