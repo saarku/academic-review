@@ -1,5 +1,5 @@
 import re
-import sys
+import os
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk import stem
@@ -86,5 +86,24 @@ def get_paper_conference(paper_dir):
     return conference
 
 
-a = get_paper_conference(sys.argv[1])
-print(a)
+def main():
+    input_dir = '/home/skuzi2/acl_antology_all_papers/grobid_output/'
+    files = {'conferences': open('conferences', 'w'), 'authors': open('authors.txt', 'w'),
+             'affiliations': open('affiliations.txt', 'w')}
+
+    for file_name in os.listdir(input_dir):
+        paper_dir = input_dir + file_name
+        paper_id = file_name.split('.')[0]
+        affiliations = get_paper_affiliation(paper_dir)
+        authors = get_paper_authors(paper_dir)
+        conference = get_paper_conference(paper_dir)
+        files['conferences'].write(paper_id + ',' + conference + '\n')
+        files['conferences'].flush()
+        files['authors'].write(paper_id + ',' + ','.join(authors) + '\n')
+        files['authors'].flush()
+        files['affiliations'].write(paper_id + ',' + ','.join(affiliations) + '\n')
+        files['affiliations'].flush()
+
+    
+if __name__ == '__main__':
+    main()
