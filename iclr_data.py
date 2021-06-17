@@ -74,5 +74,10 @@ if __name__ == '__main__':
         username='saarkuzi@gmail.com',
         password='Kuz260487')
 
+    pdf_binary = client.get_pdf('S1jE5L5gl')
+    pdf_outfile = os.path.join('./', '{}.pdf'.format('S1jE5L5gl'))
+    with open(pdf_outfile, 'wb') as file_handle:
+        file_handle.write(pdf_binary)
 
-    download_iclr19(client, outdir, get_pdfs=True)
+
+    #download_iclr19(client, outdir, get_pdfs=True)
