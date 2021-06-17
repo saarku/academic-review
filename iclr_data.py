@@ -40,6 +40,7 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
     }
     all_decision_notes = openreview.tools.iterget_notes(client, invitation='MIDL.io/20{}/Conference/-/Paper.*/Decision'.format(year))
     accepted_submissions = {note.forum:  note.content['decision'] for note in all_decision_notes}
+    print(accepted_submissions)
 
     print(all_decision_notes)
     meta_reviews_by_forum = {n.forum: n for n in all_decision_notes}
