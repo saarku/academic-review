@@ -67,9 +67,8 @@ def get_paper_authors(paper_dir):
 def get_paper_conference(paper_dir):
     paper_lines = open(paper_dir, 'r').readlines()
 
-    conferences = set()
+    conference = ''
     for line in paper_lines:
-        if '<abstract>' in line: break
         if '<title level=\"m\">' in line:
             conference = TAG_RE.sub('', line.rstrip('\n'))
             conference = conference.replace('\t', '')
@@ -83,8 +82,8 @@ def get_paper_conference(paper_dir):
                     if s in w: predicate = False
                 if predicate: processed.append(w)
             conference = ' '.join(processed)
-            conferences.add(conference)
-    return conferences
+            break
+    return conference
 
 
 a = get_paper_conference(sys.argv[1])
