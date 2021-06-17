@@ -22,6 +22,7 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
     reviews_by_forum = defaultdict(list)
     for review in reviews:
         reviews_by_forum[review.forum].append(review)
+    print(reviews_by_forum)
 
 
     # Because of the way the Program Chairs chose to run ICLR '19, there are no "decision notes";
@@ -52,6 +53,7 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
 
         forum_reviews = reviews_by_forum[forum]
         review_ratings = [n.content['rating'] for n in forum_reviews]
+
 
         forum_meta_review = meta_reviews_by_forum[forum]
         decision = forum_meta_review.content['recommendation']
@@ -95,6 +97,6 @@ if __name__ == '__main__':
         baseurl=base_url,
         username='saarkuzi@gmail.com',
         password='Kuz260487')
-    
+
 
     download_iclr19(client, outdir, get_pdfs=True)
