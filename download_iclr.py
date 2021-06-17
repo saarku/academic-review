@@ -26,7 +26,7 @@ for y in ['17', '18', '19', '20']:
             pdf_binary = client.get_pdf(paper_id)
         except:
             pdf_binary = None
-            
+
         if pdf_binary is not None:
             pdf_outfile = os.path.join(output_dir, '{}.pdf'.format(paper_id))
             with open(pdf_outfile, 'wb') as file_handle:

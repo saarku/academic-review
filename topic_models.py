@@ -102,8 +102,6 @@ def get_vectors(dists_dir, num_paragraphs, norm):
     return to_sparse(all_topic_vectors, (len(all_topic_vectors), num_topics))
 
 
-
-
 class TopicModels:
 
     def __init__(self, data_dir, vocabulary_data_dir):
@@ -251,7 +249,7 @@ def main():
     dimensions = dimensions_ed if dataset == 'education' else dimensions_ic
     model_types = ['ovb', 'gibbs']  # ovb or gibbs
 
-    learn_flag = True
+    learn_flag = False
     infer_flag = True
 
     if learn_flag:
@@ -270,8 +268,6 @@ def main():
 
     if infer_flag:
         for para in paragraphs:
-            test_data_dir = base_dir + 'data_splits/dim.all.mod.neu.para.{}.test.val.text'.format(para)
-            tm = TopicModels(test_data_dir, None)
             for dim in dimensions:
                 for mode in dimensions[dim]:
                     for model_type in model_types:
@@ -280,8 +276,8 @@ def main():
                             test_data_dir = base_dir + '/data_splits/dim.all.mod.neu.para.{}.test.val.text'.format(para)
 
                             model_dir = base_dir + '/lda_models/'
+                            model_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}/model'.format(topic, dim, mode, para,topic)
                             vectors_dir = base_dir + '/lda_vectors_{}/'.format(model_type)
-                            model_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}/model'.format(topic, dim, mode, para, topic)
                             vectors_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(topic, dim, mode, para, topic)
                             print('infer ' + vectors_dir)
 
