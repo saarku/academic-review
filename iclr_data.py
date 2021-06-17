@@ -87,6 +87,12 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
 
 if __name__ == '__main__':
 
+
+
+    c = openreview.Client(baseurl='https://api.openreview.net')
+    invitations = openreview.tools.get_submission_invitations(c)
+    print(*invitations, sep="\n")
+    '''
     outdir = '../iclr{}'.format(year)
     base_url = 'https://api.openreview.net'
     if not os.path.exists(outdir): os.mkdir(outdir)
@@ -95,5 +101,6 @@ if __name__ == '__main__':
         baseurl=base_url,
         username='saarkuzi@gmail.com',
         password='Kuz260487')
+    '''
 
     download_iclr19(client, outdir, get_pdfs=True)
