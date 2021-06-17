@@ -21,7 +21,7 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
     reviews_by_forum = defaultdict(list)
     for review in reviews:
         reviews_by_forum[review.forum].append(review)
-    print(reviews_by_forum)
+    print(reviews_by_forum['BJAg3e7ZM'])
 
     meta_reviews = openreview.tools.iterget_notes(
         client, invitation='ICLR.cc/20{}/Conference/-/Paper.*/Meta_Review'.format(year))
