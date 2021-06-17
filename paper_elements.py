@@ -64,5 +64,27 @@ def get_paper_authors(paper_dir):
     return persons
 
 
-a = get_paper_affiliation(sys.argv[1])
+def get_paper_conference(paper_dir):
+    paper_lines = open(paper_dir, 'r').readlines()
+
+    conferences = set()
+    for line in paper_lines:
+        if '<title level=\"m\">' in line:
+            conference = TAG_RE.sub('', line.rstrip('\n'))
+            conference = conference.replace('\t', '')
+            words = conference.split()
+            processed = []
+            for w in words:
+                w = w.replace('-', '')
+                w = w.replace('~', '')
+                predicate = True
+                for s in ['(', ')']:
+                    if s in w: predicate = False
+                if predicate: processed.append(w)
+            conference = ' '.join(processed)
+            conferences.add(conference)
+    return conferences
+
+
+a = get_paper_conference(sys.argv[1])
 print(a)
