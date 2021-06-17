@@ -5,7 +5,7 @@ from collections import defaultdict
 from tqdm import tqdm
 import openreview
 
-year = '20'
+year = '18'
 
 def download_iclr19(client, outdir='./', get_pdfs=False):
 
