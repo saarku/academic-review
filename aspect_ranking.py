@@ -19,7 +19,7 @@ class SearchEngine:
     def __init__(self, data_dir, ids_dir, aspect_dir):
         self.paper_ids = [i.rstrip('\n') for i in open(ids_dir, 'r').readlines()]
         self.vectors, self.names, self.tf_idf, self.counter = self.get_tf_idf_embeddings(data_dir)
-        self.knn_engine = NearestNeighbors(n_neighbors=50 + 1, algorithm='brute', metric='cosine').fit(self.vectors)
+        self.knn_engine = NearestNeighbors(n_neighbors=50, algorithm='brute', metric='cosine').fit(self.vectors)
         self.aspects = self.load_aspects(aspect_dir)
 
     @staticmethod
@@ -71,7 +71,7 @@ class SearchEngine:
     def get_top_words(self, result_list, num_words=20):
         avg_vec = np.zeros((1, self.vectors.shape[1]))
 
-        for paper_id in result_list:
+        for paper_id in result_list[:10]:
             paper_idx = self.paper_ids.index(paper_id)
             avg_vec += self.vectors[paper_idx, :]
 
