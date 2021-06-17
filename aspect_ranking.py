@@ -55,6 +55,7 @@ class SearchEngine:
         query = self.tf_idf.transform(query)
         print(query)
         distances, neighbor_indexes = self.knn_engine.kneighbors(query)
+        print(neighbor_indexes)
         result_list = []
         for i in range(len(neighbor_indexes[0])):
             result_list.append(self.paper_ids[i])
