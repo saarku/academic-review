@@ -1,7 +1,25 @@
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.neighbors import NearestNeighbors
-from utils import pre_process_text
 import numpy as np
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk import stem
+
+stemmer = stem.PorterStemmer()
+
+def pre_process_text(text):
+    """ Pre-process text including tokenization, stemming, and stopwords removal.
+
+    :param text: (string) the input text for processing.
+    :return: String. The processed text.
+    """
+    text = text.lower()
+    stop_words = set(stopwords.words('english'))
+    word_tokens = word_tokenize(text)
+    word_tokens = [w for w in word_tokens if not w in stop_words]
+    text = ' '.join(word_tokens)
+    text = stemmer.stem(text)
+    return text
 
 
 class SearchEngine:
@@ -18,7 +36,9 @@ class SearchEngine:
         print('read')
         with open(data_dir, 'r') as input_file:
             for i, line in enumerate(input_file):
-                data_lines.append(line.rstrip('\n'))
+                if i%1000 == 0:
+                    print(i)
+                data_lines.append(pre_process_text(line.rstrip('\n')))
         print('finished')
 
         count_vector = CountVectorizer(max_features=num_features)
@@ -28,7 +48,7 @@ class SearchEngine:
         return tf_idf_vectors, count_vector.get_feature_names(), tf_idf_transformer, count_vector
 
     def search(self, query):
-        #query = pre_process_text(query)
+        query = pre_process_text(query)
         query = self.counter.transform([query])
         query = self.tf_idf.transform(query)
         distances, neighbor_indexes = self.knn_engine.kneighbors(query)
