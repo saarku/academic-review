@@ -18,6 +18,15 @@ def get_paper_fields(paper_dir):
         if '<orgName type=\"institution\">' in line:
             institution = TAG_RE.sub('', line.rstrip('\n'))
             institution = institution.replace('\t', '')
+            words = institution.split()
+            processed = []
+            for w in words:
+                w = w.replace('-', '')
+                predicate = True
+                for s in ['(', ')']:
+                    if s in w: predicate = False
+                if predicate: processed.append(w)
+            institution = ' '.join(processed)
             institutions.append(institution)
     print(institutions)
 
