@@ -29,8 +29,7 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
     meta_reviews = openreview.tools.iterget_notes(
         client, invitation='ICLR.cc/20{}/Conference/-/Paper.*/Meta_Review'.format(year))
 
-    #meta_reviews = openreview.tools.iterget_notes(
-    #    client, invitation='ICLR.cc/20{}/Conference/-/Paper.*/Decision_Notes'.format(year))
+
     meta_reviews_by_forum = {n.forum: n for n in meta_reviews}
     #print(meta_reviews_by_forum)
 
@@ -38,9 +37,10 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
     #    note.id: note for note in
     #    openreview.tools.iterget_notes(client, invitation='MIDL.io/20{}/Conference/-/Full_Submission'.format(year))
     #}
-    #all_decision_notes = openreview.tools.iterget_notes(client, invitation='MIDL.io/20{}/Conference/-/Paper.*/Decision'.format(year))
-    #accepted_submissions = {note.forum:  note.content['decision'] for note in all_decision_notes}
-    #print(accepted_submissions)
+
+    all_decision_notes = openreview.tools.iterget_notes(client, invitation='MIDL.io/20{}/Conference/-/Paper.*/Decision'.format(year))
+    accepted_submissions = [note for note in all_decision_notes]
+    print(accepted_submissions)
 
     #print(all_decision_notes)
     #meta_reviews_by_forum = {n.forum: n for n in all_decision_notes}
@@ -87,12 +87,6 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
 
 if __name__ == '__main__':
 
-
-
-    c = openreview.Client(baseurl='https://api.openreview.net')
-    invitations = openreview.tools.get_submission_invitations(c)
-    print(*invitations, sep="\n")
-    '''
     outdir = '../iclr{}'.format(year)
     base_url = 'https://api.openreview.net'
     if not os.path.exists(outdir): os.mkdir(outdir)
@@ -101,6 +95,6 @@ if __name__ == '__main__':
         baseurl=base_url,
         username='saarkuzi@gmail.com',
         password='Kuz260487')
-    '''
+    
 
     download_iclr19(client, outdir, get_pdfs=True)
