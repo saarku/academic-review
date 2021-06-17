@@ -29,6 +29,8 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
     # instead, decisions are taken directly from Meta Reviews.
     meta_reviews = openreview.tools.iterget_notes(
         client, invitation='ICLR.cc/20{}/Conference/-/Paper.*/Meta_Review'.format(year))
+    meta_reviews_by_forum = [n for n in meta_reviews]
+    print(meta_reviews_by_forum)
 
 
     meta_reviews_by_forum = {n.forum: n for n in meta_reviews}
