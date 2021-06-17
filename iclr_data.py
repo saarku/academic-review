@@ -4,8 +4,9 @@ import os
 from collections import defaultdict
 from tqdm import tqdm
 import openreview
+import sys
 
-year = '18'
+year = sys.argv[1]
 
 def download_iclr19(client, outdir='./', get_pdfs=False):
 
