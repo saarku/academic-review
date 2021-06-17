@@ -27,7 +27,7 @@ def get_paper_fields(paper_dir):
                     if s in w: predicate = False
                 if predicate: processed.append(w)
             institution = ' '.join(processed)
-            institutions.append(institution)
+            institutions.append(institution.lower())
     print(institutions)
 
 
