@@ -54,7 +54,7 @@ def get_paper_affiliation(paper_dir):
 
 def get_paper_authors(paper_dir):
     paper_lines = open(paper_dir, 'r').readlines()
-    names = []
+    persons = []
 
     for line in paper_lines:
         if '<persName' in line:
@@ -62,8 +62,8 @@ def get_paper_authors(paper_dir):
             person = person.replace('\t', ' ')
             names = person.split()
             person = ' '.join(names)
-            names.append(person)
-    print(names)
+            persons.append(person)
+    print(persons)
 
 
 
