@@ -31,6 +31,7 @@ def get_paper_fields(paper_dir):
     paper_lines = open(paper_dir, 'r').readlines()
 
     institutions = []
+    stemmed_institutions = []
     for line in paper_lines:
         if '<orgName type=\"institution\">' in line:
             institution = TAG_RE.sub('', line.rstrip('\n'))
@@ -44,9 +45,11 @@ def get_paper_fields(paper_dir):
                     if s in w: predicate = False
                 if predicate: processed.append(w)
             institution = ' '.join(processed)
-            institution = pre_process_nltk(institution)
+            stemmed_institution = pre_process_nltk(institution)
             institutions.append(institution)
+            stemmed_institutions.append(stemmed_institution)
     print(institutions)
+    print(stemmed_institutions)
 
 
 get_paper_fields(sys.argv[1])
