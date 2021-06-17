@@ -5,6 +5,7 @@ from collections import defaultdict
 from tqdm import tqdm
 import openreview
 
+year = '20'
 
 def download_iclr19(client, outdir='./', get_pdfs=False):
 
@@ -12,12 +13,12 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
     # get all ICLR '19 submissions, reviews, and meta reviews, and organize them by forum ID
     # (a unique identifier for each paper; as in "discussion forum").
     submissions = openreview.tools.iterget_notes(
-        client, invitation='ICLR.cc/2019/Conference/-/Blind_Submission')
+        client, invitation='ICLR.cc/20{}/Conference/-/Blind_Submission'.format(year))
     submissions_by_forum = {n.forum: n for n in submissions}
 
     # There should be 3 reviews per forum.
     reviews = openreview.tools.iterget_notes(
-        client, invitation='ICLR.cc/2019/Conference/-/Paper.*/Official_Review')
+        client, invitation='ICLR.cc/20{}/Conference/-/Paper.*/Official_Review'.format(year))
     reviews_by_forum = defaultdict(list)
     for review in reviews:
         reviews_by_forum[review.forum].append(review)
@@ -25,7 +26,7 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
     # Because of the way the Program Chairs chose to run ICLR '19, there are no "decision notes";
     # instead, decisions are taken directly from Meta Reviews.
     meta_reviews = openreview.tools.iterget_notes(
-        client, invitation='ICLR.cc/2019/Conference/-/Paper.*/Meta_Review')
+        client, invitation='ICLR.cc/20{}/Conference/-/Paper.*/Meta_Review'.format(year))
     meta_reviews_by_forum = {n.forum: n for n in meta_reviews}
 
     # Build a list of metadata.
@@ -51,13 +52,13 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
 
     print('writing metadata to file...')
     # write the metadata, one JSON per line:
-    with open(os.path.join(outdir, 'iclr19_metadata.jsonl'), 'w') as file_handle:
+    with open(os.path.join(outdir, 'iclr{}_metadata.jsonl'.format(year)), 'w') as file_handle:
         for forum_metadata in metadata:
             file_handle.write(json.dumps(forum_metadata) + '\n')
 
     # if requested, download pdfs to a subdirectory.
     if get_pdfs:
-        pdf_outdir = os.path.join(outdir, 'iclr19_pdfs')
+        pdf_outdir = os.path.join(outdir, 'iclr{}_pdfs'.format(year))
         os.makedirs(pdf_outdir)
         for forum_metadata in tqdm(metadata, desc='getting pdfs'):
             pdf_binary = client.get_pdf(forum_metadata['forum'])
@@ -67,7 +68,8 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
 
 
 if __name__ == '__main__':
-    outdir = '../iclr2019'
+
+    outdir = '../iclr{}'.format(year)
     base_url = 'https://api.openreview.net'
     if not os.path.exists(outdir): os.mkdir(outdir)
 
