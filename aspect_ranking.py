@@ -9,7 +9,7 @@ class SearchEngine:
     def __init__(self, data_dir, ids_dir):
         self.paper_ids = [i.rstrip('\n') for i in open(ids_dir, 'r').readlines()]
         self.vectors, self.names, self.tf_idf, self.counter = self.get_tf_idf_embeddings(data_dir)
-        self.knn_engine = NearestNeighbors(n_neighbors=50 + 1, algorithm='brute', metric='cosine').fit(vectors)
+        self.knn_engine = NearestNeighbors(n_neighbors=50 + 1, algorithm='brute', metric='cosine').fit(self.vectors)
 
     @staticmethod
     def get_tf_idf_embeddings(data_dir, num_features=1000):
