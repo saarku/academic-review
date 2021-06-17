@@ -22,7 +22,7 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
     reviews_by_forum = defaultdict(list)
     for review in reviews:
         reviews_by_forum[review.forum].append(review)
-    print(reviews_by_forum)
+        print(review.forum)
 
 
     # Because of the way the Program Chairs chose to run ICLR '19, there are no "decision notes";
