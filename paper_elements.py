@@ -31,7 +31,6 @@ def get_paper_affiliation(paper_dir):
     paper_lines = open(paper_dir, 'r').readlines()
 
     institutions = []
-    stemmed_institutions = []
     for line in paper_lines:
         if '<orgName type=\"institution\">' in line:
             institution = TAG_RE.sub('', line.rstrip('\n'))
@@ -45,11 +44,8 @@ def get_paper_affiliation(paper_dir):
                     if s in w: predicate = False
                 if predicate: processed.append(w)
             institution = ' '.join(processed)
-            stemmed_institution = pre_process_nltk(institution)
             institutions.append(institution)
-            stemmed_institutions.append(stemmed_institution)
-    print(institutions)
-    print(stemmed_institutions)
+    return institutions
 
 
 def get_paper_authors(paper_dir):
@@ -64,9 +60,8 @@ def get_paper_authors(paper_dir):
             names = person.split()
             person = ' '.join(names)
             persons.append(person)
-    print(persons)
+    return persons
 
 
-
-
-get_paper_authors(sys.argv[1])
+a = get_paper_affiliation(sys.argv[1])
+print(a)
