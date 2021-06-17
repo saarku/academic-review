@@ -24,9 +24,9 @@ class SearchEngine:
         self.aspects = self.load_aspects(aspect_dir)
 
     @staticmethod
-    def get_tf_idf_embeddings(data_dir, num_features=1000):
+    def get_tf_idf_embeddings(data_dir):
         data_lines = open(data_dir, 'r').readlines()
-        count_vector = CountVectorizer(max_features=num_features)
+        count_vector = CountVectorizer()
         tf_vectors = count_vector.fit_transform(data_lines)
         tf_idf_transformer = TfidfTransformer()
         tf_idf_vectors = tf_idf_transformer.fit_transform(tf_vectors)
@@ -50,16 +50,14 @@ class SearchEngine:
     def search(self, query):
         top_words = {}
         query = pre_process_text(query)
-        print(query)
         query = self.counter.transform([query])
         query = self.tf_idf.transform(query)
-        print(query)
         distances, neighbor_indexes = self.knn_engine.kneighbors(query)
-        print(neighbor_indexes)
+
         result_list = []
         for i in range(len(neighbor_indexes[0])):
-            result_list.append(self.paper_ids[i])
-        print(result_list)
+            result_list.append(self.paper_ids[neighbor_indexes[0][i]])
+
         top_words['Relevance'] = self.get_top_words(result_list)
 
         for aspect in self.aspects:
@@ -100,7 +98,7 @@ class SearchEngine:
 
 
 def main():
-    query = [sys.argv[1]]
+    query = ['language model', 'lda', 'word embeddings']
     data_dir = '/home/skuzi2/acl_dataset/data_splits/dim.all.mod.neu.para.1.test.val'
     aspects_dir = '/home/skuzi2/academic-review/acl_aspects.txt'
     se = SearchEngine(data_dir + '.text.processed', data_dir + '.ids', aspects_dir)
