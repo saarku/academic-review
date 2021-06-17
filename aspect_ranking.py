@@ -72,11 +72,14 @@ class SearchEngine:
         return sorted(result_scores, key=result_scores.get, reverse=True)
 
     def get_top_words(self, result_list, num_words=20):
+        stopwords = ['de', 'et', 'al', 'une', 'la', 'po', 'le', 'use']
         avg_vec = np.zeros((1, self.vectors.shape[1]))
+        weights = [1/float(i+1) for i in range(10)]
+        normalizer = sum(weights)
 
-        for paper_id in result_list[:10]:
+        for i, paper_id in enumerate(result_list[:10]):
             paper_idx = self.paper_ids.index(paper_id)
-            avg_vec += self.vectors[paper_idx, :]
+            avg_vec += (weights[i]/normalizer) * self.vectors[paper_idx, :]
 
         avg_vec /= len(result_list)
         word_id_dict = {}
@@ -84,9 +87,13 @@ class SearchEngine:
             word_id_dict[i] = avg_vec[0, i]
         sorted_words = sorted(word_id_dict, key=word_id_dict.get, reverse=True)
         top_words = []
-        for i in range(num_words):
-            top_words.append(self.names[sorted_words[i]])
-        return top_words
+
+        for i in range(num_words*2):
+            word = self.names[sorted_words[i]]
+            if word not in stopwords:
+                top_words.append(word)
+
+        return top_words[:20]
 
     def analyze_queries(self, queries):
         output_file = open('queries.txt', 'w')
