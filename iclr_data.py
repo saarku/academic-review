@@ -21,16 +21,10 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
     reviews_by_forum = defaultdict(list)
     for review in reviews:
         reviews_by_forum[review.forum].append(review)
-    print(reviews_by_forum['ry4S90l0b'])
 
     meta_reviews = openreview.tools.iterget_notes(
         client, invitation='ICLR.cc/20{}/Conference/-/Paper.*/Meta_Review'.format(year))
     meta_reviews_by_forum = {n.forum: n for n in meta_reviews}
-
-    all_decision_notes = openreview.tools.iterget_notes(
-        client, invitation='ICLR.cc/20{}/Conference/-/Paper.*/Decision'.format(year))
-    notes = [n for n in all_decision_notes]
-    print(notes)
 
     metadata = []
     for forum in submissions_by_forum:
@@ -38,8 +32,9 @@ def download_iclr19(client, outdir='./', get_pdfs=False):
         forum_reviews = reviews_by_forum[forum]
         review_ratings = [n.content['rating'] for n in forum_reviews]
 
-        forum_meta_review = meta_reviews_by_forum[forum]
-        decision = forum_meta_review.content['recommendation']
+        #forum_meta_review = meta_reviews_by_forum[forum]
+        #decision = forum_meta_review.content['recommendation']
+        decision = 'nan'
 
         submission_content = submissions_by_forum[forum].content
 
