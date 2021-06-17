@@ -29,7 +29,7 @@ class SearchEngine:
 
 def main():
     query = 'neural network'
-    data_dir = '/home/skuzi2/acl_dataset/data_splits/dim.all.mod.neu.para.1.train'
+    data_dir = '/home/skuzi2/acl_dataset/data_splits/dim.all.mod.neu.para.1.test'
     se = SearchEngine(data_dir + '.text', data_dir + '.ids')
     se.search(query)
 
