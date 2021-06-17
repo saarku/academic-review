@@ -1,13 +1,14 @@
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.neighbors import NearestNeighbors
 from utils import pre_process_text
+import numpy as np
 
 
 class SearchEngine:
 
     def __init__(self, data_dir, ids_dir):
         self.paper_ids = [i.rstrip('\n') for i in open(ids_dir, 'r').readlines()]
-        vectors, names, self.tf_idf, self.counter = self.get_tf_idf_embeddings(data_dir)
+        self.vectors, self.names, self.tf_idf, self.counter = self.get_tf_idf_embeddings(data_dir)
         self.knn_engine = NearestNeighbors(n_neighbors=50 + 1, algorithm='brute', metric='cosine').fit(vectors)
 
     @staticmethod
@@ -33,7 +34,22 @@ class SearchEngine:
         result_list = []
         for i in range(len(neighbor_indexes[0])):
             result_list.append(self.paper_ids[i])
-        print(result_list)
+        self.get_top_words(result_list)
+
+    def get_top_words(self, result_list):
+        avg_vec = np.zeros((1, self.vectors.shape[1]))
+
+        for paper_id in result_list:
+            paper_idx = self.paper_ids.index(paper_id)
+            avg_vec += self.vectors[paper_idx, :]
+
+        avg_vec /= len(result_list)
+        word_id_dict = {}
+        for i in range(avg_vec.shape[1]):
+            word_id_dict[i] = avg_vec[0, i]
+        sorted_words = sorted(word_id_dict, key=word_id_dict.get, reverse=True)
+        for i in range(10):
+            print(self.names[sorted_words[i]])
 
 
 def main():
