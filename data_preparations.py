@@ -96,10 +96,10 @@ def split_to_paragraphs(full_data_dir):
     :return: None. Outputs the paragraphs to files.
     """
 
-    ids = open(full_data_dir + 'dim.all.mod.neu.para.1.test.val.ids', 'r').readlines()
-    texts = open(full_data_dir + 'dim.all.mod.neu.para.1.test.val.text', 'r').readlines()
-    new_id_file = open(full_data_dir + 'dim.all.mod.neu.para.3.test.val.ids', 'w')
-    new_text_file = open(full_data_dir + 'dim.all.mod.neu.para.3.test.val.text', 'w')
+    ids = open(full_data_dir + 'dim.all.mod.neu.para.1.train.ids', 'r').readlines()
+    texts = open(full_data_dir + 'dim.all.mod.neu.para.1.train.text', 'r').readlines()
+    new_id_file = open(full_data_dir + 'dim.all.mod.neu.para.3.train.ids', 'w')
+    new_text_file = open(full_data_dir + 'dim.all.mod.neu.para.3.train.text', 'w')
 
     for i in range(len(texts)):
         t = texts[i].rstrip('\n').split()
