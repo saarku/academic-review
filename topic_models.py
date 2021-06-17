@@ -107,14 +107,10 @@ def get_vectors(dists_dir, num_paragraphs, norm):
 class TopicModels:
 
     def __init__(self, data_dir, vocabulary_data_dir):
-        print('process data')
         self.data_lines = []
         for i, line in enumerate(open(data_dir, 'r').read().split('\n')):
-            if i%1000 == 0:
-                print('{} completed'.format(i))
             self.data_lines.append(pre_process_text(line))
 
-        print('process vocab')
         if vocabulary_data_dir is not None:
             self.vocab_lines = [pre_process_text(line) for line in open(vocabulary_data_dir, 'r').read().split('\n')][0:-1]
 
