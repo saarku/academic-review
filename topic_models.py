@@ -240,7 +240,7 @@ class TopicModels:
 def main():
 
     dataset = sys.argv[1]
-    topics = [5]
+    topics = [15, 25]
     modes = ['pos', 'neg']
     dimensions_ed = {'0': modes, '1': modes, '2': modes, '3': modes, '4': modes, '5': modes, '6': modes, 'all': ['neu']}
     dimensions_ic = {'1': modes, '2': modes, '3': modes, 'all': ['neu'], '5': modes, '6': modes}
@@ -249,7 +249,7 @@ def main():
     dimensions = dimensions_ed if dataset == 'education' else dimensions_ic
     model_types = ['ovb', 'gibbs']  # ovb or gibbs
 
-    learn_flag = False
+    learn_flag = True
     infer_flag = True
 
     if learn_flag:
