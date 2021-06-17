@@ -30,7 +30,7 @@ def pre_process_nltk(text, additional_stopwords=None):
 def get_paper_affiliation(paper_dir):
     paper_lines = open(paper_dir, 'r').readlines()
 
-    institutions = []
+    institutions = set()
     for line in paper_lines:
         if '<orgName type=\"institution\">' in line:
             institution = TAG_RE.sub('', line.rstrip('\n'))
@@ -44,7 +44,7 @@ def get_paper_affiliation(paper_dir):
                     if s in w: predicate = False
                 if predicate: processed.append(w)
             institution = ' '.join(processed)
-            institutions.append(institution)
+            institutions.add(institution)
     return institutions
 
 
