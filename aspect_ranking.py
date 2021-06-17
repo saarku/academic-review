@@ -28,7 +28,7 @@ class SearchEngine:
         return tf_idf_vectors, count_vector.get_feature_names(), tf_idf_transformer, count_vector
 
     def search(self, query):
-        query = pre_process_text(query)
+        #query = pre_process_text(query)
         query = self.counter.transform([query])
         query = self.tf_idf.transform(query)
         distances, neighbor_indexes = self.knn_engine.kneighbors(query)
