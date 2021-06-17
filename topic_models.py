@@ -272,8 +272,8 @@ def main():
                 for mode in dimensions[dim]:
                     for model_type in model_types:
                         for topic in topics:
-                            train_data_dir = base_dir + '/data_splits/dim.all.mod.neu.para.{}.train.text'.format(para)
-                            test_data_dir = base_dir + '/data_splits/dim.all.mod.neu.para.{}.test.val.text'.format(para)
+                            train_data_dir = base_dir + '/data_splits/dim.{}.mod.{}.para.{}.train.text'.format(dim, mode, para)
+                            test_data_dir = base_dir + '/data_splits/dim.{}.mod.{}.para.{}.test.val.text'.format(dim, mode, para)
 
                             model_dir = base_dir + '/lda_models/'
                             model_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}/model'.format(topic, dim, mode, para,topic)
