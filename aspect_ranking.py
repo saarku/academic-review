@@ -62,6 +62,7 @@ class SearchEngine:
             result_list.append(self.paper_ids[neighbor_indexes[0][i]])
 
         top_words['Relevance'] = self.get_top_words(result_list)
+        print('{}_{}'.format(query, aspect))
         correlations['Relevance'] = self.get_correlation(result_list)
 
         for aspect in self.aspects:
