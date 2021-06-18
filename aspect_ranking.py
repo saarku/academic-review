@@ -181,7 +181,7 @@ class SearchEngine:
 
     def run_dataset(self, queries_dir):
         queries = [q.rstrip('\n') for q in open(queries_dir, 'r').readlines()]
-        evaluations = defaultdict(defaultdict(list))
+        evaluations = defaultdict(dict)
         output_file = open('eval.txt', 'w')
 
         for qid, q in enumerate(queries):
@@ -201,6 +201,7 @@ class SearchEngine:
                 for k in [3, 5, 10]:
                     dcg = self.get_citation_dcg(result_lists[aspect], k)
                     output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'ndcg', k, dcg))
+                    if k not in evaluations[aspect]: evaluations[aspect][k] = []
                     evaluations[aspect][k].append(dcg)
 
         for aspect in evaluations:
