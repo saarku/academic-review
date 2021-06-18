@@ -102,6 +102,7 @@ class SearchEngine:
         return top_words[:20]
 
     def get_correlation(self, result_list):
+        print(self.citations.keys())
         ranks, citations = [], []
         for i, paper_id in enumerate(result_list):
             ranks.append(1/float(i+1))
