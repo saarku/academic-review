@@ -196,7 +196,7 @@ class SearchEngine:
             for i in range(len(neighbor_indexes[0])):
                 result_lists['Relevance'].append(self.paper_ids[neighbor_indexes[0][i]])
             for aspect in self.aspects:
-                result_lists[aspect].append(self.re_rank(result_lists['Relevance'], aspect))
+                result_lists[aspect] = self.re_rank(result_lists['Relevance'], aspect)
 
             for aspect in result_lists:
                 for k in [3, 5, 10]:
