@@ -4,6 +4,7 @@ import numpy as np
 from nltk import stem
 from utils import pre_process_text
 import sys
+import numpy as np
 from scipy.stats import kendalltau, pearsonr
 
 
@@ -110,7 +111,8 @@ class SearchEngine:
             citations.append(self.citations['Citations'].get(paper_id, 0))
         print(citations)
         kendall, _ = kendalltau(ranks, citations)
-        return kendall
+
+        return kendall, np.mean(citations[:10])
 
 
     def analyze_queries(self, queries):
