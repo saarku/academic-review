@@ -8,6 +8,34 @@ import numpy as np
 from scipy.stats import kendalltau, pearsonr
 
 
+def filter_queries(queries_dir):
+    data_dir = '/home/skuzi2/acl_dataset/data_splits/dim.all.mod.neu.para.1.test.val'
+    aspects_dir = '/home/skuzi2/acl_dataset/acl_aspects.txt'
+    citations_dir = '/home/skuzi2/acl_dataset/citation_counts.txt'
+
+    se = SearchEngine(data_dir + '.text.lemmarize', data_dir + '.ids', aspects_dir, citations_dir)
+    queries = [line.rstrip('\n') for line in open(queries_dir, 'r').readlines()]
+    filtered = []
+    for q in queries:
+        print('-----------------')
+        print(q)
+        num_terms = len(q.split())
+        query = pre_process_text(q, lemmatize=True)
+        query = se.counter.transform([query])
+        query = se.tf_idf.transform(query)
+        print('num non zero: {}'.format(query.count_nonzero()))
+        if query.count_nonzero() != num_terms: continue
+        distances, neighbor_indexes = se.knn_engine.kneighbors(query)
+        citations = []
+        for i in range(len(neighbor_indexes[0])):
+            paper_id = se.paper_ids[neighbor_indexes[0][i]]
+            citations.append(se.citations['Citations'].get(paper_id, 0))
+        print('citations: {}'.format(sum(citations)))
+        if sum(citations) <= 0: continue
+        filtered.append(q)
+    open('filtered_queries.txt', 'w').writelines(filtered)
+
+
 def process_data(data_dir):
     output_file = open(data_dir + '.lemmarize', 'w')
     with open(data_dir, 'r') as input_file:
@@ -125,14 +153,16 @@ class SearchEngine:
 
 
 def main():
+    filter_queries('/home/skuzi2/iclr_large/scholar_queries.txt')
 
+    '''
     query = ['language model', 'lda', 'word embeddings']
     data_dir = '/home/skuzi2/acl_dataset/data_splits/dim.all.mod.neu.para.1.test.val'
     aspects_dir = '/home/skuzi2/acl_dataset/acl_aspects.txt'
     citations_dir = '/home/skuzi2/acl_dataset/citation_counts.txt'
     se = SearchEngine(data_dir + '.text.lemmarize', data_dir + '.ids', aspects_dir, citations_dir)
     se.analyze_queries(query)
-
+    '''
 
 if __name__ == '__main__':
     main()
