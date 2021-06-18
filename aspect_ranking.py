@@ -20,6 +20,7 @@ def filter_queries(queries_dir):
         print('-----------------')
         print(q)
         num_terms = len(q.split())
+        print(num_terms)
         query = pre_process_text(q, lemmatize=True)
         query = se.counter.transform([query])
         query = se.tf_idf.transform(query)
@@ -33,7 +34,8 @@ def filter_queries(queries_dir):
         print('citations: {}'.format(sum(citations)))
         if sum(citations) <= 0: continue
         filtered.append(q)
-    open('filtered_queries.txt', 'w').writelines(filtered)
+    output_file = open('filtered_queries.txt', 'w')
+    for q in filtered: output_file.write(q + '\n')
 
 
 def process_data(data_dir):
