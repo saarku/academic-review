@@ -112,7 +112,7 @@ class SearchEngine:
         print(citations)
         kendall, _ = kendalltau(ranks, citations)
 
-        return kendall, np.mean(citations[:10])
+        return kendall, np.mean(citations[:5])
 
 
     def analyze_queries(self, queries):
