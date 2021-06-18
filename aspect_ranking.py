@@ -4,6 +4,7 @@ import numpy as np
 from nltk import stem
 from utils import pre_process_text
 import sys
+from scipy.stats import kendalltau, pearsonr
 
 
 def process_data(data_dir):
@@ -17,11 +18,12 @@ def process_data(data_dir):
 
 class SearchEngine:
 
-    def __init__(self, data_dir, ids_dir, aspect_dir):
+    def __init__(self, data_dir, ids_dir, aspect_dir, citation_dir):
         self.paper_ids = [i.rstrip('\n') for i in open(ids_dir, 'r').readlines()]
         self.vectors, self.names, self.tf_idf, self.counter = self.get_tf_idf_embeddings(data_dir)
         self.knn_engine = NearestNeighbors(n_neighbors=50, algorithm='brute', metric='cosine').fit(self.vectors)
         self.aspects = self.load_aspects(aspect_dir)
+        self.citations = self.load_aspects(citation_dir)
 
     @staticmethod
     def get_tf_idf_embeddings(data_dir):
@@ -49,6 +51,7 @@ class SearchEngine:
 
     def search(self, query):
         top_words = {}
+        correlations = {}
         query = pre_process_text(query, lemmatize=True)
         query = self.counter.transform([query])
         query = self.tf_idf.transform(query)
@@ -59,11 +62,14 @@ class SearchEngine:
             result_list.append(self.paper_ids[neighbor_indexes[0][i]])
 
         top_words['Relevance'] = self.get_top_words(result_list)
+        correlations['Relevance'] = self.get_correlation(result_list)
 
         for aspect in self.aspects:
             sorted_list = self.re_rank(result_list, aspect)
             top_words[aspect] = self.get_top_words(sorted_list)
-        return top_words
+            correlations[aspect] = self.get_correlation(sorted_list)
+
+        return top_words, correlations
 
     def re_rank(self, result_list, aspect):
         result_scores = {}
@@ -95,12 +101,21 @@ class SearchEngine:
 
         return top_words[:20]
 
+    def get_correlation(self, result_list):
+        ranks, citations = [], []
+        for i, paper_id in enumerate(result_list):
+            ranks.append(1/float(i+1))
+            citations.append(self.citations[paper_id])
+        kendall, _ = kendalltau(ranks, citations)
+        return kendall
+
+
     def analyze_queries(self, queries):
         output_file = open('queries.txt', 'w')
         for q in queries:
-            top_words = self.search(q)
+            top_words, correlations = self.search(q)
             for aspect in top_words:
-                output_file.write(q + ',' + aspect + ',' + ','.join(top_words[aspect]) + '\n')
+                output_file.write(q + ',' + aspect + ',' + str(correlations[aspect]) + ',' + ','.join(top_words[aspect]) + '\n')
                 output_file.flush()
 
 
@@ -109,7 +124,8 @@ def main():
     query = ['language model', 'lda', 'word embeddings']
     data_dir = '/home/skuzi2/acl_dataset/data_splits/dim.all.mod.neu.para.1.test.val'
     aspects_dir = '/home/skuzi2/acl_dataset/acl_aspects.txt'
-    se = SearchEngine(data_dir + '.text.lemmarize', data_dir + '.ids', aspects_dir)
+    citations_dir = '/home/skuzi2/acl_dataset/citation_counts.txt'
+    se = SearchEngine(data_dir + '.text.lemmarize', data_dir + '.ids', aspects_dir, citations_dir)
     se.analyze_queries(query)
 
 
