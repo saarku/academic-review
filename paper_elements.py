@@ -123,7 +123,7 @@ def main():
                     citation_counts[paper_id] = citation_counts.get(paper_id, 0) + 1
         output_file = open('citation_counts.txt', 'w+')
         for paper_id in citation_counts:
-            output_file.write(paper_id + ',' + str(citation_counts[paper_id]) + '\n')
+            output_file.write(paper_id.split('.')[0] + ',' + str(citation_counts[paper_id]) + '\n')
 
 
 if __name__ == '__main__':
