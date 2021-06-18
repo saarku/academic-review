@@ -105,7 +105,7 @@ class SearchEngine:
         ranks, citations = [], []
         for i, paper_id in enumerate(result_list):
             ranks.append(1/float(i+1))
-            citations.append(self.citations.get(paper_id, 0))
+            citations.append(self.citations['Citations'].get(paper_id, 0))
         print(citations)
         kendall, _ = kendalltau(ranks, citations)
         return kendall
