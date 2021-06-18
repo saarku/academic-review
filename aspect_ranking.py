@@ -168,6 +168,7 @@ class SearchEngine:
     def get_citation_dcg(self, result_list, cutoff):
         citations = []
         for i, paper_id in enumerate(result_list[:cutoff]):
+            print(self.citations)
             print(self.citations['Citations'].get(paper_id, 0))
             citations.append(self.citations['Citations'].get(paper_id, 0))
         dcg = self.get_dcg(citations)
