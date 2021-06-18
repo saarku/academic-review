@@ -67,6 +67,7 @@ class SearchEngine:
         for aspect in self.aspects:
             sorted_list = self.re_rank(result_list, aspect)
             top_words[aspect] = self.get_top_words(sorted_list)
+            print('{}_{}'.format(query, aspect))
             correlations[aspect] = self.get_correlation(sorted_list)
 
         return top_words, correlations
@@ -102,7 +103,6 @@ class SearchEngine:
         return top_words[:20]
 
     def get_correlation(self, result_list):
-        print(self.citations.keys())
         ranks, citations = [], []
         for i, paper_id in enumerate(result_list):
             ranks.append(1/float(i+1))
