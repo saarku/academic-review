@@ -6,6 +6,7 @@ from utils import pre_process_text
 import sys
 import numpy as np
 from scipy.stats import kendalltau, pearsonr
+from collections import defaultdict
 
 
 def filter_queries(queries_dir):
@@ -144,7 +145,6 @@ class SearchEngine:
 
         return kendall, np.mean(citations[:5])
 
-
     def analyze_queries(self, queries):
         output_file = open('queries.txt', 'w')
         for q in queries:
@@ -153,18 +153,72 @@ class SearchEngine:
                 output_file.write(q + ',' + aspect + ',' + str(correlations[aspect]) + ',' + ','.join(top_words[aspect]) + '\n')
                 output_file.flush()
 
+    @staticmethod
+    def get_dcg(labels):
+        relevance_dict = {(0, 0): 0, (1, 5): 1, (6, 10): 2, (11, 20): 3, (21, 100000): 4}
+        dcg = 0
+        for i, l in enumerate(labels):
+            relevancy = 0
+            for key in relevance_dict:
+                if key[1] >= l >= key[0]:
+                    relevancy = relevance_dict[key]
+            dcg += (np.power(2, relevancy) - 1) / np.log2(i+2)
+        return dcg
+
+    def get_citation_dcg(self, result_list, cutoff):
+        citations = []
+        for i, paper_id in enumerate(result_list[:cutoff]):
+            citations.append(self.citations['Citations'].get(paper_id, 0))
+        dcg = self.get_dcg(citations)
+
+        citations = []
+        for paper_id in result_list:
+            citations.append(int(self.citations['Citations'].get(paper_id, 0)))
+        citations = sorted(citations, reverse=True)[:cutoff]
+        ideal_dcg = self.get_dcg(citations)
+
+        return dcg/ideal_dcg
+
+    def run_dataset(self, queries_dir):
+        queries = [q.rstrip('\n') for q in open(queries_dir, 'r').readlines()]
+        evaluations = defaultdict(defaultdict(list))
+        output_file = open('eval.txt', 'w')
+
+        for qid, q in enumerate(queries):
+            print(q)
+            result_lists = defaultdict(list)
+            query = pre_process_text(q, lemmatize=True)
+            query = self.counter.transform([query])
+            query = self.tf_idf.transform(query)
+            distances, neighbor_indexes = self.knn_engine.kneighbors(query)
+
+            for i in range(len(neighbor_indexes[0])):
+                result_lists['Relevance'].append(self.paper_ids[neighbor_indexes[0][i]])
+            for aspect in self.aspects:
+                result_lists[aspect].append(self.re_rank(result_lists['Relevance'], aspect))
+
+            for aspect in result_lists:
+                for k in [3, 5, 10]:
+                    dcg = self.get_citation_dcg(result_lists[aspect], k)
+                    output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'ndcg', k, dcg))
+                    evaluations[aspect][k].append(dcg)
+
+        for aspect in evaluations:
+            for k in evaluations[aspect]:
+                output_file.write('{},{},{},{},{},{}\n'.format('all', 'all', aspect, 'ndcg', k,
+                                                               np.mean(evaluations[aspect][k])))
+
 
 def main():
-    filter_queries('/home/skuzi2/iclr_large/scholar_queries.txt')
 
-    '''
-    query = ['language model', 'lda', 'word embeddings']
+    #filter_queries('/home/skuzi2/iclr_large/scholar_queries.txt')
+    #query = ['language model', 'lda', 'word embeddings']
     data_dir = '/home/skuzi2/acl_dataset/data_splits/dim.all.mod.neu.para.1.test.val'
     aspects_dir = '/home/skuzi2/acl_dataset/acl_aspects.txt'
     citations_dir = '/home/skuzi2/acl_dataset/citation_counts.txt'
     se = SearchEngine(data_dir + '.text.lemmarize', data_dir + '.ids', aspects_dir, citations_dir)
-    se.analyze_queries(query)
-    '''
+    se.run_dataset('filtered_queries.txt')
+
 
 if __name__ == '__main__':
     main()
