@@ -108,7 +108,7 @@ def main():
 
     query = ['language model', 'lda', 'word embeddings']
     data_dir = '/home/skuzi2/acl_dataset/data_splits/dim.all.mod.neu.para.1.test.val'
-    aspects_dir = '/home/skuzi2/academic-review/acl_aspects.txt'
+    aspects_dir = '/home/skuzi2/acl_dataset/acl_aspects.txt'
     se = SearchEngine(data_dir + '.text.lemmarize', data_dir + '.ids', aspects_dir)
     se.analyze_queries(query)
 
