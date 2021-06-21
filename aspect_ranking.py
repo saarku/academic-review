@@ -57,7 +57,7 @@ def filter_queries(queries_dir):
 
 
 def process_data(data_dir):
-    output_file = open(data_dir + '.lemmarize', 'w')
+    output_file = open(data_dir + '.lemmatize', 'w')
     with open(data_dir, 'r') as input_file:
         for i, line in enumerate(input_file):
             if i % 1000 == 0: print(i)
@@ -266,7 +266,8 @@ def main():
     se.run_dataset('filtered_queries.txt')
     '''
 
-    get_titles('/Users/saarkuzi/papers_to_index/')
+    #get_titles('/Users/saarkuzi/papers_to_index/')
+    process_data('/home/skuzi2/iclrlarge_dataset/data_splits/dim.all.mod.neu.para.1.test.val.text')
 
 if __name__ == '__main__':
     main()
