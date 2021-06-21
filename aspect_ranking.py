@@ -22,7 +22,8 @@ def get_titles(data_dir):
     output_file = open('iclr_titles.txt', 'w')
     for t in titles:
         t = t.replace('\n', ' ')
-        output_file.write(t + '\n')
+        if len(t) > 0:
+            output_file.write(t + '\n')
 
 
 def filter_queries(queries_dir):
