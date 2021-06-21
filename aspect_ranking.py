@@ -14,18 +14,16 @@ import re
 
 def get_titles(data_dir):
     html_converter = re.compile(r'<[^>]+>')
-    titles = []
+    output_file = open('iclrlarge_titles.txt', 'w')
     for file_name in os.listdir(data_dir):
+        paper_id = file_name.split('.')[0]
         with open(data_dir + '/' + file_name, 'r') as input_file:
             for line in input_file:
                 if '<title>' in line:
-                    titles.append(html_converter.sub('', line.rstrip('\n')).lower())
-    output_file = open('acl_titles.txt', 'w')
-    for t in titles:
-        t = t.replace('\n', ' ')
-        if len(t) > 0:
-            output_file.write(t + '\n')
-
+                    t = html_converter.sub('', line.rstrip('\n')).lower()
+                    t = t.replace('\n', ' ')
+                    if len(t) > 0:
+                        output_file.write(paper_id + ',' + t + '\n')
 
 def filter_queries(queries_dir):
     data_dir = '/home/skuzi2/acl_dataset/data_splits/dim.all.mod.neu.para.1.test.val'
@@ -103,19 +101,31 @@ def robustness_evaluations(eval_dir):
             evals[qid][aspect] = value
 
     histogram = {}
+    histogram_q = defaultdict(set)
     for qid in evals:
         for aspect in evals[qid]:
             if aspect == 'Relevance': continue
             if aspect not in histogram:
                 histogram[aspect] = {(-float('inf'), -20): 0, (-20, -10): 0, (-10, 0): 0, (0, 0.0000001): 0,
                                      (0.0000001, 10): 0, (10, 20): 0, (20, float('inf')): 0}
+
             diff = 100* (evals[qid][aspect] - evals[qid]['Relevance']) / (0.00000000001 + evals[qid]['Relevance'])
+            if diff > 0:
+                histogram_q[aspect].add(qid)
             for key in histogram[aspect]:
                 if key[1] >= diff >= key[0]:
                     histogram[aspect][key] += 1
+
     for aspect in histogram:
         for key in histogram[aspect]:
             print(aspect + ',' + str(key[0]) + ',' + str(key[1]) + ',' + str(histogram[aspect][key]))
+
+    for aspect in histogram:
+        unique_queries = histogram_q[aspect]
+        for other_aspect in histogram:
+            if other_aspect != aspect:
+                unique_queries = unique_queries - histogram_q[other_aspect]
+        print('{},{},{}'.format(aspect, len(histogram_q[aspect]), len(unique_queries)))
 
 
 class SearchEngine:
@@ -299,10 +309,12 @@ class SearchEngine:
 
 
 def main():
-    #robustness_evaluations('/Users/saarkuzi/Desktop/eval.txt')
+    data_dir = '/Users/saarkuzi/papers_to_index/'
+    get_titles(sys.argv[1])
+    #robustness_evaluations('/Users/saarkuzi/Desktop/iclr_eval.txt')
     #filter_queries('/home/skuzi2/iclr_large/scholar_queries.txt')
-    query = ['deep convolutional neural networks', 'language models', 'transfer learning']
-
+    #query = ['deep convolutional neural networks', 'language models', 'transfer learning']
+    '''
     data_name = sys.argv[1]
 
     data_dir = '/home/skuzi2/{}_dataset/data_splits/dim.all.mod.neu.para.1.test.val'.format(data_name)
@@ -311,6 +323,7 @@ def main():
     se = SearchEngine(data_dir + '.text.lemmatize', data_dir + '.ids', aspects_dir, citations_dir)
     #se.run_dataset('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name))
     se.analyze_queries(query)
+    '''
 
 
 
