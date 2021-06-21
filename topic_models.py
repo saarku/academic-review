@@ -62,10 +62,11 @@ def get_topics_vec(dists_dir, labels, dimension_id, num_paragraphs, norm):
     indexes = []
 
     for i in range(all_vectors.shape[0]):
-        grade = labels[i, dimension_id]
-        if grade > 0:
-            indexes.append(i)
-            modified_grades.append(grade)
+        if i < labels.shape[0]:
+            grade = labels[i, dimension_id]
+            if grade > 0:
+                indexes.append(i)
+                modified_grades.append(grade)
 
     return all_vectors[indexes, :], modified_grades
 
