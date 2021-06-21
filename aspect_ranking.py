@@ -309,7 +309,7 @@ def main():
     aspects_dir = '/home/skuzi2/{}_dataset/{}_aspects.txt'.format(data_name, data_name)
     citations_dir = '/home/skuzi2/{}_dataset/citation_counts.txt'.format(data_name)
     se = SearchEngine(data_dir + '.text.lemmatize', data_dir + '.ids', aspects_dir, citations_dir)
-    se.run_dataset('/home/skuzi2/dataset_{}/phrase_queries.txt'.format(data_name))
+    se.run_dataset('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name))
 
 
 
