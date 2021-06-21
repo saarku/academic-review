@@ -3,11 +3,11 @@ import json
 import os
 import openreview
 
-base_dir = '/home/skuzi2/iclr_large/meta_data'
-output_dir = '/home/skuzi2/iclr_large/pdfs'
+base_dir = '/home/skuzi2/iclrlarge_dataset/meta_data'
+#output_dir = '/home/skuzi2/iclr_large/pdfs'
 download_flag = False
 citation_flag = True
-if not os.path.exists(output_dir): os.mkdir(output_dir)
+#if not os.path.exists(output_dir): os.mkdir(output_dir)
 
 client = openreview.Client(
         baseurl='https://api.openreview.net',
