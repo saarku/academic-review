@@ -96,10 +96,10 @@ def split_to_paragraphs(full_data_dir):
     :return: None. Outputs the paragraphs to files.
     """
 
-    ids = open(full_data_dir + 'dim.all.mod.neu.para.1.train.ids', 'r').readlines()
-    texts = open(full_data_dir + 'dim.all.mod.neu.para.1.train.text', 'r').readlines()
-    new_id_file = open(full_data_dir + 'dim.all.mod.neu.para.3.train.ids', 'w')
-    new_text_file = open(full_data_dir + 'dim.all.mod.neu.para.3.train.text', 'w')
+    ids = open(full_data_dir + 'dim.all.mod.neu.para.1.test.val.ids', 'r').readlines()
+    texts = open(full_data_dir + 'dim.all.mod.neu.para.1.test.val.text', 'r').readlines()
+    new_id_file = open(full_data_dir + 'dim.all.mod.neu.para.3.test.val.ids', 'w')
+    new_text_file = open(full_data_dir + 'dim.all.mod.neu.para.3.test.val.text', 'w')
 
     for i in range(len(texts)):
         t = texts[i].rstrip('\n').split()
@@ -170,11 +170,11 @@ def main():
     #aggregate_scores('/Users/saarkuzi/iclr17_dataset/annotation_fixed.tsv',
     #                  '/Users/saarkuzi/iclr17_dataset/annotation_aggregated.tsv')
 
-    #split_to_paragraphs('/home/skuzi2/iclr17_dataset/data_splits/')
+    split_to_paragraphs('/home/skuzi2/iclrlarge_dataset/data_splits/')
 
-    split_by_grade('/home/skuzi2/iclr17_dataset/data_splits/',
-                   '/home/skuzi2/iclr17_dataset/annotations/annotation_aggregated.tsv',
-                   [1, 2, 3, 5, 6])
+    #split_by_grade('/home/skuzi2/iclr17_dataset/data_splits/',
+    #               '/home/skuzi2/iclr17_dataset/annotations/annotation_aggregated.tsv',
+    #               [1, 2, 3, 5, 6])
 
 
 if __name__ == '__main__':
