@@ -358,7 +358,7 @@ def run_topics_experiment():
         pos_neg_features[str(dim)] = modes
     features = [dimension_features] #[pos_features, neg_features, pos_neg_features, neutral_features] #dimension_features] # dimension_features] #
 
-    combination_methods = ['comb_sum'] #['feature_comb']#, 'comb_sum', 'comb_model'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
+    combination_methods = ['feature_comb'] #['feature_comb']#, 'comb_sum', 'comb_model'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3]] #, [1], [3]] [1, 3]
     algorithms = ['regression']#, 'regression', 'ranking']#, 'ranking']#, 'ranking']#, 'mlp']
 
