@@ -19,7 +19,7 @@ def get_titles(data_dir):
             for line in input_file:
                 if '<title>' in line:
                     titles.append(html_converter.sub('', line.rstrip('\n')).lower())
-    output_file = open('iclr_titles.txt', 'w')
+    output_file = open('acl_titles.txt', 'w')
     for t in titles:
         t = t.replace('\n', ' ')
         if len(t) > 0:
@@ -266,7 +266,7 @@ def main():
     se.run_dataset('filtered_queries.txt')
     '''
 
-    get_titles('/home/skuzi2/iclrlarge_dataset/papers_to_index/')
+    get_titles('/home/skuzi2/acl_dataset/papers_to_index/')
 
 if __name__ == '__main__':
     main()
