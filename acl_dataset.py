@@ -1,11 +1,12 @@
+import re
+import os
+
 output_file = open('dim.all.mod.neu.para.1.test.val.text', 'w')
 output_ids = open('dim.all.mod.neu.para.1.test.val.ids', 'w')
-input_dir = '/Users/saarkuzi/papers_to_index/'
-import os
-import re
+input_dir = '/home/skuzi2/iclr_large/papers_to_index/'
 html_converter = re.compile(r'<[^>]+>')
 
-'''
+
 for file_name in os.listdir(input_dir):
     file_id = file_name.split('.')[0]
     lines = [line.rstrip('\n') for line in open(input_dir + file_name, 'r').readlines()]
@@ -14,8 +15,8 @@ for file_name in os.listdir(input_dir):
         output += html_converter.sub('', line) + ' '
     output_file.write(output + '\n')
     output_ids.write(file_id + '\n')
-'''
 
+'''
 base_dir = '/home/skuzi2/iclr17_dataset/models/'
 
 directories = {
@@ -40,3 +41,4 @@ for i in range(len(ids)):
     output_file.write('{},{},{},{},{}\n'.format(ids[i], directories['Clarity'][i], directories['Originality'][i],
                                               directories['Soundness'][i], directories['Sunstance'][i]))
 output_file.close()
+'''

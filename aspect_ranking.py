@@ -48,6 +48,33 @@ def process_data(data_dir):
             output_file.flush()
 
 
+def analyze_evaluations(eval_dir):
+    evals = defaultdict(dict)
+    lines = open(eval_dir, 'r').readlines()
+    performance = []
+    for line in lines[1:]:
+        args = line.rstrip('\n').split(',')
+        qid, aspect, cutoff, value = args[0], args[2], args[4], float(args[5])
+        if cutoff == '10':
+            evals[qid][aspect] = value
+
+    aspect_counters = defaultdict(int)
+    aspect_counters_improve = defaultdict(int)
+    print(len(evals))
+    for qid in evals:
+        a = max(evals[qid], key=evals[qid].get)
+        performance.append(evals[qid][a])
+        aspect_counters[a] += 1
+        for aspect in aspect_counters:
+            diff = evals[qid][aspect] - evals[qid]['Relevance']
+            if diff == 0:
+                aspect_counters_improve[aspect] += 1
+
+    print(aspect_counters)
+    print(np.mean(performance))
+    print(aspect_counters_improve)
+
+
 class SearchEngine:
 
     def __init__(self, data_dir, ids_dir, aspect_dir, citation_dir):
@@ -211,14 +238,16 @@ class SearchEngine:
 
 
 def main():
-
+    analyze_evaluations('/Users/saarkuzi/Desktop/eval.txt')
     #filter_queries('/home/skuzi2/iclr_large/scholar_queries.txt')
     #query = ['language model', 'lda', 'word embeddings']
+    '''
     data_dir = '/home/skuzi2/acl_dataset/data_splits/dim.all.mod.neu.para.1.test.val'
     aspects_dir = '/home/skuzi2/acl_dataset/acl_aspects.txt'
     citations_dir = '/home/skuzi2/acl_dataset/citation_counts.txt'
     se = SearchEngine(data_dir + '.text.lemmarize', data_dir + '.ids', aspects_dir, citations_dir)
     se.run_dataset('filtered_queries.txt')
+    '''
 
 
 if __name__ == '__main__':
