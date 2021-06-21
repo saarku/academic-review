@@ -331,7 +331,7 @@ def main():
     #get_titles(sys.argv[1])
     #robustness_evaluations('/Users/saarkuzi/Desktop/iclr_eval.txt')
     #filter_queries('/home/skuzi2/iclr_large/scholar_queries.txt')
-    #query = ['deep convolutional neural networks', 'language models', 'transfer learning']
+    query = ['question answering']
 
     data_name = sys.argv[1]
 
@@ -339,8 +339,11 @@ def main():
     aspects_dir = '/home/skuzi2/{}_dataset/{}_aspects.txt'.format(data_name, data_name)
     citations_dir = '/home/skuzi2/{}_dataset/citation_counts.txt'.format(data_name)
     titles_dir = '/home/skuzi2/{}_dataset/{}_titles.txt'.format(data_name, data_name)
+
     se = SearchEngine(data_dir + '.text.lemmatize', data_dir + '.ids', aspects_dir, citations_dir, titles_dir)
-    se.run_dataset('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name))
+    se.analyze_queries(query)
+    #se.run_dataset('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name))
+
 
 
 
