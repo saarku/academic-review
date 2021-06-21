@@ -44,3 +44,4 @@ train_id_file = open('dim.all.mod.neu.para.1.train.ids', 'w+')
 for i in range(test_size, len(texts)):
     train_file.write(texts[i][1] + '\n')
     train_id_file.write(texts[i][0] + '\n')
+

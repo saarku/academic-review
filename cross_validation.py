@@ -498,7 +498,7 @@ def neural_comb():
 def get_acl_scores():
     model_type = 'ovb'
     train_data_dir = '/home/skuzi2/iclr17_dataset'
-    test_data_dir = '/home/skuzi2/acl_dataset'
+    test_data_dir = '/home/skuzi2/iclrlarge_dataset'
     test_dimensions = [1, 2, 3, 5, 6]
 
     same_dim_flag = [True, False]

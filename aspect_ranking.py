@@ -4,9 +4,24 @@ import numpy as np
 from nltk import stem
 from utils import pre_process_text
 import sys
+import os
 import numpy as np
 from scipy.stats import kendalltau, pearsonr
 from collections import defaultdict
+import re
+
+
+def get_titles(data_dir):
+    html_converter = re.compile(r'<[^>]+>')
+    titles = []
+    for file_name in os.listdir(data_dir):
+        with open(data_dir + '/' + file_name, 'r') as input_file:
+            for line in input_file:
+                if '<title>' in line:
+                    titles.append(html_converter.sub('', line.rstrip('\n')))
+    output_file = open('iclr_titles.txt', 'w')
+    for t in titles:
+        output_file.write(t + '\n')
 
 
 def filter_queries(queries_dir):
@@ -238,7 +253,7 @@ class SearchEngine:
 
 
 def main():
-    analyze_evaluations('/Users/saarkuzi/Desktop/eval.txt')
+    #analyze_evaluations('/Users/saarkuzi/Desktop/eval.txt')
     #filter_queries('/home/skuzi2/iclr_large/scholar_queries.txt')
     #query = ['language model', 'lda', 'word embeddings']
     '''
@@ -249,6 +264,7 @@ def main():
     se.run_dataset('filtered_queries.txt')
     '''
 
+    get_titles('/home/skuzi2/iclrlarge_dataset/papers_to_index/')
 
 if __name__ == '__main__':
     main()
