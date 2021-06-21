@@ -3,6 +3,7 @@ from sklearn.neighbors import NearestNeighbors
 import numpy as np
 from nltk import stem
 from utils import pre_process_text
+from scipy.stats import ttest_rel
 import sys
 import os
 import numpy as np
@@ -249,11 +250,18 @@ class SearchEngine:
 
                 for k in [3, 5, 10]:
                     dcg, avg_citations, num_papers = self.get_citation_dcg(result_lists[aspect], k)
+
                     output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'ndcg', k, dcg))
                     output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'avgcite', k, avg_citations))
                     output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'avgpaper', k, num_papers))
                     if k not in evaluations[aspect]: evaluations[aspect][k] = []
                     evaluations[aspect][k].append(dcg)
+
+        for aspect in evaluations:
+            for k in evaluations[aspect]:
+                _, p_val = ttest_rel(evaluations['Relevance'][k], evaluations[aspect][k])
+                output_file.write('{},{},{},{},{},{}\n'.format('all', 'all', aspect, 'ndcgpval', k, p_val))
+
 
 
 def main():
