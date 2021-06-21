@@ -295,7 +295,7 @@ class SearchEngine:
             for aspect in result_lists:
                 titles = []
                 for paper_id in result_lists[aspect][:10]:
-                    titles.append('_'.join(self.titles['Titles'].get(paper_id, '').split()))
+                    titles.append('_'.join(self.titles['Title'].get(paper_id, '').split()))
                 output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'titles', 10, '$'.join(titles)))
 
                 for k in [3, 5, 10]:
