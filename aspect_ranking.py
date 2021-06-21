@@ -334,7 +334,7 @@ def main():
     #get_titles(sys.argv[1])
     #robustness_evaluations('/Users/saarkuzi/Desktop/iclr_eval.txt')
     #filter_queries('/home/skuzi2/iclr_large/scholar_queries.txt')
-    query = ['question answering']
+    query = ['self attention']
 
     data_name = sys.argv[1]
 
