@@ -18,9 +18,10 @@ def get_titles(data_dir):
         with open(data_dir + '/' + file_name, 'r') as input_file:
             for line in input_file:
                 if '<title>' in line:
-                    titles.append(html_converter.sub('', line.rstrip('\n')))
+                    titles.append(html_converter.sub('', line.rstrip('\n')).lower())
     output_file = open('iclr_titles.txt', 'w')
     for t in titles:
+        t = t.replace('\n', ' ')
         output_file.write(t + '\n')
 
 
