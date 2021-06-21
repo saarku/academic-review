@@ -250,8 +250,8 @@ def main():
     model_types = ['ovb']  # ovb or gibbs
 
     learn_flag = False
-    infer_flag = False
-    infer_test_flag = True
+    infer_flag = True
+    infer_test_flag = False
 
     if learn_flag:
         for dim in dimensions:
@@ -273,8 +273,9 @@ def main():
                 for mode in dimensions[dim]:
                     for model_type in model_types:
                         for topic in topics:
-                            train_data_dir = base_dir + '/data_splits/dim.{}.mod.{}.para.{}.train.text'.format(dim, mode, para)
-                            test_data_dir = base_dir + '/data_splits/dim.{}.mod.{}.para.{}.test.val.text'.format(dim, mode, para)
+                            vocab_data_dir = base_dir + '/data_splits/dim.{}.mod.{}.para.{}.train.text'.format(dim, mode, para)
+                            test_data_dir = base_dir + '/data_splits/dim.all.mod.neu.para.{}.test.val.text'.format(para)
+                            train_data_dir = base_dir + '/data_splits/dim.all.mod.neu.para.{}.train.text'.format(para)
 
                             model_dir = base_dir + '/lda_models/'
                             model_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}/model'.format(topic, dim, mode, para,topic)
@@ -282,11 +283,11 @@ def main():
                             vectors_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(topic, dim, mode, para, topic)
                             print('infer ' + vectors_dir)
 
-                            tm = TopicModels(train_data_dir, train_data_dir)
+                            tm = TopicModels(train_data_dir, vocab_data_dir)
                             tm.generate_topic_kl(model_dir, vectors_dir + '.kl.train', model_type)
                             tm.generate_topic_dists(model_dir, vectors_dir + '.train', model_type)
 
-                            tm = TopicModels(test_data_dir, train_data_dir)
+                            tm = TopicModels(test_data_dir, vocab_data_dir)
                             tm.generate_topic_kl(model_dir, vectors_dir + '.kl.test.val', model_type)
                             tm.generate_topic_dists(model_dir, vectors_dir + '.test.val', model_type)
 
