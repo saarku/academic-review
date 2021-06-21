@@ -133,7 +133,7 @@ class SearchEngine:
 
     def __init__(self, data_dir, ids_dir, aspect_dir, citation_dir, titles_dir):
         self.citations = self.load_aspects(citation_dir)
-        self.titles = self.load_aspects(titles_dir)
+        self.titles = self.load_titles(titles_dir)
         self.paper_ids = [i.rstrip('\n') for i in open(ids_dir, 'r').readlines()]
         self.paper_ids = [i for i in self.paper_ids if i in self.citations['Citations']]
         self.vectors, self.names, self.tf_idf, self.counter = self.get_tf_idf_embeddings(data_dir, ids_dir)
@@ -169,11 +169,20 @@ class SearchEngine:
             scores = args[1:]
 
             for i, score in enumerate(scores):
-                try:
-                    aspect_scores[aspects[i]][paper_id] = float(score)
-                except:
-                    aspect_scores[aspects[i]][paper_id] = score
+                aspect_scores[aspects[i]][paper_id] = float(score)
         return aspect_scores
+
+    @staticmethod
+    def load_titles(aspect_dir):
+        lines = open(aspect_dir, 'r').readlines()
+        all_titles = {}
+        for line in lines:
+            args = line.rstrip('\n').split(',')
+            paper_id = args[0]
+            title = ','.join(args[1:])
+            title = '_'.join(title.split())
+            all_titles[paper_id] = title
+        return all_titles
 
     def search(self, query):
         top_words = {}
@@ -298,7 +307,7 @@ class SearchEngine:
             for aspect in result_lists:
                 titles = []
                 for paper_id in result_lists[aspect][:10]:
-                    titles.append('_'.join(self.titles['Title'].get(paper_id, '').split()))
+                    titles.append('_'.join(self.titles.get(paper_id, '').split()))
                 output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'titles', 10, '$'.join(titles)))
 
                 for k in [3, 5, 10]:
