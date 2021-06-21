@@ -93,6 +93,31 @@ def analyze_evaluations(eval_dir):
     print(aspect_counters_improve)
 
 
+def robustness_evaluations(eval_dir):
+    evals = defaultdict(dict)
+    lines = open(eval_dir, 'r').readlines()
+    for line in lines[1:]:
+        args = line.rstrip('\n').split(',')
+        qid, aspect, cutoff, value = args[0], args[2], args[4], float(args[5])
+        if cutoff == '10':
+            evals[qid][aspect] = value
+
+    histogram = {}
+    for qid in evals:
+        for aspect in evals[qid]:
+            if aspect == 'Relevance': continue
+            if aspect not in histogram:
+                histogram[aspect] = {(-float('inf'), -20): 0, (-20, -10): 0, (-10, 0): 0, (0, 0.0000001): 0,
+                                     (0.0000001, 10): 0, (10, 20): 0, (20, float('inf')): 0}
+            diff = 100* (evals[qid][aspect] - evals[qid]['Relevance']) / (0.00000000001 + evals[qid]['Relevance'])
+            for key in histogram[aspect]:
+                if key[1] >= diff >= key[0]:
+                    histogram[aspect][key] += 1
+    for aspect in histogram:
+        for key in histogram[aspect]:
+            print(aspect + ',' + str(key[0]) + ',' + str(key[1]) + ',' + str(histogram[aspect][key]))
+
+
 class SearchEngine:
 
     def __init__(self, data_dir, ids_dir, aspect_dir, citation_dir):
@@ -265,7 +290,7 @@ class SearchEngine:
 
 
 def main():
-    #analyze_evaluations('/Users/saarkuzi/Desktop/eval.txt')
+    #robustness_evaluations('/Users/saarkuzi/Desktop/eval.txt')
     #filter_queries('/home/skuzi2/iclr_large/scholar_queries.txt')
     #query = ['language model', 'lda', 'word embeddings']
 
@@ -274,6 +299,7 @@ def main():
     citations_dir = '/home/skuzi2/acl_dataset/citation_counts.txt'
     se = SearchEngine(data_dir + '.text.lemmatize', data_dir + '.ids', aspects_dir, citations_dir)
     se.run_dataset('/home/skuzi2/acl_dataset/phrase_queries.txt')
+    
 
 if __name__ == '__main__':
     main()
