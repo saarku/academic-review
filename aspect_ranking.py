@@ -266,7 +266,7 @@ def main():
     se.run_dataset('filtered_queries.txt')
     '''
 
-    get_titles('/home/skuzi2/acl_dataset/papers_to_index/')
+    get_titles('/Users/saarkuzi/papers_to_index/')
 
 if __name__ == '__main__':
     main()

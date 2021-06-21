@@ -208,7 +208,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
             grades = clf.predict(test_features)
             grades = np.reshape(grades, (-1, 1))
             predication_dir = model_dir + '.predict'
-            if not eval_flag: predication_dir += '.acl'
+            if not eval_flag: predication_dir += '.iclr'
             open(predication_dir, 'w').write('\n'.join([str(grades[i,0]) for i in range(grades.shape[0])]))
 
         else:
@@ -240,7 +240,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
             grades, _ = run_sum_comb_method(train_features, y_train, test_features, algorithm, combination_method)
 
             predication_dir = model_dir + '.predict'
-            if not eval_flag: predication_dir += '.acl'
+            if not eval_flag: predication_dir += '.iclr'
             open(predication_dir, 'w').write('\n'.join([str(grades[i, 0]) for i in range(grades.shape[0])]))
 
         if eval_flag:
@@ -526,7 +526,7 @@ def get_acl_scores():
 
 
 def main():
-    neural_comb()
+    get_acl_scores()
 
 
 if __name__ == '__main__':
