@@ -131,28 +131,31 @@ def robustness_evaluations(eval_dir):
 
 class SearchEngine:
 
-    def __init__(self, data_dir, ids_dir, aspect_dir, citation_dir, titles_dir):
+    def __init__(self, data_dir, ids_dir, aspect_dir, citation_dir, titles_dir, filter_flag=True):
         self.citations = self.load_aspects(citation_dir)
         self.titles = self.load_titles(titles_dir)
         self.paper_ids = [i.rstrip('\n') for i in open(ids_dir, 'r').readlines()]
-        self.paper_ids = [i for i in self.paper_ids if i in self.citations['Citations']]
-        self.vectors, self.names, self.tf_idf, self.counter = self.get_tf_idf_embeddings(data_dir, ids_dir)
+        if filter_flag:
+            self.paper_ids = [i for i in self.paper_ids if i in self.citations['Citations']]
+        self.vectors, self.names, self.tf_idf, self.counter = self.get_tf_idf_embeddings(data_dir, ids_dir, filter_flag)
         print(self.vectors.shape)
 
         self.knn_engine = NearestNeighbors(n_neighbors=50, algorithm='brute', metric='cosine').fit(self.vectors)
         self.aspects = self.load_aspects(aspect_dir)
 
-    def get_tf_idf_embeddings(self, data_dir, ids_dir):
+    def get_tf_idf_embeddings(self, data_dir, ids_dir, filter_flag):
         data_lines = open(data_dir, 'r').readlines()
         paper_ids = [i.rstrip('\n') for i in open(ids_dir, 'r').readlines()]
 
-        filtered_lines = []
-        for i, line in enumerate(data_lines):
-            if paper_ids[i] in self.citations['Citations']:
-                filtered_lines.append(line)
+        if filter_flag:
+            filtered_lines = []
+            for i, line in enumerate(data_lines):
+                if paper_ids[i] in self.citations['Citations']:
+                    filtered_lines.append(line)
+            data_lines = filtered_lines
 
         count_vector = CountVectorizer()
-        tf_vectors = count_vector.fit_transform(filtered_lines)
+        tf_vectors = count_vector.fit_transform(data_lines)
         tf_idf_transformer = TfidfTransformer()
         tf_idf_vectors = tf_idf_transformer.fit_transform(tf_vectors)
         return tf_idf_vectors, count_vector.get_feature_names(), tf_idf_transformer, count_vector
@@ -340,7 +343,8 @@ def main():
     citations_dir = '/home/skuzi2/{}_dataset/citation_counts.txt'.format(data_name)
     titles_dir = '/home/skuzi2/{}_dataset/{}_titles.txt'.format(data_name, data_name)
 
-    se = SearchEngine(data_dir + '.text.lemmatize', data_dir + '.ids', aspects_dir, citations_dir, titles_dir)
+    se = SearchEngine(data_dir + '.text.lemmatize', data_dir + '.ids', aspects_dir, citations_dir, titles_dir,
+                      filter_flag=False)
     se.analyze_queries(query)
     #se.run_dataset('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name))
 
