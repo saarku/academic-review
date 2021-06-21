@@ -25,6 +25,7 @@ def get_titles(data_dir):
                     if len(t) > 0:
                         output_file.write(paper_id + ',' + t + '\n')
 
+
 def filter_queries(queries_dir):
     data_dir = '/home/skuzi2/acl_dataset/data_splits/dim.all.mod.neu.para.1.test.val'
     aspects_dir = '/home/skuzi2/acl_dataset/acl_aspects.txt'
@@ -130,8 +131,9 @@ def robustness_evaluations(eval_dir):
 
 class SearchEngine:
 
-    def __init__(self, data_dir, ids_dir, aspect_dir, citation_dir):
+    def __init__(self, data_dir, ids_dir, aspect_dir, citation_dir, titles_dir):
         self.citations = self.load_aspects(citation_dir)
+        self.titles = self.load_aspects(titles_dir)
         self.paper_ids = [i.rstrip('\n') for i in open(ids_dir, 'r').readlines()]
         self.paper_ids = [i for i in self.paper_ids if i in self.citations['Citations']]
         self.vectors, self.names, self.tf_idf, self.counter = self.get_tf_idf_embeddings(data_dir, ids_dir)
@@ -291,6 +293,10 @@ class SearchEngine:
                 result_lists[aspect] = self.re_rank(result_lists['Relevance'], aspect)
 
             for aspect in result_lists:
+                titles = []
+                for paper_id in result_lists[aspect][:10]:
+                    titles.append('_'.join(self.titles['Titles'].get(paper_id, '').split()))
+                output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'titles', 10, '$'.join(titles)))
 
                 for k in [3, 5, 10]:
                     dcg, avg_citations, num_papers = self.get_citation_dcg(result_lists[aspect], k)
@@ -309,21 +315,22 @@ class SearchEngine:
 
 
 def main():
-    data_dir = '/Users/saarkuzi/papers_to_index/'
-    get_titles(sys.argv[1])
+    #data_dir = '/Users/saarkuzi/papers_to_index/'
+    #get_titles(sys.argv[1])
     #robustness_evaluations('/Users/saarkuzi/Desktop/iclr_eval.txt')
     #filter_queries('/home/skuzi2/iclr_large/scholar_queries.txt')
     #query = ['deep convolutional neural networks', 'language models', 'transfer learning']
-    '''
+
     data_name = sys.argv[1]
 
     data_dir = '/home/skuzi2/{}_dataset/data_splits/dim.all.mod.neu.para.1.test.val'.format(data_name)
     aspects_dir = '/home/skuzi2/{}_dataset/{}_aspects.txt'.format(data_name, data_name)
     citations_dir = '/home/skuzi2/{}_dataset/citation_counts.txt'.format(data_name)
-    se = SearchEngine(data_dir + '.text.lemmatize', data_dir + '.ids', aspects_dir, citations_dir)
-    #se.run_dataset('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name))
-    se.analyze_queries(query)
-    '''
+    titles_dir = '/home/skuzi2/{}_dataset/{}_titles.txt'.format(data_name, data_name)
+    se = SearchEngine(data_dir + '.text.lemmatize', data_dir + '.ids', aspects_dir, citations_dir, titles_dir)
+    se.run_dataset('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name))
+
+
 
 
 
