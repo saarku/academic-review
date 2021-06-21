@@ -1,6 +1,7 @@
 import re
 import os
 
+'''
 output_file = open('dim.all.mod.neu.para.1.test.val.text', 'w')
 output_ids = open('dim.all.mod.neu.para.1.test.val.ids', 'w')
 input_dir = '/home/skuzi2/iclr_large/papers_to_index/'
@@ -17,19 +18,20 @@ for file_name in os.listdir(input_dir):
     output_ids.write(file_id + '\n')
 
 '''
+
 base_dir = '/home/skuzi2/iclr17_dataset/models/'
 
 directories = {
-    'Clarity': 'dim.1.algo.regression.uni.false.comb.comb_sum.model.lda.para.1_3.topics.cv.kl.kl.mode.neg_neu_pos.type.ovb.samedim.False.predict.acl',
-    'Originality': 'dim.2.algo.regression.uni.false.comb.comb_sum.model.lda.para.1_3.topics.cv.kl.kl.mode.neg_neu_pos.type.ovb.samedim.False.predict.acl',
-    'Soundness': 'dim.3.algo.regression.uni.false.comb.feature_comb.model.lda.para.1_3.topics.cv.kl.kl.mode.neg_neu_pos.type.ovb.samedim.True.predict.acl',
-    'Sunstance': 'dim.5.algo.regression.uni.false.comb.comb_sum.model.lda.para.1_3.topics.cv.kl.kl.mode.neg_neu_pos.type.ovb.samedim.False.predict.acl'
+    'Clarity': 'dim.1.algo.regression.uni.false.comb.comb_sum.model.lda.para.1_3.topics.cv.kl.kl.mode.neg_neu_pos.type.ovb.samedim.False.predict.iclr',
+    'Originality': 'dim.2.algo.regression.uni.false.comb.comb_sum.model.lda.para.1_3.topics.cv.kl.kl.mode.neg_neu_pos.type.ovb.samedim.True.predict.iclr',
+    'Soundness': 'dim.3.algo.regression.uni.false.comb.feature_comb.model.lda.para.1_3.topics.cv.kl.kl.mode.neg_neu_pos.type.ovb.samedim.True.predict.iclr',
+    'Sunstance': 'dim.5.algo.regression.uni.false.comb.comb_sum.model.lda.para.1_3.topics.cv.kl.kl.mode.neg_neu_pos.type.ovb.samedim.False.predict.iclr'
 }
 
-ids_dir = '/home/skuzi2/acl_dataset/data_splits/dim.all.mod.neu.para.1.test.val.ids'
+ids_dir = '/home/skuzi2/iclrlarge_dataset/data_splits/dim.all.mod.neu.para.1.test.val.ids'
 ids = [i.rstrip('\n') for i in open(ids_dir, 'r').readlines()]
 
-output_file = open('acl_aspects.txt', 'w')
+output_file = open('iclr_aspects.txt', 'w')
 dims = ['Clarity', 'Originality', 'Soundness', 'Sunstance']
 output_file.write('id,' + ','.join(dims) + '\n')
 
@@ -41,4 +43,3 @@ for i in range(len(ids)):
     output_file.write('{},{},{},{},{}\n'.format(ids[i], directories['Clarity'][i], directories['Originality'][i],
                                               directories['Soundness'][i], directories['Sunstance'][i]))
 output_file.close()
-'''
