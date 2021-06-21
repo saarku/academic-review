@@ -240,17 +240,18 @@ class TopicModels:
 def main():
 
     dataset = sys.argv[1]
-    topics = [15, 25]
+    topics = [5, 15, 25]
     modes = ['pos', 'neg']
     dimensions_ed = {'0': modes, '1': modes, '2': modes, '3': modes, '4': modes, '5': modes, '6': modes, 'all': ['neu']}
     dimensions_ic = {'1': modes, '2': modes, '3': modes, 'all': ['neu'], '5': modes, '6': modes}
     paragraphs = ['1', '3']
     base_dir = '../{}_dataset/'.format(dataset)
     dimensions = dimensions_ed if dataset == 'education' else dimensions_ic
-    model_types = ['ovb', 'gibbs']  # ovb or gibbs
+    model_types = ['ovb']  # ovb or gibbs
 
-    learn_flag = True
-    infer_flag = True
+    learn_flag = False
+    infer_flag = False
+    infer_test_flag = True
 
     if learn_flag:
         for dim in dimensions:
@@ -288,6 +289,26 @@ def main():
                             tm = TopicModels(test_data_dir, train_data_dir)
                             tm.generate_topic_kl(model_dir, vectors_dir + '.kl.test.val', model_type)
                             tm.generate_topic_dists(model_dir, vectors_dir + '.test.val', model_type)
+
+    if infer_test_flag:
+        test_base_dir = '../iclrlarge_dataset'
+        for para in paragraphs:
+            test_data_dir = test_base_dir + '/data_splits/dim.all.mod.neu.para.{}.test.val.text'.format(para)
+            tm = TopicModels(test_data_dir, None)
+            for dim in dimensions:
+                for mode in dimensions[dim]:
+                    for model_type in model_types:
+                        for topic in topics:
+
+                            train_data_dir = base_dir + '/data_splits/dim.{}.mod.{}.para.{}.train.text'.format(dim, mode, para)
+                            model_dir = base_dir + '/lda_models/'
+                            model_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}/model'.format(topic, dim, mode, para, topic)
+                            vectors_dir = test_base_dir + '/lda_vectors_{}/'.format(model_type)
+                            vectors_dir += '{}_topics/dim.{}.mod.{}.para.{}.num.{}'.format(topic, dim, mode, para, topic)
+                            tm.upload_vocab(train_data_dir)
+                            print('infer ' + vectors_dir)
+
+                            tm.generate_topic_kl(model_dir, vectors_dir + '.kl.test.val', model_type)
 
 
 if __name__ == '__main__':
