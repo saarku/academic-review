@@ -169,7 +169,10 @@ class SearchEngine:
             scores = args[1:]
 
             for i, score in enumerate(scores):
-                aspect_scores[aspects[i]][paper_id] = float(score)
+                try:
+                    aspect_scores[aspects[i]][paper_id] = float(score)
+                except:
+                    aspect_scores[aspects[i]][paper_id] = score
         return aspect_scores
 
     def search(self, query):
