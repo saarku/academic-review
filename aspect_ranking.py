@@ -214,6 +214,8 @@ class SearchEngine:
         for i, paper_id in enumerate(result_list[:cutoff]):
             citations.append(self.citations['Citations'].get(paper_id, 0))
         dcg = self.get_dcg(citations)
+        avg_citations = np.mean(citations)
+        num_papers = sum([1 for c in citations if c>0])
 
         citations = []
         for paper_id in result_list:
@@ -221,7 +223,9 @@ class SearchEngine:
         citations = sorted(citations, reverse=True)[:cutoff]
         ideal_dcg = self.get_dcg(citations)
 
-        return dcg/ideal_dcg
+
+
+        return dcg/ideal_dcg, avg_citations, num_papers
 
     def run_dataset(self, queries_dir):
         queries = [q.rstrip('\n') for q in open(queries_dir, 'r').readlines()]
@@ -242,16 +246,14 @@ class SearchEngine:
                 result_lists[aspect] = self.re_rank(result_lists['Relevance'], aspect)
 
             for aspect in result_lists:
+
                 for k in [3, 5, 10]:
-                    dcg = self.get_citation_dcg(result_lists[aspect], k)
+                    dcg, avg_citations, num_papers = self.get_citation_dcg(result_lists[aspect], k)
                     output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'ndcg', k, dcg))
+                    output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'avgcite', k, avg_citations))
+                    output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'avgpaper', k, num_papers))
                     if k not in evaluations[aspect]: evaluations[aspect][k] = []
                     evaluations[aspect][k].append(dcg)
-
-        for aspect in evaluations:
-            for k in evaluations[aspect]:
-                output_file.write('{},{},{},{},{},{}\n'.format('all', 'all', aspect, 'ndcg', k,
-                                                               np.mean(evaluations[aspect][k])))
 
 
 def main():
