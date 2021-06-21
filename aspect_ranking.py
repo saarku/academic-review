@@ -290,15 +290,16 @@ class SearchEngine:
 
 
 def main():
-    #robustness_evaluations('/Users/saarkuzi/Desktop/eval.txt')
+    robustness_evaluations('/Users/saarkuzi/Desktop/eval.txt')
     #filter_queries('/home/skuzi2/iclr_large/scholar_queries.txt')
     #query = ['language model', 'lda', 'word embeddings']
-
+    '''
     data_dir = '/home/skuzi2/acl_dataset/data_splits/dim.all.mod.neu.para.1.test.val'
     aspects_dir = '/home/skuzi2/acl_dataset/acl_aspects.txt'
     citations_dir = '/home/skuzi2/acl_dataset/citation_counts.txt'
     se = SearchEngine(data_dir + '.text.lemmatize', data_dir + '.ids', aspects_dir, citations_dir)
     se.run_dataset('/home/skuzi2/acl_dataset/phrase_queries.txt')
+    '''
 
 
 if __name__ == '__main__':
