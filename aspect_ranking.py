@@ -307,7 +307,8 @@ class SearchEngine:
         top_words, correlations, top_scores = self.search(query)
         scores = {}
         for aspect in top_words:
-            scores[aspect] = np.mean(top_scores[aspect][:25])
+            assert len(top_scores[aspect]) >= 10
+            scores[aspect] = np.mean(top_scores[aspect][:10])
         return scores
 
     @staticmethod
