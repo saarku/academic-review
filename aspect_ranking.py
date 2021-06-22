@@ -189,6 +189,7 @@ class SearchEngine:
 
     def search(self, query):
         top_words = {}
+        top_scores = defaultdict(list)
         correlations = {}
         query = pre_process_text(query, lemmatize=True)
         query = self.counter.transform([query])
@@ -205,11 +206,13 @@ class SearchEngine:
 
         for aspect in self.aspects:
             sorted_list = self.re_rank(result_list, aspect)
+            for paper_id in result_list[:50]:
+                top_scores[aspect].append(self.aspects[aspect][paper_id])
             top_words[aspect] = self.get_top_words(sorted_list)
             print('{}_{}'.format(query, aspect))
             correlations[aspect] = self.get_correlation(sorted_list)
 
-        return top_words, correlations
+        return top_words, correlations, top_scores
 
     def re_rank(self, result_list, aspect):
         result_scores = {}
@@ -254,9 +257,10 @@ class SearchEngine:
     def analyze_queries(self, queries):
         output_file = open('queries.txt', 'w')
         for q in queries:
-            top_words, correlations = self.search(q)
+            top_words, correlations, top_scores = self.search(q)
             for aspect in top_words:
                 output_file.write(q + ',' + aspect + ',' + str(correlations[aspect]) + ',' + ','.join(top_words[aspect]) + '\n')
+                output_file.write(q + ',' + aspect + ',' + ','.join([str(i) for i in top_scores]))
                 output_file.flush()
 
     @staticmethod
@@ -365,7 +369,7 @@ def main():
     #get_titles(sys.argv[1])
     #robustness_evaluations('/Users/saarkuzi/Desktop/iclr_eval.txt')
     #filter_queries('/home/skuzi2/iclr_large/scholar_queries.txt')
-    query = ['knowledge graph']
+    query = ['knowledge graph', 'question answering', 'self attention']
 
     data_name = sys.argv[1]
 
@@ -376,7 +380,8 @@ def main():
 
     se = SearchEngine(data_dir + '.text.lemmatize', data_dir + '.ids', aspects_dir, citations_dir, titles_dir,
                       filter_flag=False)
-    se.run_jaccard('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name))
+    se.analyze_queries(query)
+    #se.run_jaccard('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name))
     #se.run_dataset('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name))
 
 
