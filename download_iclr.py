@@ -6,13 +6,26 @@ import openreview
 base_dir = '/home/skuzi2/iclrlarge_dataset/meta_data'
 #output_dir = '/home/skuzi2/iclr_large/pdfs'
 download_flag = False
-citation_flag = True
+citation_flag = False
+years_flag = True
 #if not os.path.exists(output_dir): os.mkdir(output_dir)
 
 client = openreview.Client(
         baseurl='https://api.openreview.net',
         username='saarkuzi@gmail.com',
         password='Kuz260487')
+
+if years_flag:
+    citation_counts = open('years.txt', 'w')
+    for y in ['17', '18', '19', '20']:
+        json_dir = base_dir + '/iclr20' + y + '.json'
+        with open(json_dir, 'r') as data_file:
+            json_data = data_file.read()
+        data = json.loads(json_data)
+
+        for i, o in enumerate(data):
+            paper_id = o['url'].split('=')[1]
+            citation_counts.write(paper_id + ',' + y + '\n')
 
 if citation_flag:
     citation_counts = open('citation_counts.txt', 'w')
