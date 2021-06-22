@@ -69,7 +69,7 @@ def years_graph():
         print(y)
         se = SearchEngine(data_dir + '.text.lemmatize', data_dir + '.ids', aspects_dir, citations_dir, titles_dir,
                           years_dir, filter_flag=False, years_flag=y)
-        count = se.years_analysis(query)
+        count = se.years_analysis(query, y)
         for aspect in count:
             scores[aspect].append(count[aspect])
 
@@ -300,11 +300,11 @@ class SearchEngine:
                 output_file.write(q + ',' + aspect + ',' + ','.join([str(i) for i in sorted_scores]) + '\n')
                 output_file.flush()
 
-    def years_analysis(self, query):
+    def years_analysis(self, query, y):
         top_words, correlations, top_scores = self.search(query)
         scores = {}
         for aspect in top_words:
-            assert len(top_scores[aspect]) >= 10, 'len:{}'.format(len(top_scores[aspect]))
+            assert len(top_scores[aspect]) >= 10, 'len:{},{}'.format(len(top_scores[aspect]), y)
             scores[aspect] = np.mean(top_scores[aspect][:10])
         return scores
 
