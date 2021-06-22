@@ -63,7 +63,7 @@ def years_graph():
     years_dir = '/home/skuzi2/{}_dataset/years.txt'.format(data_name, data_name)
 
     scores = defaultdict(list)
-    years = ['0' + str(i) for i in range(10)] + [str(i) for i in range(10, 18)]
+    years = ['0' + str(i) for i in range(5, 10)] + [str(i) for i in range(10, 18)]
 
     for y in years:
         print(y)
@@ -99,7 +99,6 @@ def analyze_evaluations(eval_dir):
 
     aspect_counters = defaultdict(int)
     aspect_counters_improve = defaultdict(int)
-    print(len(evals))
     for qid in evals:
         a = max(evals[qid], key=evals[qid].get)
         performance.append(evals[qid][a])
@@ -240,7 +239,6 @@ class SearchEngine:
             result_list.append(self.paper_ids[neighbor_indexes[0][i]])
 
         top_words['Relevance'] = self.get_top_words(result_list)
-        print('{}_{}'.format(query, 'rel'))
         correlations['Relevance'] = self.get_correlation(result_list)
 
         for aspect in self.aspects:
@@ -248,7 +246,6 @@ class SearchEngine:
             for paper_id in result_list[:50]:
                 top_scores[aspect].append(self.aspects[aspect][paper_id])
             top_words[aspect] = self.get_top_words(sorted_list)
-            print('{}_{}'.format(query, aspect))
             correlations[aspect] = self.get_correlation(sorted_list)
 
         return top_words, correlations, top_scores
@@ -307,7 +304,7 @@ class SearchEngine:
         top_words, correlations, top_scores = self.search(query)
         scores = {}
         for aspect in top_words:
-            assert len(top_scores[aspect]) >= 10
+            assert len(top_scores[aspect]) >= 10, 'len:{}'.format(len(top_scores[aspect]))
             scores[aspect] = np.mean(top_scores[aspect][:10])
         return scores
 
