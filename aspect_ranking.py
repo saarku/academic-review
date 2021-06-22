@@ -118,10 +118,25 @@ def robustness_evaluations(eval_dir):
     lines = open(eval_dir, 'r').readlines()
     for line in lines[1:]:
         args = line.rstrip('\n').split(',')
-        qid, aspect, cutoff, value = args[0], args[2], args[4], float(args[5])
-        if cutoff == '10':
-            evals[qid][aspect] = value
+        try:
+            qid, aspect, cutoff, value = args[1], args[2], args[4], float(args[5])
+            if cutoff == '10':
+                evals[qid][aspect] = value
+        except:
+            continue
 
+
+    for qid in evals:
+        selected_aspects = []
+        sorted_values = sorted(evals[qid], key=evals[qid].get, reverse=True)
+        max_val = evals[qid][sorted_values[0]]
+        for aspect in evals[qid]:
+            if evals[qid][aspect] == max_val:
+                selected_aspects.append(aspect)
+        if len(selected_aspects) == 1:
+            print(qid + ',' + ','.join(selected_aspects))
+
+    '''
     histogram = {}
     histogram_q = defaultdict(set)
     for qid in evals:
@@ -148,7 +163,7 @@ def robustness_evaluations(eval_dir):
             if other_aspect != aspect:
                 unique_queries = unique_queries - histogram_q[other_aspect]
         print('{},{},{}'.format(aspect, len(histogram_q[aspect]), len(unique_queries)))
-
+    '''
 
 class SearchEngine:
 
@@ -293,10 +308,10 @@ class SearchEngine:
         for q in queries:
             top_words, correlations, top_scores = self.search(q)
             for aspect in top_words:
-                #output_file.write(q + ',' + aspect + ',' + str(correlations[aspect]) + ',' + ','.join(top_words[aspect]) + '\n')
-                sorted_scores = sorted(top_scores[aspect])
-                output_file.write(q + ',' + aspect + ',' + ','.join([str(i) for i in sorted_scores]) + '\n')
-                output_file.flush()
+                output_file.write(q + ',' + aspect + ',' + str(correlations[aspect]) + ',' + ','.join(top_words[aspect]) + '\n')
+                #sorted_scores = sorted(top_scores[aspect])
+                #output_file.write(q + ',' + aspect + ',' + ','.join([str(i) for i in sorted_scores]) + '\n')
+                #output_file.flush()
 
     def years_analysis(self, query, y):
         top_words, correlations, top_scores = self.search(query)
@@ -372,6 +387,7 @@ class SearchEngine:
                 _, p_val = ttest_rel(evaluations['Relevance'][k], evaluations[aspect][k])
                 output_file.write('{},{},{},{},{},{}\n'.format('all', 'all', aspect, 'ndcgpval', k, p_val))
 
+
     def run_jaccard(self, queries):
         jaccard_dict = defaultdict(list)
 
@@ -411,7 +427,7 @@ class SearchEngine:
 def main():
     #data_dir = '/Users/saarkuzi/papers_to_index/'
     #get_titles(sys.argv[1])
-    #robustness_evaluations('/Users/saarkuzi/Desktop/iclr_eval.txt')
+    #robustness_evaluations('/Users/saarkuzi/Desktop/eval_acl.txt')
     #filter_queries('/home/skuzi2/iclr_large/scholar_queries.txt')
     query = ['knowledge graph', 'question answering', 'self attention']
 
@@ -425,9 +441,11 @@ def main():
 
     se = SearchEngine(data_dir + '.text.lemmatize', data_dir + '.ids', aspects_dir, citations_dir, titles_dir,
                       years_dir, filter_flag=False, years_flag='')
-    queries = [q.rstrip('\n') for q in open('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name), 'r').readlines()]
-    #se.analyze_queries(queries)
-    se.run_jaccard(queries)
+    #queries = [q.rstrip('\n') for q in open('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name), 'r').readlines()]
+    queries = ['agent reinforcement learning']
+    se.analyze_queries(queries)
+
+    #se.run_jaccard(queries)
     #se.run_dataset('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name))
 
 
