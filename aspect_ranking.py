@@ -349,8 +349,8 @@ class SearchEngine:
 
             for aspect in top_words:
                 for other_aspect in top_words:
-                    denominator = len(top_words[aspect].union(top_words[aspect]))
-                    enumerator = len(top_words[aspect].intersection(top_words[aspect]))
+                    denominator = len(top_words[aspect].union(top_words[other_aspect]))
+                    enumerator = len(top_words[aspect].intersection(top_words[other_aspect]))
                     jaccard_dict[aspect, other_aspect].append(enumerator/denominator)
 
         for pair in jaccard_dict:
