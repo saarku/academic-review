@@ -284,9 +284,6 @@ class SearchEngine:
             citations.append(int(self.citations['Citations'].get(paper_id, 0)))
         citations = sorted(citations, reverse=True)[:cutoff]
         ideal_dcg = self.get_dcg(citations)
-
-
-
         return dcg/ideal_dcg, avg_citations, num_papers
 
     def run_dataset(self, queries_dir):
@@ -327,6 +324,40 @@ class SearchEngine:
                 _, p_val = ttest_rel(evaluations['Relevance'][k], evaluations[aspect][k])
                 output_file.write('{},{},{},{},{},{}\n'.format('all', 'all', aspect, 'ndcgpval', k, p_val))
 
+    def run_jaccard(self, queries_dir):
+        queries = [q.rstrip('\n') for q in open(queries_dir, 'r').readlines()]
+        evaluations = defaultdict(dict)
+        output_file = open('eval.txt', 'w')
+        jaccard_dict = defaultdict(list)
+
+        for qid, q in enumerate(queries):
+            print(q)
+            top_words = {}
+            query = pre_process_text(q, lemmatize=True)
+            query = self.counter.transform([query])
+            query = self.tf_idf.transform(query)
+            distances, neighbor_indexes = self.knn_engine.kneighbors(query)
+
+            relevance_list = []
+            for i in range(len(neighbor_indexes[0])):
+                relevance_list.append(self.paper_ids[neighbor_indexes[0][i]])
+            top_words['Relevance'] = set(self.get_top_words(relevance_list, num_words=50))
+
+            for aspect in self.aspects:
+                aspect_list = self.re_rank(relevance_list, aspect)
+                top_words[aspect] = set(self.get_top_words(aspect_list, num_words=50))
+
+            for aspect in top_words:
+                for other_aspect in top_words:
+                    denominator = len(top_words[aspect].union(top_words[aspect]))
+                    enumerator = len(top_words[aspect].intersection(top_words[aspect]))
+                    jaccard_dict[aspect, other_aspect].append(enumerator/denominator)
+
+        for pair in jaccard_dict:
+            print('{},{},{}'.format(pair[0], pair[1], np.mean(jaccard_dict[pair])))
+
+
+
 
 
 def main():
@@ -345,7 +376,7 @@ def main():
 
     se = SearchEngine(data_dir + '.text.lemmatize', data_dir + '.ids', aspects_dir, citations_dir, titles_dir,
                       filter_flag=False)
-    se.analyze_queries(query)
+    se.run_jaccard('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name))
     #se.run_dataset('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name))
 
 
