@@ -442,7 +442,7 @@ def main():
     se = SearchEngine(data_dir + '.text.lemmatize', data_dir + '.ids', aspects_dir, citations_dir, titles_dir,
                       years_dir, filter_flag=False, years_flag='')
     #queries = [q.rstrip('\n') for q in open('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name), 'r').readlines()]
-    queries = ['agent reinforcement learning']
+    queries = ['domain adaptation', 'matrix factorization']
     se.analyze_queries(queries)
 
     #se.run_jaccard(queries)
