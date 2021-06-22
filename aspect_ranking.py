@@ -26,17 +26,6 @@ def get_titles(data_dir):
                         output_file.write(paper_id + ',' + t + '\n')
 
 
-def get_years(aspects_dir):
-    output_file = open('years.txt', 'w')
-    output_file.write('Id,Year\n')
-    lines = open(aspects_dir, 'r').readlines()
-
-    for line in lines[1:]:
-        paper_id = line.split(',')[0]
-        year = paper_id.split('-')[0][1:3]
-        output_file.write(paper_id + ',' + year + '\n')
-
-
 def filter_queries(queries_dir):
     data_dir = '/home/skuzi2/acl_dataset/data_splits/dim.all.mod.neu.para.1.test.val'
     aspects_dir = '/home/skuzi2/acl_dataset/acl_aspects.txt'
@@ -64,11 +53,36 @@ def filter_queries(queries_dir):
     for q in filtered: output_file.write(q + '\n')
 
 
+def years_graph():
+    data_name = sys.argv[1]
+    query = ' '.join(sys.argv[2:len(sys.argv)])
+    data_dir = '/home/skuzi2/{}_dataset/data_splits/dim.all.mod.neu.para.1.test.val'.format(data_name)
+    aspects_dir = '/home/skuzi2/{}_dataset/{}_aspects.txt'.format(data_name, data_name)
+    citations_dir = '/home/skuzi2/{}_dataset/citation_counts.txt'.format(data_name)
+    titles_dir = '/home/skuzi2/{}_dataset/{}_titles.txt'.format(data_name, data_name)
+    years_dir = '/home/skuzi2/{}_dataset/years.txt'.format(data_name, data_name)
+
+    scores = defaultdict(list)
+    years = ['0' + str(i) for i in range(10)] + [str(i) for i in range(10, 18)]
+
+    for y in years:
+        print(y)
+        se = SearchEngine(data_dir + '.text.lemmatize', data_dir + '.ids', aspects_dir, citations_dir, titles_dir,
+                          years_dir, filter_flag=False, years_flag=y)
+        count = se.years_analysis(query)
+        for aspect in count:
+            scores[aspect].append(count[aspect])
+
+    output_file = open('years_scores_{}.txt'.format('_'.join(query.split())), 'w+')
+    for aspect in scores:
+        output_file.write(aspect + ','+ ','.join([str(i) for i in scores[aspect]]) + '\n')
+
+
+
 def process_data(data_dir):
     output_file = open(data_dir + '.lemmatize', 'w')
     with open(data_dir, 'r') as input_file:
         for i, line in enumerate(input_file):
-            if i % 1000 == 0: print(i)
             output_file.write(pre_process_text(line.rstrip('\n'), lemmatize=True) + '\n')
             output_file.flush()
 
@@ -135,6 +149,8 @@ def robustness_evaluations(eval_dir):
             if other_aspect != aspect:
                 unique_queries = unique_queries - histogram_q[other_aspect]
         print('{},{},{}'.format(aspect, len(histogram_q[aspect]), len(unique_queries)))
+
+
 
 
 class SearchEngine:
@@ -287,6 +303,13 @@ class SearchEngine:
                 output_file.write(q + ',' + aspect + ',' + ','.join([str(i) for i in sorted_scores]) + '\n')
                 output_file.flush()
 
+    def years_analysis(self, query):
+        top_words, correlations, top_scores = self.search(query)
+        scores = {}
+        for aspect in top_words:
+            scores[aspect] = np.mean(top_scores[aspect][:25])
+        return scores
+
     @staticmethod
     def get_dcg(labels):
         relevance_dict = {(0, 0): 0, (1, 5): 1, (6, 10): 2, (11, 20): 3, (21, 100000): 4}
@@ -388,8 +411,8 @@ class SearchEngine:
 
 
 
+
 def main():
-    get_years(sys.argv[1])
     #data_dir = '/Users/saarkuzi/papers_to_index/'
     #get_titles(sys.argv[1])
     #robustness_evaluations('/Users/saarkuzi/Desktop/iclr_eval.txt')
@@ -413,7 +436,7 @@ def main():
 
     '''
 
-
+    years_graph()
 
 
 if __name__ == '__main__':
