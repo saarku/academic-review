@@ -63,7 +63,7 @@ def years_graph():
     years_dir = '/home/skuzi2/{}_dataset/years.txt'.format(data_name, data_name)
 
     scores = defaultdict(list)
-    years = ['0' + str(i) for i in range(5, 10)] + [str(i) for i in range(10, 18)]
+    years = ['0' + str(i) for i in range(10)] + [str(i) for i in range(10, 18)]
 
     for y in years:
         print(y)
@@ -304,7 +304,7 @@ class SearchEngine:
         top_words, correlations, top_scores = self.search(query)
         scores = {}
         for aspect in top_words:
-            print(top_scores)
+            if aspect == 'Relevance': continue
             assert len(top_scores[aspect]) >= 10, 'len:{},{}'.format(len(top_scores[aspect]), y)
             scores[aspect] = np.mean(top_scores[aspect][:10])
         return scores
