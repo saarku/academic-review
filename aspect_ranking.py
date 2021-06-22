@@ -64,6 +64,7 @@ def years_graph():
 
     scores = defaultdict(list)
     years = ['0' + str(i) for i in range(10)] + [str(i) for i in range(10, 18)]
+    years = ['17', '18', '19', '20']
 
     for y in years:
         print(y)
