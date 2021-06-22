@@ -79,7 +79,6 @@ def years_graph():
         output_file.write(aspect + ','+ ','.join([str(i) for i in scores[aspect]]) + '\n')
 
 
-
 def process_data(data_dir):
     output_file = open(data_dir + '.lemmatize', 'w')
     with open(data_dir, 'r') as input_file:
@@ -149,8 +148,6 @@ def robustness_evaluations(eval_dir):
             if other_aspect != aspect:
                 unique_queries = unique_queries - histogram_q[other_aspect]
         print('{},{},{}'.format(aspect, len(histogram_q[aspect]), len(unique_queries)))
-
-
 
 
 class SearchEngine:
@@ -377,8 +374,6 @@ class SearchEngine:
 
     def run_jaccard(self, queries_dir):
         queries = [q.rstrip('\n') for q in open(queries_dir, 'r').readlines()]
-        evaluations = defaultdict(dict)
-        output_file = open('eval.txt', 'w')
         jaccard_dict = defaultdict(list)
 
         for qid, q in enumerate(queries):
@@ -392,11 +387,13 @@ class SearchEngine:
             relevance_list = []
             for i in range(len(neighbor_indexes[0])):
                 relevance_list.append(self.paper_ids[neighbor_indexes[0][i]])
-            top_words['Relevance'] = set(self.get_top_words(relevance_list, num_words=50))
+            #top_words['Relevance'] = set(self.get_top_words(relevance_list, num_words=50))
+            top_words['Relevance'] = set(relevance_list[:10])
 
             for aspect in self.aspects:
                 aspect_list = self.re_rank(relevance_list, aspect)
-                top_words[aspect] = set(self.get_top_words(aspect_list, num_words=50))
+                #top_words[aspect] = set(self.get_top_words(aspect_list, num_words=50))
+                top_words[aspect] = set(aspect_list[:10])
 
             for aspect in top_words:
                 for other_aspect in top_words:
@@ -418,7 +415,7 @@ def main():
     #robustness_evaluations('/Users/saarkuzi/Desktop/iclr_eval.txt')
     #filter_queries('/home/skuzi2/iclr_large/scholar_queries.txt')
     query = ['knowledge graph', 'question answering', 'self attention']
-    '''
+
     data_name = sys.argv[1]
 
     data_dir = '/home/skuzi2/{}_dataset/data_splits/dim.all.mod.neu.para.1.test.val'.format(data_name)
@@ -428,15 +425,14 @@ def main():
     years_dir = '/home/skuzi2/{}_dataset/years.txt'.format(data_name, data_name)
 
     se = SearchEngine(data_dir + '.text.lemmatize', data_dir + '.ids', aspects_dir, citations_dir, titles_dir,
-                      years_dir, filter_flag=False, years_flag=sys.argv[2])
+                      years_dir, filter_flag=False, years_flag='')
     queries = [q.rstrip('\n') for q in open('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name), 'r').readlines()]
-    se.analyze_queries(queries)
-    #se.run_jaccard('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name))
+    #se.analyze_queries(queries)
+    se.run_jaccard(queries)
     #se.run_dataset('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name))
 
-    '''
 
-    years_graph()
+
 
 
 if __name__ == '__main__':
