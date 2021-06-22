@@ -35,21 +35,16 @@ def filter_queries(queries_dir):
     queries = [line.rstrip('\n') for line in open(queries_dir, 'r').readlines()]
     filtered = []
     for q in queries:
-        print('-----------------')
-        print(q)
         num_terms = len(q.split())
-        print(num_terms)
         query = pre_process_text(q, lemmatize=True)
         query = se.counter.transform([query])
         query = se.tf_idf.transform(query)
-        print('num non zero: {}'.format(query.count_nonzero()))
         if query.count_nonzero() != num_terms: continue
         distances, neighbor_indexes = se.knn_engine.kneighbors(query)
         citations = []
         for i in range(len(neighbor_indexes[0])):
             paper_id = se.paper_ids[neighbor_indexes[0][i]]
             citations.append(se.citations['Citations'].get(paper_id, 0))
-        print('citations: {}'.format(sum(citations)))
         if sum(citations) <= 0: continue
         filtered.append(q)
     output_file = open('filtered_queries.txt', 'w')
@@ -381,7 +376,8 @@ def main():
 
     se = SearchEngine(data_dir + '.text.lemmatize', data_dir + '.ids', aspects_dir, citations_dir, titles_dir,
                       filter_flag=False)
-    se.analyze_queries(query)
+    queries = [q.rstrip('\n') for q in open('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name), 'r').readlines()]
+    se.analyze_queries(queries)
     #se.run_jaccard('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name))
     #se.run_dataset('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name))
 
