@@ -259,8 +259,9 @@ class SearchEngine:
         for q in queries:
             top_words, correlations, top_scores = self.search(q)
             for aspect in top_words:
-                output_file.write(q + ',' + aspect + ',' + str(correlations[aspect]) + ',' + ','.join(top_words[aspect]) + '\n')
-                output_file.write(q + ',' + aspect + ',' + ','.join([str(i) for i in top_scores[aspect]]) + '\n')
+                #output_file.write(q + ',' + aspect + ',' + str(correlations[aspect]) + ',' + ','.join(top_words[aspect]) + '\n')
+                sorted_scores = sorted(top_scores[aspect])
+                output_file.write(q + ',' + aspect + ',' + ','.join([str(i) for i in sorted_scores]) + '\n')
                 output_file.flush()
 
     @staticmethod
