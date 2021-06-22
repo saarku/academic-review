@@ -30,8 +30,10 @@ def filter_queries(queries_dir):
     data_dir = '/home/skuzi2/acl_dataset/data_splits/dim.all.mod.neu.para.1.test.val'
     aspects_dir = '/home/skuzi2/acl_dataset/acl_aspects.txt'
     citations_dir = '/home/skuzi2/acl_dataset/citation_counts.txt'
+    years_dir = '/home/skuzi2/acl_dataset/years.txt'
+    titles_dir = '/home/skuzi2/acl_dataset/acl_titles.txt'
 
-    se = SearchEngine(data_dir + '.text.lemmarize', data_dir + '.ids', aspects_dir, citations_dir)
+    se = SearchEngine(data_dir + '.text.lemmarize', data_dir + '.ids', aspects_dir, citations_dir, titles_dir, years_dir)
     queries = [line.rstrip('\n') for line in open(queries_dir, 'r').readlines()]
     filtered = []
     for q in queries:
@@ -126,19 +128,25 @@ def robustness_evaluations(eval_dir):
 
 class SearchEngine:
 
-    def __init__(self, data_dir, ids_dir, aspect_dir, citation_dir, titles_dir, filter_flag=True):
+    def __init__(self, data_dir, ids_dir, aspect_dir, citation_dir, titles_dir, years_dir, filter_flag=True,
+                 years_flag=''):
         self.citations = self.load_aspects(citation_dir)
         self.titles = self.load_titles(titles_dir)
+        self.years = self.load_titles(years_dir)
         self.paper_ids = [i.rstrip('\n') for i in open(ids_dir, 'r').readlines()]
         if filter_flag:
             self.paper_ids = [i for i in self.paper_ids if i in self.citations['Citations']]
-        self.vectors, self.names, self.tf_idf, self.counter = self.get_tf_idf_embeddings(data_dir, ids_dir, filter_flag)
+        if len(years_flag) > 0:
+            self.paper_ids = [i for i in self.paper_ids if self.years.get(i, '') == years_flag]
+
+        self.vectors, self.names, self.tf_idf, self.counter = self.get_tf_idf_embeddings(data_dir, ids_dir, filter_flag,
+                                                                                         years_flag)
         print(self.vectors.shape)
 
         self.knn_engine = NearestNeighbors(n_neighbors=50, algorithm='brute', metric='cosine').fit(self.vectors)
         self.aspects = self.load_aspects(aspect_dir)
 
-    def get_tf_idf_embeddings(self, data_dir, ids_dir, filter_flag):
+    def get_tf_idf_embeddings(self, data_dir, ids_dir, filter_flag, years_flag):
         data_lines = open(data_dir, 'r').readlines()
         paper_ids = [i.rstrip('\n') for i in open(ids_dir, 'r').readlines()]
 
@@ -146,6 +154,13 @@ class SearchEngine:
             filtered_lines = []
             for i, line in enumerate(data_lines):
                 if paper_ids[i] in self.citations['Citations']:
+                    filtered_lines.append(line)
+            data_lines = filtered_lines
+
+        if len(years_flag):
+            filtered_lines = []
+            for i, line in enumerate(data_lines):
+                if self.years.get(paper_ids[i], '') == years_flag:
                     filtered_lines.append(line)
             data_lines = filtered_lines
 
@@ -373,9 +388,10 @@ def main():
     aspects_dir = '/home/skuzi2/{}_dataset/{}_aspects.txt'.format(data_name, data_name)
     citations_dir = '/home/skuzi2/{}_dataset/citation_counts.txt'.format(data_name)
     titles_dir = '/home/skuzi2/{}_dataset/{}_titles.txt'.format(data_name, data_name)
+    years_dir = '/home/skuzi2/{}_dataset/years.txt'.format(data_name, data_name)
 
     se = SearchEngine(data_dir + '.text.lemmatize', data_dir + '.ids', aspects_dir, citations_dir, titles_dir,
-                      filter_flag=False)
+                      years_dir, filter_flag=False, years_flag='17')
     queries = [q.rstrip('\n') for q in open('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name), 'r').readlines()]
     se.analyze_queries(queries)
     #se.run_jaccard('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name))
