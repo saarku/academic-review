@@ -26,6 +26,17 @@ def get_titles(data_dir):
                         output_file.write(paper_id + ',' + t + '\n')
 
 
+def get_years(aspects_dir):
+    output_file = open('years.txt', 'w')
+    output_file.write('Id,Year\n')
+    lines = open(aspects_dir, 'r').readlines()
+
+    for line in lines[1:]:
+        paper_id = line.split(',')[0]
+        year = paper_id.split('-')[0][1:3]
+        output_file.write(paper_id + ',' + year + '\n')
+
+
 def filter_queries(queries_dir):
     data_dir = '/home/skuzi2/acl_dataset/data_splits/dim.all.mod.neu.para.1.test.val'
     aspects_dir = '/home/skuzi2/acl_dataset/acl_aspects.txt'
@@ -187,13 +198,15 @@ class SearchEngine:
 
     @staticmethod
     def load_titles(aspect_dir):
+
         lines = open(aspect_dir, 'r').readlines()
         all_titles = {}
         for line in lines:
             args = line.rstrip('\n').split(',')
             paper_id = args[0]
-            title = ','.join(args[1:])
-            title = '_'.join(title.split())
+            if aspect_dir is not None:
+                title = ','.join(args[1:])
+                title = '_'.join(title.split())
             all_titles[paper_id] = title
         return all_titles
 
@@ -376,12 +389,13 @@ class SearchEngine:
 
 
 def main():
+    get_years(sys.argv[1])
     #data_dir = '/Users/saarkuzi/papers_to_index/'
     #get_titles(sys.argv[1])
     #robustness_evaluations('/Users/saarkuzi/Desktop/iclr_eval.txt')
     #filter_queries('/home/skuzi2/iclr_large/scholar_queries.txt')
     query = ['knowledge graph', 'question answering', 'self attention']
-
+    '''
     data_name = sys.argv[1]
 
     data_dir = '/home/skuzi2/{}_dataset/data_splits/dim.all.mod.neu.para.1.test.val'.format(data_name)
@@ -397,7 +411,7 @@ def main():
     #se.run_jaccard('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name))
     #se.run_dataset('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name))
 
-
+    '''
 
 
 
