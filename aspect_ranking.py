@@ -125,7 +125,7 @@ def robustness_evaluations(eval_dir):
         except:
             continue
 
-
+    aspect_dict = defaultdict(list)
     for qid in evals:
         selected_aspects = []
         sorted_values = sorted(evals[qid], key=evals[qid].get, reverse=True)
@@ -134,7 +134,13 @@ def robustness_evaluations(eval_dir):
             if evals[qid][aspect] == max_val:
                 selected_aspects.append(aspect)
         if len(selected_aspects) == 1:
-            print(qid + ',' + ','.join(selected_aspects))
+            aspect_dict[selected_aspects[0]].append(qid)
+
+    for aspect in aspect_dict:
+        print(aspect + ',' + ','.join(aspect_dict[aspect]))
+
+
+
 
     '''
     histogram = {}
@@ -164,6 +170,7 @@ def robustness_evaluations(eval_dir):
                 unique_queries = unique_queries - histogram_q[other_aspect]
         print('{},{},{}'.format(aspect, len(histogram_q[aspect]), len(unique_queries)))
     '''
+
 
 class SearchEngine:
 
@@ -427,9 +434,11 @@ class SearchEngine:
 def main():
     #data_dir = '/Users/saarkuzi/papers_to_index/'
     #get_titles(sys.argv[1])
-    #robustness_evaluations('/Users/saarkuzi/Desktop/eval_acl.txt')
+    #robustness_evaluations('/Users/saarkuzi/Desktop/eval_iclrlarge.txt')
     #filter_queries('/home/skuzi2/iclr_large/scholar_queries.txt')
     query = ['knowledge graph', 'question answering', 'self attention']
+
+
 
     data_name = sys.argv[1]
 
@@ -440,13 +449,15 @@ def main():
     years_dir = '/home/skuzi2/{}_dataset/years.txt'.format(data_name, data_name)
 
     se = SearchEngine(data_dir + '.text.lemmatize', data_dir + '.ids', aspects_dir, citations_dir, titles_dir,
-                      years_dir, filter_flag=False, years_flag='')
+                      years_dir, filter_flag=False, years_flag='17')
     #queries = [q.rstrip('\n') for q in open('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name), 'r').readlines()]
     queries = ['domain adaptation', 'matrix factorization']
     se.analyze_queries(queries)
 
+    #
     #se.run_jaccard(queries)
     #se.run_dataset('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name))
+
 
 
 
