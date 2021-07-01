@@ -174,11 +174,12 @@ def robustness_evaluations(eval_dir):
 
 class SearchEngine:
 
-    def __init__(self, data_dir, ids_dir, aspect_dir, citation_dir, titles_dir, years_dir, filter_flag=True,
-                 years_flag=''):
+    def __init__(self, data_dir, ids_dir, aspect_dir, citation_dir, titles_dir, years_dir, accepts_dir,
+                 filter_flag=True, years_flag=''):
         self.citations = self.load_aspects(citation_dir)
         self.titles = self.load_titles(titles_dir)
         self.years = self.load_titles(years_dir)
+        self.accepts = self.load_aspects(accepts_dir)
         self.paper_ids = [i.rstrip('\n') for i in open(ids_dir, 'r').readlines()]
         if filter_flag:
             self.paper_ids = [i for i in self.paper_ids if i in self.citations['Citations']]
@@ -378,14 +379,18 @@ class SearchEngine:
                 titles = []
                 for paper_id in result_lists[aspect][:10]:
                     titles.append('_'.join(self.titles.get(paper_id, '').split()))
-                output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'titles', 10, '$'.join(titles)))
+                #output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'titles', 10, '$'.join(titles)))
 
                 for k in [3, 5, 10]:
                     dcg, avg_citations, num_papers = self.get_citation_dcg(result_lists[aspect], k)
+                    num_rejected = [paper_id for paper_id in result_lists[aspect] if int(self.accepts['Accept'][paper_id]) < 1]
+
 
                     output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'ndcg', k, dcg))
                     output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'avgcite', k, avg_citations))
                     output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'avgpaper', k, num_papers))
+                    output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'numreject', k, len(num_rejected)))
+
                     if k not in evaluations[aspect]: evaluations[aspect][k] = []
                     evaluations[aspect][k].append(dcg)
 
@@ -441,9 +446,10 @@ def main():
     citations_dir = '/home/skuzi2/{}_dataset/citation_counts.txt'.format(data_name)
     titles_dir = '/home/skuzi2/{}_dataset/{}_titles.txt'.format(data_name, data_name)
     years_dir = '/home/skuzi2/{}_dataset/years.txt'.format(data_name, data_name)
+    accepts_dir = '/home/skuzi2/{}_dataset/accept_decisions.txt'.format(data_name, data_name)
 
     se = SearchEngine(data_dir + '.text.lemmatize', data_dir + '.ids', aspects_dir, citations_dir, titles_dir,
-                      years_dir, filter_flag=False, years_flag='17')
+                      years_dir, accepts_dir, filter_flag=False, years_flag='17')
     #queries = [q.rstrip('\n') for q in open('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name), 'r').readlines()]
     #queries = ['domain adaptation', 'matrix factorization']
     #se.analyze_queries(queries)
