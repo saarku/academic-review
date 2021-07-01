@@ -387,7 +387,7 @@ class SearchEngine:
                         sum_accepted += self.citations['Citations'].get(paper_id, 0)
                 #output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'titles', 5, '$'.join(titles)))
                 output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'sum_citations', 5, sum_citations))
-                output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'sum_accept_citations', 5, sum_citations))
+                output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'sum_accept_citations', 5, sum_accepted))
 
 
                 for k in [3, 5, 10]:
