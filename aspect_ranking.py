@@ -377,9 +377,10 @@ class SearchEngine:
 
             for aspect in result_lists:
                 titles = []
-                for paper_id in result_lists[aspect][:10]:
-                    titles.append('_'.join(self.titles.get(paper_id, '').split()))
-                #output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'titles', 10, '$'.join(titles)))
+                for paper_id in result_lists[aspect][:5]:
+                    if int(self.accepts['Accept'][paper_id]) < 1:
+                        titles.append('_'.join(self.titles.get(paper_id, '').split()))
+                output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'titles', 5, '$'.join(titles)))
 
                 for k in [3, 5, 10]:
                     dcg, avg_citations, num_papers = self.get_citation_dcg(result_lists[aspect], k)
