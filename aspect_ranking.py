@@ -383,7 +383,7 @@ class SearchEngine:
 
                 for k in [3, 5, 10]:
                     dcg, avg_citations, num_papers = self.get_citation_dcg(result_lists[aspect], k)
-                    num_rejected = [paper_id for paper_id in result_lists[aspect] if int(self.accepts['Accept'][paper_id]) < 1]
+                    num_rejected = [paper_id for paper_id in result_lists[aspect][:k] if int(self.accepts['Accept'][paper_id]) < 1]
 
 
                     output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'ndcg', k, dcg))
