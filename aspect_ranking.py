@@ -383,8 +383,8 @@ class SearchEngine:
                         titles.append(str(i) + '_' + '_'.join(self.titles.get(paper_id, '').split()))
                         sum_citations += self.citations['Citations'].get(paper_id, 0)
                 #output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'titles', 5, '$'.join(titles)))
-                output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'sum_citations', 5, '$'.join(titles)))
-                
+                output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'sum_citations', 5, sum_citations))
+
 
                 for k in [3, 5, 10]:
                     dcg, avg_citations, num_papers = self.get_citation_dcg(result_lists[aspect], k)
