@@ -393,6 +393,7 @@ class SearchEngine:
             for k in evaluations[aspect]:
                 _, p_val = ttest_rel(evaluations['Relevance'][k], evaluations[aspect][k])
                 output_file.write('{},{},{},{},{},{}\n'.format('all', 'all', aspect, 'ndcgpval', k, p_val))
+                output_file.write('{},{},{},{},{},{}\n'.format('all', 'all', aspect, 'ndcg', k, np.mean(evaluations[aspect][k])))
 
     def run_jaccard(self, queries):
         jaccard_dict = defaultdict(list)
