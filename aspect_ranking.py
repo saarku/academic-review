@@ -400,7 +400,7 @@ class SearchEngine:
                 output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'titles', 5, '$'.join(titles)))
                 #output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'sum_citations', 5, sum_citations))
                 #output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'sum_accept_citations', 5, sum_accepted))
-                '''
+                
                 for k in [3, 5, 10]:
                     dcg, avg_citations, num_papers = self.get_citation_dcg(result_lists[aspect], k)
                     num_rejected = [paper_id for paper_id in result_lists[aspect] if int(self.accepts['Accept'][paper_id]) < 1]
