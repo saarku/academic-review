@@ -379,6 +379,21 @@ class SearchEngine:
                 titles = []
                 sum_citations = 0
                 sum_accepted = 0
+
+                for i, paper_id in enumerate(result_lists[aspect]):
+                    if int(self.accepts['Accept'][paper_id]) < 1:
+                        sum_citations = self.citations['Citations'].get(paper_id, 0)
+                        break
+                for i, paper_id in enumerate(result_lists[aspect]):
+                    if int(self.accepts['Accept'][paper_id]) >= 1:
+                        sum_accepted = self.citations['Citations'].get(paper_id, 0)
+                        break
+
+                #output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'titles', 5, '$'.join(titles)))
+                output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'sum_citations', 5, sum_citations))
+                output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'sum_accept_citations', 5, sum_accepted))
+
+                '''
                 for i, paper_id in enumerate(result_lists[aspect][:5]):
                     if int(self.accepts['Accept'][paper_id]) < 1:
                         titles.append(str(i) + '_' + '_'.join(self.titles.get(paper_id, '').split()))
@@ -388,18 +403,19 @@ class SearchEngine:
                 #output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'titles', 5, '$'.join(titles)))
                 output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'sum_citations', 5, sum_citations))
                 output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'sum_accept_citations', 5, sum_accepted))
-
-
+                '''
                 for k in [3, 5, 10]:
                     dcg, avg_citations, num_papers = self.get_citation_dcg(result_lists[aspect], k)
-                    num_rejected = [paper_id for paper_id in result_lists[aspect][:k] if int(self.accepts['Accept'][paper_id]) < 1]
-                    num_accept = [paper_id for paper_id in result_lists[aspect][:k] if int(self.accepts['Accept'][paper_id]) >= 1]
+                    num_rejected = [paper_id for paper_id in result_lists[aspect] if int(self.accepts['Accept'][paper_id]) < 1]
+                    num_rejected = 1 if len(num_rejected) > 0 else 0
+                    num_accept = [paper_id for paper_id in result_lists[aspect] if int(self.accepts['Accept'][paper_id]) >= 1]
+                    num_accept = 1 if len(num_accept) > 0 else 0
 
                     output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'ndcg', k, dcg))
                     output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'avgcite', k, avg_citations))
                     output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'avgpaper', k, num_papers))
-                    output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'numreject', k, len(num_rejected)))
-                    output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'numaccept', k, len(num_accept)))
+                    output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'numreject', k, num_rejected))
+                    output_file.write('{},{},{},{},{},{}\n'.format(qid, q, aspect, 'numaccept', k, num_accept))
 
                     if k not in evaluations[aspect]: evaluations[aspect][k] = []
                     evaluations[aspect][k].append(dcg)
