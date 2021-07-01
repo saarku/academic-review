@@ -55,7 +55,7 @@ if accept_flag:
 
         for i, o in enumerate(data):
             if 'decision' in o:
-                decision = str(int(o['decision']))
+                decision = str(o['decision'])
                 paper_id = o['url'].split('=')[1]
                 if 'Accept' in decision:
                     citation_counts.write(paper_id + ',1\n')
