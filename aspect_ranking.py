@@ -442,7 +442,7 @@ def main():
     years_dir = '/home/skuzi2/{}_dataset/years.txt'.format(data_name, data_name)
 
     se = SearchEngine(data_dir + '.text.lemmatize', data_dir + '.ids', aspects_dir, citations_dir, titles_dir,
-                      years_dir, filter_flag=True, years_flag='17')
+                      years_dir, filter_flag=False, years_flag='17')
     #queries = [q.rstrip('\n') for q in open('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name), 'r').readlines()]
     #queries = ['domain adaptation', 'matrix factorization']
     #se.analyze_queries(queries)
