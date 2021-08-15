@@ -12,9 +12,8 @@ from scipy.stats import kendalltau
 
 def get_topic_representations():
     data_name = 'iclr17'
-    num_topics = '25'
-    topic_identifiers_2 = ['1_6_pos_23', '1_1_pos_12', '1_1_neg_7', '1_2_pos_13']
-    topic_identifiers_1 = ['1_all_neu_0', '1_3_neg_4', '1_5_pos_17', '1_all_neu_15']
+    num_topics = '5'
+    topic_identifiers_1 = ['3_1_pos_0']
 
     topic_identifiers = topic_identifiers_1
     # 'para_dimfeat_mode_num'
@@ -238,8 +237,13 @@ class TopicModels:
         lda_file.close()
 
 
-def main():
 
+
+
+
+def main():
+    get_topic_representations()
+    '''
     dataset = sys.argv[1]
     topics = [5, 15, 25]
     modes = ['pos', 'neg']
@@ -312,6 +316,6 @@ def main():
 
                             tm.generate_topic_kl(model_dir, vectors_dir + '.kl.test.val', model_type)
 
-
+    '''
 if __name__ == '__main__':
     main()
