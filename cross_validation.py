@@ -159,7 +159,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
     header += ',dim,unigrams_flag,algo,combination_method,cv_flag,optimal_dim,error,pearson,kendall\n'
     output_performance = ''
 
-    for test_dim in test_dimensions:
+    for test_dim in [2]:
         y_train, y_test = FeatureBuilder.get_labels(data_dir, test_dim)
         model_dir = models_dir + 'dim.' + str(test_dim) + '.algo.' + algorithm + '.uni.' + str(unigrams_flag).lower()
         model_dir += '.comb.' + combination_method + '.' + model_name
@@ -347,7 +347,7 @@ def run_topics_experiment():
     data_name = 'iclr17' # sys.argv[1]
     model_type = 'ovb'
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
-    test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [2]}[data_name]
+    test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
     topic_model_dims = ['cv']
     same_dim_flag = [False]
 
@@ -362,7 +362,7 @@ def run_topics_experiment():
         pos_neg_features[str(dim)] = modes
     features = [dimension_features] #[pos_features, neg_features, pos_neg_features, neutral_features] #dimension_features] # dimension_features] #
 
-    combination_methods = ['feature_comb'] #['feature_comb']#, 'comb_sum', 'comb_model'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
+    combination_methods = ['comb_sum'] #['feature_comb']#, 'comb_sum', 'comb_model'] # 'comb_model', ['comb_sum', 'comb_rank', 'feature_comb']
     num_paragraphs = [[1, 3]] #, [1], [3]] [1, 3]
     algorithms = ['regression']#, 'regression', 'ranking']#, 'ranking']#, 'ranking']#, 'mlp']
 
