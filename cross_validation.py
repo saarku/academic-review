@@ -95,6 +95,7 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, alg
     train_grades = np.zeros((len(train_labels), 1), dtype=float)
     all_aspects_train, all_aspects_test = [], []
     all_coefficients = []
+    all_features = []
 
     for i in range(len(all_train_features)):
         train_features, test_features = all_train_features[i], all_test_features[i]
@@ -103,8 +104,8 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, alg
         transformer = MinMaxScaler()
         transformer.fit(train_features)
         train_features, test_features = transformer.transform(train_features), transformer.transform(test_features)
-        print(test_features[1,:])
-        print(test_features[2,:])
+        all_features.append(test_features[1,:])
+        all_features.append(test_features[2,:])
 
         temp_model_dir = 'val.' + str(time.time())
         clf = learn_model(algorithm, train_features, train_labels, temp_model_dir)
@@ -148,7 +149,7 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, alg
     else:
         grades /= float(len(all_train_features))
         train_grades /= float(len(all_train_features))
-        return grades, train_grades, all_coefficients
+        return grades, train_grades, all_coefficients, all_features
 
 
 def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, train_vectors, test_vectors,
@@ -233,7 +234,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
                 for features in train_features:
                     small_train_features.append(features[small_train_ids, :])
                     validation_features.append(features[validation_ids, :])
-                val_grades, _, _ = run_sum_comb_method(small_train_features, small_train_labels, validation_features,
+                val_grades, _, _, _ = run_sum_comb_method(small_train_features, small_train_labels, validation_features,
                                                     algorithm, combination_method)
                 kendall, _ = kendalltau(validation_labels, np.reshape(val_grades, (-1, 1)))
                 if kendall > optimal_kendall:
@@ -242,8 +243,10 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
 
             train_features = train_vectors[test_dim][optimal_dim] + uni_features_train
             test_features = test_vectors[test_dim][optimal_dim] + uni_features_test
-            grades, _, coefficients = run_sum_comb_method(train_features, y_train, test_features, algorithm, combination_method)
+            grades, _, coefficients, all_features = run_sum_comb_method(train_features, y_train, test_features, algorithm, combination_method)
             #print(coefficients)
+            print('----------')
+            print(all_features)
 
             predication_dir = model_dir + '.predict'
             if not eval_flag: predication_dir += '.iclr'
