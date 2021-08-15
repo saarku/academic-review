@@ -460,9 +460,9 @@ def main():
     #get_titles(sys.argv[1])
     #robustness_evaluations('/Users/saarkuzi/Desktop/eval_iclrlarge.txt')
     #filter_queries('/home/skuzi2/iclr_large/scholar_queries.txt')
-    query = ['knowledge graph', 'question answering', 'self attention']
+    queries = ['knowledge graph', 'question answering', 'self attention']
 
-    data_name = sys.argv[1]
+    data_name = 'acl'#sys.argv[1]
 
     data_dir = '/home/skuzi2/{}_dataset/data_splits/dim.all.mod.neu.para.1.test.val'.format(data_name)
     aspects_dir = '/home/skuzi2/{}_dataset/{}_aspects.txt'.format(data_name, data_name)
@@ -475,11 +475,11 @@ def main():
                       years_dir, accepts_dir, filter_flag=False, years_flag='17')
     #queries = [q.rstrip('\n') for q in open('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name), 'r').readlines()]
     #queries = ['domain adaptation', 'matrix factorization']
-    #se.analyze_queries(queries)
+    se.analyze_queries(queries)
 
     #
     #se.run_jaccard(queries)
-    se.run_dataset('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name))
+    #se.run_dataset('/home/skuzi2/{}_dataset/phrase_queries.txt'.format(data_name))
 
 
 
