@@ -103,6 +103,8 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, alg
         transformer = MinMaxScaler()
         transformer.fit(train_features)
         train_features, test_features = transformer.transform(train_features), transformer.transform(test_features)
+        print(test_features[1,:])
+        print(test_features[2,:])
 
         temp_model_dir = 'val.' + str(time.time())
         clf = learn_model(algorithm, train_features, train_labels, temp_model_dir)
@@ -241,7 +243,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
             train_features = train_vectors[test_dim][optimal_dim] + uni_features_train
             test_features = test_vectors[test_dim][optimal_dim] + uni_features_test
             grades, _, coefficients = run_sum_comb_method(train_features, y_train, test_features, algorithm, combination_method)
-            print(coefficients)
+            #print(coefficients)
 
             predication_dir = model_dir + '.predict'
             if not eval_flag: predication_dir += '.iclr'
@@ -381,7 +383,7 @@ def run_topics_experiment():
                                                        data_dir, same_dim_flag=f)
                         train_features, test_features, model_name = args[0], args[1], args[2]
                         feature_names = args[5]
-                        print(feature_names)
+                        #print(feature_names)
 
                         for combination in combination_methods:
                             for uni in unigrams:
