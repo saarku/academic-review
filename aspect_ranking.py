@@ -179,7 +179,7 @@ class SearchEngine:
         self.citations = self.load_aspects(citation_dir)
         self.titles = self.load_titles(titles_dir)
         self.years = self.load_titles(years_dir)
-        self.accepts = self.load_aspects(accepts_dir)
+        #self.accepts = self.load_aspects(accepts_dir)
         self.paper_ids = [i.rstrip('\n') for i in open(ids_dir, 'r').readlines()]
         if filter_flag:
             self.paper_ids = [i for i in self.paper_ids if i in self.citations['Citations']]
