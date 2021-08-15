@@ -13,7 +13,7 @@ from scipy.stats import kendalltau
 def get_topic_representations():
     data_name = 'iclr17'
     num_topics = '5'
-    topic_identifiers_1 = ['3_6_pos_4']
+    topic_identifiers_1 = ['3_6_neg_4']
 
     topic_identifiers = topic_identifiers_1
     # 'para_dimfeat_mode_num'
