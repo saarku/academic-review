@@ -94,6 +94,7 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, alg
     grades = np.zeros((all_test_features[0].shape[0], 1), dtype=float)
     train_grades = np.zeros((len(train_labels), 1), dtype=float)
     all_aspects_train, all_aspects_test = [], []
+    all_coefficients = []
 
     for i in range(len(all_train_features)):
         train_features, test_features = all_train_features[i], all_test_features[i]
@@ -105,6 +106,8 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, alg
 
         temp_model_dir = 'val.' + str(time.time())
         clf = learn_model(algorithm, train_features, train_labels, temp_model_dir)
+        coefficients = clf.coef_
+        all_coefficients.append(coefficients)
         aspect_grades = clf.predict(test_features)
         aspect_grades = np.reshape(aspect_grades, (-1, 1))
         aspect_grades_train = clf.predict(train_features)
@@ -143,7 +146,7 @@ def run_sum_comb_method(all_train_features, train_labels, all_test_features, alg
     else:
         grades /= float(len(all_train_features))
         train_grades /= float(len(all_train_features))
-        return grades, train_grades
+        return grades, train_grades, all_coefficients
 
 
 def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, train_vectors, test_vectors,
@@ -228,7 +231,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
                 for features in train_features:
                     small_train_features.append(features[small_train_ids, :])
                     validation_features.append(features[validation_ids, :])
-                val_grades, _ = run_sum_comb_method(small_train_features, small_train_labels, validation_features,
+                val_grades, _, _ = run_sum_comb_method(small_train_features, small_train_labels, validation_features,
                                                     algorithm, combination_method)
                 kendall, _ = kendalltau(validation_labels, np.reshape(val_grades, (-1, 1)))
                 if kendall > optimal_kendall:
@@ -237,7 +240,8 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
 
             train_features = train_vectors[test_dim][optimal_dim] + uni_features_train
             test_features = test_vectors[test_dim][optimal_dim] + uni_features_test
-            grades, _ = run_sum_comb_method(train_features, y_train, test_features, algorithm, combination_method)
+            grades, _, coefficients = run_sum_comb_method(train_features, y_train, test_features, algorithm, combination_method)
+            print(coefficients)
 
             predication_dir = model_dir + '.predict'
             if not eval_flag: predication_dir += '.iclr'
@@ -340,12 +344,12 @@ def get_bert_vectors(data_dir, test_dims, same_dim_flag=True):
 
 
 def run_topics_experiment():
-    data_name = sys.argv[1]
+    data_name = 'iclr17' # sys.argv[1]
     model_type = 'ovb'
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
-    test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
+    test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [2]}[data_name]
     topic_model_dims = ['cv']
-    same_dim_flag = [False, True]
+    same_dim_flag = [False]
 
     modes, pos_modes, neg_modes = ['pos', 'neg'], ['pos'], ['neg']
     dimension_features, pos_features, neg_features, pos_neg_features, pos_neu_features = {'all': ['neu']}, {}, {}, {}, {'all': ['neu']}
@@ -376,6 +380,8 @@ def run_topics_experiment():
                         args = get_topic_model_vectors(topic_dim, para, feature, model_type, kl, test_dimensions,
                                                        data_dir, same_dim_flag=f)
                         train_features, test_features, model_name = args[0], args[1], args[2]
+                        feature_names = args[5]
+                        print(feature_names)
 
                         for combination in combination_methods:
                             for uni in unigrams:
