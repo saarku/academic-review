@@ -28,14 +28,15 @@ def load_data(data_name, dimension, data_type, num_samples=1000000):
     labels = FeatureBuilder.build_labels(ids_dir, grades_dir)
     lines = open(ids_dir.replace('ids', 'text'), 'r').readlines()
 
-    if num_samples < len(labels):
+    if num_samples < len(lines):
         random.seed(1)
-        zipped_data = list(zip(lines, labels))
+        zipped_data = list(zip(list(range(len(lines))), lines))
         random.shuffle(zipped_data)
-        labels, lines = [], []
+        idx, lines = [], []
         for pair in zipped_data:
-            lines.append(pair[0])
-            labels.append(pair[1])
+            idx.append(pair[0])
+            lines.append(pair[1])
+        labels = labels[idx, :]
 
     x, y = FeatureBuilder.modify_data_to_dimension(lines, labels, dimension)
     y = [float(i) for i in y]
@@ -50,6 +51,7 @@ def fine_tune_bert(data_name, dimension, max_length, num_samples=1000):
     tokenizer = AutoTokenizer.from_pretrained(model_name, do_lower_case=True)
     x_data, y_data = load_data(data_name, dimension, 'train', num_samples=num_samples)
     x_test, y_test = load_data(data_name, dimension, 'test.val')
+    print('train size: {}, {}. test size: {}, {}'.format(len(x_data), len(y_data), len(x_test), len(y_test)))
 
     print('Tokenizing')
     train_encodings = tokenizer(x_data, truncation=True, padding=True, max_length=max_length, return_tensors="pt")
