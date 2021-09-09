@@ -402,7 +402,7 @@ def run_topics_experiment():
 
 def run_embeddings_experiment():
     data_name = 'iclr17' #sys.argv[1]
-    arch = 'bert_150' #sys.argv[2]
+    arch = 'bert_200' #sys.argv[2]
     num_samples = arch.split('_')[1]
 
     same_dim_flag = [True]
