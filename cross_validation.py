@@ -162,7 +162,7 @@ def cv_experiment(test_dimensions, data_dir, unigrams_flag, combination_method, 
     header += ',dim,unigrams_flag,algo,combination_method,cv_flag,optimal_dim,error,pearson,kendall\n'
     output_performance = ''
 
-    for test_dim in [2]:
+    for test_dim in test_dimensions:
         y_train, y_test = FeatureBuilder.get_labels(data_dir, test_dim)
         model_dir = models_dir + 'dim.' + str(test_dim) + '.algo.' + algorithm + '.uni.' + str(unigrams_flag).lower()
         model_dir += '.comb.' + combination_method + '.' + model_name
@@ -403,7 +403,7 @@ def run_topics_experiment():
 def run_embeddings_experiment():
     data_name = 'iclr17' #sys.argv[1]
     arch = 'bert_50' #sys.argv[2]
-    num_samples = 50
+    num_samples = arch.split('_')[1]
 
     same_dim_flag = [True]
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
