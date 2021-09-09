@@ -78,7 +78,7 @@ class FeatureBuilder:
                 modified_lines.append(line)
 
         if num_samples < len(modified_lines):
-            random.seed(2)
+            random.seed(3)
             zipped_data = list(zip(modified_lines, modified_grades))
             random.shuffle(zipped_data)
             modified_grades, modified_lines = [], []
