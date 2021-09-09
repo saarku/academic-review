@@ -36,6 +36,8 @@ def load_data(data_name, dimension, data_type, num_samples=1000000):
         for pair in zipped_data:
             lines.append(pair[0])
             labels.append(pair[1])
+    print(lines)
+    print(labels)
 
     x, y = FeatureBuilder.modify_data_to_dimension(lines, labels, dimension)
     y = [float(i) for i in y]
