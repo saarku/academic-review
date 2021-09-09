@@ -329,7 +329,7 @@ def get_embedding_vectors(data_dir, arch, test_dims, vec_dim, same_dim_flag=True
     return train_features, test_features, model_name
 
 
-def get_bert_vectors(data_dir, test_dims, same_dim_flag=True):
+def get_bert_vectors(data_dir, test_dims, num_samples, same_dim_flag=True):
     vectors_dir = data_dir + '/bert_embeddings/'
     train_features, test_features = {}, {}
     builder = FeatureBuilder(data_dir)
@@ -338,7 +338,7 @@ def get_bert_vectors(data_dir, test_dims, same_dim_flag=True):
         train_features[test_dim], test_features[test_dim] = defaultdict(list), defaultdict(list)
         for feature_dim in test_dims:
             if test_dim != feature_dim and same_dim_flag: continue
-            bert_dir = vectors_dir + 'dim.' + str(feature_dim)
+            bert_dir = vectors_dir + 'dim.' + str(feature_dim) + '.samples.' + str(num_samples)
             output = builder.build_topic_features(test_dim, bert_dir + '.train', bert_dir + '.test.val', 1)
             x_train, y_train, x_test, y_test = output[0], output[1], output[2], output[3]
             train_features[test_dim][25].append(x_train)
@@ -401,16 +401,17 @@ def run_topics_experiment():
 
 
 def run_embeddings_experiment():
-    data_name = sys.argv[1]
-    arch = sys.argv[2]
+    data_name = 'iclr17' #sys.argv[1]
+    arch = 'bert_50' #sys.argv[2]
+    num_samples = 50
 
-    same_dim_flag = [False, True]
+    same_dim_flag = [True]
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
-    test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
-    combination_methods = ['comb_sum', 'feature_comb']
+    test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1]}[data_name] #[1, 2, 3, 5, 6]
+    combination_methods = ['feature_comb'] #'comb_sum',
     algorithms = ['regression']
-    unigrams = [False, True]
-    output_file = open('report_{}_{}.txt'.format(arch, data_name), 'w+')
+    unigrams = [False] #, True
+    output_file = open('report_{}_{}_{}.txt'.format(arch, data_name, num_samples), 'w+')
     output_lines, header = '', ''
 
     for f in same_dim_flag:
@@ -418,7 +419,8 @@ def run_embeddings_experiment():
             train_features, test_features, model_name = get_embedding_vectors(data_dir, arch, test_dimensions, 'cv',
                                                                               same_dim_flag=f)
         else:
-            train_features, test_features, model_name = get_bert_vectors(data_dir, test_dimensions, same_dim_flag=f)
+            train_features, test_features, model_name = get_bert_vectors(data_dir, test_dimensions, num_samples,
+                                                                         same_dim_flag=f)
 
         for uni in unigrams:
             for combination in combination_methods:
@@ -537,7 +539,7 @@ def get_acl_scores():
 
 
 def main():
-    run_topics_experiment()
+    run_embeddings_experiment()
 
 
 if __name__ == '__main__':
