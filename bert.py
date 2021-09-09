@@ -27,18 +27,7 @@ def load_data(data_name, dimension, data_type, num_samples=1000000):
     grades_dir = base_dir + 'annotations/annotation_aggregated.tsv'
     labels = FeatureBuilder.build_labels(ids_dir, grades_dir)
     lines = open(ids_dir.replace('ids', 'text'), 'r').readlines()
-
-    if num_samples < len(lines):
-        random.seed(1)
-        zipped_data = list(zip(list(range(len(lines))), lines))
-        random.shuffle(zipped_data)
-        idx, lines = [], []
-        for pair in zipped_data[:num_samples]:
-            idx.append(pair[0])
-            lines.append(pair[1])
-        labels = labels[idx, :]
-
-    x, y = FeatureBuilder.modify_data_to_dimension(lines, labels, dimension)
+    x, y = FeatureBuilder.modify_data_to_dimension(lines, labels, dimension, num_samples=num_samples)
     y = [float(i) for i in y]
     return x, y
 

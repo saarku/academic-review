@@ -2,7 +2,7 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 import numpy as np
 from topic_models import get_topics_vec
 from utils import to_sparse, from_sparse, pre_process_text
-
+import random
 
 class FeatureBuilder:
 
@@ -61,7 +61,7 @@ class FeatureBuilder:
         return labels_matrix
 
     @staticmethod
-    def modify_data_to_dimension(data_lines, grades_matrix, dimension_id):
+    def modify_data_to_dimension(data_lines, grades_matrix, dimension_id, num_samples=1000000):
         """ Modify a data set for papers with an actual grade in a dimension.
 
         :param data_lines: (list) the papers text.
@@ -76,6 +76,15 @@ class FeatureBuilder:
             if grade > 0:
                 modified_grades.append(grade)
                 modified_lines.append(line)
+
+        if num_samples < len(modified_lines):
+            random.seed(1)
+            zipped_data = list(zip(modified_lines, modified_grades))
+            random.shuffle(zipped_data)
+            modified_grades, modified_lines = [], []
+            for pair in zipped_data[:num_samples]:
+                modified_lines.append(pair[0])
+                modified_grades.append(pair[1])
         return modified_lines, modified_grades
 
     @staticmethod
