@@ -33,7 +33,7 @@ def load_data(data_name, dimension, data_type, num_samples=1000000):
         zipped_data = list(zip(list(range(len(lines))), lines))
         random.shuffle(zipped_data)
         idx, lines = [], []
-        for pair in zipped_data:
+        for pair in zipped_data[:num_samples]:
             idx.append(pair[0])
             lines.append(pair[1])
         labels = labels[idx, :]
