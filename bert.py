@@ -3,6 +3,7 @@ from transformers import AutoTokenizer, BertForSequenceClassification, AutoModel
 from transformers import Trainer, TrainingArguments
 from feature_builder import FeatureBuilder
 import numpy as np
+import random
 import sys
 
 
@@ -20,24 +21,34 @@ class AcademicDataset(torch.utils.data.Dataset):
         return len(self.labels)
 
 
-def load_data(data_name, dimension, data_type):
+def load_data(data_name, dimension, data_type, num_samples=1000000):
     base_dir = '/home/skuzi2/{}_dataset/'.format(data_name)
     ids_dir = base_dir + 'data_splits/dim.all.mod.neu.para.1.{}.ids'.format(data_type)
     grades_dir = base_dir + 'annotations/annotation_aggregated.tsv'
     labels = FeatureBuilder.build_labels(ids_dir, grades_dir)
     lines = open(ids_dir.replace('ids', 'text'), 'r').readlines()
+
+    if num_samples < len(labels):
+        random.seed(1)
+        zipped_data = list(zip(lines, labels))
+        random.shuffle(zipped_data)
+        labels, lines = [], []
+        for pair in zipped_data:
+            lines.append(pair[0])
+            labels.append(pair[1])
+
     x, y = FeatureBuilder.modify_data_to_dimension(lines, labels, dimension)
     y = [float(i) for i in y]
     return x, y
 
 
-def fine_tune_bert(data_name, dimension, max_length):
+def fine_tune_bert(data_name, dimension, max_length, num_samples=1000):
 
     model_name = 'allenai/scibert_scivocab_uncased'
 
     print('Initializing Tokenizer')
     tokenizer = AutoTokenizer.from_pretrained(model_name, do_lower_case=True)
-    x_data, y_data = load_data(data_name, dimension, 'train')
+    x_data, y_data = load_data(data_name, dimension, 'train', num_samples=num_samples)
     x_test, y_test = load_data(data_name, dimension, 'test.val')
 
     print('Tokenizing')
@@ -65,7 +76,7 @@ def fine_tune_bert(data_name, dimension, max_length):
     trainer.train()
     print('Finished')
 
-    model_path = '../{}_dataset/bert_models/dim.{}'.format(data_name, dimension)
+    model_path = '../{}_dataset/bert_models/dim.{}.samples.{}'.format(data_name, dimension, num_samples)
     model.save_pretrained(model_path)
     tokenizer.save_pretrained(model_path)
     print('Done')
@@ -75,15 +86,12 @@ def fine_tune_bert(data_name, dimension, max_length):
 def infer_embeddings(model, tokenizer, lines, output_dir, max_length):
     output_file = open(output_dir, 'w+')
     for i in range(0, len(lines), 16):
-        print('22222222222222')
+        print('infer step: {}'.format(i))
         end = min(i+16, len(lines))
         encodings = tokenizer(lines[i: end], truncation=True, padding=True, max_length=max_length, return_tensors="pt")
         outputs = model(**encodings, output_hidden_states=True)
-        print('33333333333333')
         hidden_states = outputs[1][-1].detach().numpy()  # (batch, seq, hidden)
-        print('444444444444444')
         embeddings = np.mean(hidden_states, axis=1)  # (batch, hidden)
-        print('555555555555555')
         for l in range(embeddings.shape[0]):
             line = ['({}, {})'.format(j, embeddings[l, j]) for j in range(embeddings.shape[1])]
             line = '[' + ', '.join(line) + ']\n'
@@ -92,21 +100,25 @@ def infer_embeddings(model, tokenizer, lines, output_dir, max_length):
 
 
 def main():
-    data_name = sys.argv[1]
+    data_name = 'iclr17'#sys.argv[1]
     grade_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
     max_length = 512
+    samples = [50, 100, 150, 200, 250, 300, 350]
 
     for dim in grade_dims:
-        print('{}: {}'.format(data_name, dim))
-        model, tokenizer, train_encodings, test_encodings = fine_tune_bert(data_name, dim, max_length)
+        for num_samples in samples:
+            print('{}: {}, {}'.format(data_name, dim, num_samples))
+            model, tokenizer, _, _ = fine_tune_bert(data_name, dim, max_length, num_samples=num_samples)
 
-        print('inferring')
-        for data_type in ['train', 'test.val']:
-            output_dir = '../{}_dataset/bert_embeddings/dim.{}.{}'.format(data_name, dim, data_type)
-            encodings = train_encodings if data_type == 'train' else test_encodings
-            data_dir = '/home/skuzi2/{}_dataset/data_splits/dim.all.mod.neu.para.1.{}.text'.format(data_name, data_type)
-            lines = open(data_dir, 'r').readlines()
-            infer_embeddings(model, tokenizer, lines, output_dir, max_length)
+            print('inferring')
+            for data_type in ['train', 'test.val']:
+                output_dir = '../{}_dataset/bert_embeddings/dim.{}.samples.{}.{}'.format(data_name, dim, num_samples,
+                                                                                         data_type)
+                #encodings = train_encodings if data_type == 'train' else test_encodings
+                data_dir = '/home/skuzi2/{}_dataset/data_splits/dim.all.mod.neu.para.1.{}.text'.format(data_name, data_type)
+                lines = open(data_dir, 'r').readlines()
+                infer_embeddings(model, tokenizer, lines, output_dir, max_length)
+
 
 if __name__ == '__main__':
     main()
