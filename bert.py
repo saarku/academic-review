@@ -104,7 +104,7 @@ def main():
 
             print('inferring')
             for data_type in ['train', 'test.val']:
-                output_dir = '../{}_dataset/bert_embeddings_{}/dim.{}.samples.{}.{}'.format(seed, data_name, dim,
+                output_dir = '../{}_dataset/bert_embeddings_{}/dim.{}.samples.{}.{}'.format(data_name, seed, dim,
                                                                                             num_samples, data_type)
                 #encodings = train_encodings if data_type == 'train' else test_encodings
                 data_dir = '/home/skuzi2/{}_dataset/data_splits/dim.all.mod.neu.para.1.{}.text'.format(data_name,
