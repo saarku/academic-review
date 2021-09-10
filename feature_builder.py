@@ -61,7 +61,7 @@ class FeatureBuilder:
         return labels_matrix
 
     @staticmethod
-    def modify_data_to_dimension(data_lines, grades_matrix, dimension_id, num_samples=1000000):
+    def modify_data_to_dimension(data_lines, grades_matrix, dimension_id, seed=0, num_samples=1000000):
         """ Modify a data set for papers with an actual grade in a dimension.
 
         :param data_lines: (list) the papers text.
@@ -78,7 +78,7 @@ class FeatureBuilder:
                 modified_lines.append(line)
 
         if num_samples < len(modified_lines):
-            random.seed(5)
+            random.seed(seed)
             zipped_data = list(zip(modified_lines, modified_grades))
             random.shuffle(zipped_data)
             modified_grades, modified_lines = [], []
