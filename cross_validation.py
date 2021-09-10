@@ -329,8 +329,12 @@ def get_embedding_vectors(data_dir, arch, test_dims, vec_dim, same_dim_flag=True
     return train_features, test_features, model_name
 
 
-def get_bert_vectors(data_dir, test_dims, num_samples, same_dim_flag=True):
-    vectors_dir = data_dir + '/bert_embeddings/'
+def get_bert_vectors(data_dir, test_dims, num_samples, seed=0, same_dim_flag=True):
+    if seed == 1 or seed == 0:
+        vectors_dir = data_dir + '/bert_embeddings/'
+    else:
+        vectors_dir = data_dir + '/bert_embeddings_{}/'.format(seed)
+
     train_features, test_features = {}, {}
     builder = FeatureBuilder(data_dir)
 
@@ -344,7 +348,7 @@ def get_bert_vectors(data_dir, test_dims, num_samples, same_dim_flag=True):
             train_features[test_dim][25].append(x_train)
             test_features[test_dim][25].append(x_test)
 
-    model_name = 'model.bert.samedim.{}'.format(same_dim_flag)
+    model_name = 'model.bert.samedim.{}.seed.{}.samples.{}'.format(same_dim_flag, seed, num_samples)
     return train_features, test_features, model_name
 
 
@@ -429,6 +433,28 @@ def run_embeddings_experiment():
                                                    test_features, algo, model_name, 'cv')
                     output_lines += output
                     print(output)
+
+    output_file.write(header)
+    output_file.write(output_lines)
+
+
+def run_bert_diagnose_experiment():
+    data_name = 'iclr17' #sys.argv[1]
+    data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
+    test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3]}[data_name] #[1, 2, 3, 5, 6]
+    output_file = open('report_bert_diagnose_{}.txt'.format(data_name), 'w+')
+    output_lines, header = '', ''
+
+    for seed in [1, 2, 3, 4, 5]:
+        for num_samples in [50, 100, 150, 200, 250, 300, 350]:
+            train_features, test_features, model_name = get_bert_vectors(data_dir, test_dimensions, num_samples,
+                                                                         seed=seed)
+            output, header = cv_experiment(test_dimensions, data_dir, False, 'feature_comb', train_features,
+                                           test_features, 'regression', model_name, 'cv')
+
+            output = '{},{},'.format(seed, num_samples) + output
+            output_lines += output
+            print(output)
 
     output_file.write(header)
     output_file.write(output_lines)
