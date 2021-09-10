@@ -67,7 +67,7 @@ def fine_tune_bert(data_name, dimension, max_length, seed=0, num_samples=1000):
     trainer.train()
     print('Finished')
 
-    model_path = '../{}_dataset/bert_models_{}/dim.{}.samples.{}'.format(seed, data_name, dimension, num_samples)
+    model_path = '../{}_dataset/bert_models_{}/dim.{}.samples.{}'.format(data_name, seed, dimension, num_samples)
     model.save_pretrained(model_path)
     tokenizer.save_pretrained(model_path)
     print('Done')
