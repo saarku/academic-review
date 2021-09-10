@@ -565,7 +565,7 @@ def get_acl_scores():
 
 
 def main():
-    run_embeddings_experiment()
+    run_bert_diagnose_experiment()
 
 
 if __name__ == '__main__':
