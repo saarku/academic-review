@@ -451,8 +451,6 @@ def run_bert_diagnose_experiment():
                                                                          seed=seed)
             output, header = cv_experiment(test_dimensions, data_dir, False, 'feature_comb', train_features,
                                            test_features, 'regression', model_name, 'cv')
-
-            output = '{},{},'.format(seed, num_samples) + output
             output_lines += output
             print(output)
 
