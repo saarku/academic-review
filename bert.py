@@ -67,7 +67,7 @@ def fine_tune_bert(data_name, dimension, max_length, num_samples=1000):
     trainer.train()
     print('Finished')
 
-    model_path = '../{}_dataset/bert_models_4/dim.{}.samples.{}'.format(data_name, dimension, num_samples)
+    model_path = '../{}_dataset/bert_models_5/dim.{}.samples.{}'.format(data_name, dimension, num_samples)
     model.save_pretrained(model_path)
     tokenizer.save_pretrained(model_path)
     print('Done')
@@ -103,7 +103,7 @@ def main():
 
             print('inferring')
             for data_type in ['train', 'test.val']:
-                output_dir = '../{}_dataset/bert_embeddings_4/dim.{}.samples.{}.{}'.format(data_name, dim, num_samples,
+                output_dir = '../{}_dataset/bert_embeddings_5/dim.{}.samples.{}.{}'.format(data_name, dim, num_samples,
                                                                                          data_type)
                 #encodings = train_encodings if data_type == 'train' else test_encodings
                 data_dir = '/home/skuzi2/{}_dataset/data_splits/dim.all.mod.neu.para.1.{}.text'.format(data_name, data_type)
