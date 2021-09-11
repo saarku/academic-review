@@ -330,7 +330,7 @@ def get_embedding_vectors(data_dir, arch, test_dims, vec_dim, same_dim_flag=True
 
 
 def get_bert_vectors(data_dir, test_dims, num_samples, seed=0, same_dim_flag=True):
-    if seed == 1 or seed == 0:
+    if seed == 0:
         vectors_dir = data_dir + '/bert_embeddings/'
     else:
         vectors_dir = data_dir + '/bert_embeddings_{}/'.format(seed)
