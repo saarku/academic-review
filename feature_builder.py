@@ -85,6 +85,7 @@ class FeatureBuilder:
             for pair in zipped_data[:num_samples]:
                 modified_lines.append(pair[0])
                 modified_grades.append(pair[1])
+
         return modified_lines, modified_grades
 
     @staticmethod

@@ -92,10 +92,10 @@ def infer_embeddings(model, tokenizer, lines, output_dir, max_length):
 
 def main():
     data_name = 'iclr17'#sys.argv[1]
-    grade_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
+    grade_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [3]}[data_name]
     max_length = 512
     seed = int(sys.argv[1])
-    samples = [50, 100, 150, 200, 250, 300, 350]
+    samples = [300] #[50, 100, 150, 200, 250, 300, 350]
 
     for dim in grade_dims:
         for num_samples in samples:
