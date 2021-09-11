@@ -34,7 +34,6 @@ def load_data(data_name, dimension, data_type, seed=0, num_samples=1000000):
 
 
 def fine_tune_bert(data_name, dimension, max_length, seed=0, num_samples=1000):
-    K.clear_session()
     model_name = 'allenai/scibert_scivocab_uncased'
 
     print('Initializing Tokenizer')
@@ -77,7 +76,6 @@ def fine_tune_bert(data_name, dimension, max_length, seed=0, num_samples=1000):
 
 
 def infer_embeddings(model, tokenizer, lines, output_dir, max_length):
-    K.clear_session()
     output_file = open(output_dir, 'w+')
     for i in range(0, len(lines), 16):
         print('infer step: {}'.format(i))
@@ -95,13 +93,15 @@ def infer_embeddings(model, tokenizer, lines, output_dir, max_length):
 
 def main():
     data_name = 'iclr17'#sys.argv[1]
-    grade_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [3]}[data_name]
+    grade_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
     max_length = 512
     seed = int(sys.argv[1])
-    samples = [300, 350] #[50, 100, 150, 200, 250, 300, 350]
+    K.clear_session()
+    samples = [50, 100, 150, 200, 250, 300, 350]
 
-    for dim in grade_dims:
-        for num_samples in samples:
+    for num_samples in samples:
+        K.clear_session()
+        for dim in grade_dims:
             print('{}: {}, {}'.format(data_name, dim, num_samples))
             model, tokenizer, _, _ = fine_tune_bert(data_name, dim, max_length, num_samples=num_samples, seed=seed)
 
