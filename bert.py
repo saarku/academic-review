@@ -96,7 +96,7 @@ def main():
     grade_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [3]}[data_name]
     max_length = 512
     seed = int(sys.argv[1])
-    samples = [300] #[50, 100, 150, 200, 250, 300, 350]
+    samples = [350] #[50, 100, 150, 200, 250, 300, 350]
 
     for dim in grade_dims:
         for num_samples in samples:
