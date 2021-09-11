@@ -329,8 +329,8 @@ def get_embedding_vectors(data_dir, arch, test_dims, vec_dim, same_dim_flag=True
     return train_features, test_features, model_name
 
 
-def get_bert_vectors(data_dir, test_dims, num_samples, seed=0, same_dim_flag=True):
-    if seed == 0:
+def get_bert_vectors(data_dir, test_dims, num_samples, seed=-1, same_dim_flag=True):
+    if seed == -1:
         vectors_dir = data_dir + '/bert_embeddings/'
     else:
         vectors_dir = data_dir + '/bert_embeddings_{}/'.format(seed)
