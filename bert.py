@@ -96,8 +96,9 @@ def main():
     grade_dims = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name]
     max_length = 512
     seed = int(sys.argv[1])
+    samples_option = int(sys.argv[2])
     K.clear_session()
-    samples = [50, 100, 150, 200, 250, 300, 350]
+    samples = {1: [250, 300, 350], 2: [300, 350]}[samples_option]
 
     for num_samples in samples:
         K.clear_session()
