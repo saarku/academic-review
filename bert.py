@@ -42,7 +42,6 @@ def fine_tune_bert(data_name, dimension, max_length, seed=0, num_samples=1000):
     x_test, y_test = load_data(data_name, dimension, 'test.val')
     print('train size: {}, {}. test size: {}, {}'.format(len(x_data), len(y_data), len(x_test), len(y_test)))
 
-    print(y_data)
     print('Tokenizing')
     train_encodings = tokenizer(x_data, truncation=True, padding=True, max_length=max_length, return_tensors="pt")
     test_encodings = tokenizer(x_test, truncation=True, padding=True, max_length=max_length, return_tensors="pt")

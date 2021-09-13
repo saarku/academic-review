@@ -78,12 +78,6 @@ class FeatureBuilder:
                 modified_lines.append(line)
 
         if num_samples < len(modified_lines):
-            print('******************')
-            print('******************')
-            print('******************')
-            print('******************')
-            print('******************')
-
             random.seed(seed)
             zipped_data = list(zip(modified_lines, modified_grades))
             random.shuffle(zipped_data)
