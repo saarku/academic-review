@@ -7,8 +7,8 @@ from cross_validation import learn_model
 def get_quarters(scores):
     scores = [(scores[i], i) for i in range(len(scores))]
     scores = sorted(scores, reverse=True)
-    q = len(scores) // 4
-    quarter_mapping = {(0, q): 1, (q, 2*q): 2, (2*q, 3*q): 3, (3*q, len(scores)): 4}
+    q = len(scores) // 3
+    quarter_mapping = {(0, q): 1, (q, 2*q): 2, (2*q, len(scores)): 3}
 
     quarter_labels ={}
     for i, label in enumerate(scores):
