@@ -34,7 +34,7 @@ def get_overlap(error_1, error_2):
     return len(error_1.intersection(error_2))/len(error_1.union(error_2))
 
 
-data_name = 'iclr17'  # sys.argv[1]
+data_name = 'education'  # sys.argv[1]
 
 bert_dir = {'iclr17': "dim.{}.algo.regression.uni.false.comb.feature_comb.model.bert.samedim.True.seed.1.samples.350.predict",
             'education': "dim.{}.algo.regression.uni.false.comb.feature_comb.model.bert.samedim.True.predict"}[data_name]
