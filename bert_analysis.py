@@ -67,9 +67,13 @@ for test_dim in test_dimensions:
     topic_errors = grades_errors(topic_grades, y_test)
     bert_errors = grades_errors(bert_grades, y_test)
 
-    print('{},bert,uni,{}'.format(test_dim, get_overlap(bert_errors, unigram_errors)))
-    print('{},topic,uni,{}'.format(test_dim, get_overlap(topic_errors, unigram_errors)))
-    print('{},topic,bert,{}'.format(test_dim, get_overlap(bert_errors, topic_errors)))
+
+    print('{},bert,{}'.format(test_dim, len(bert_errors)))
+    print('{},topic,{}'.format(test_dim, len(topic_errors)))
+    print('{},uni,{}'.format(test_dim, len(unigram_errors)))
+    print('{},bert+uni,{}'.format(test_dim, get_overlap(bert_errors, unigram_errors)))
+    print('{},topic+uni,{}'.format(test_dim, get_overlap(topic_errors, unigram_errors)))
+    print('{},topic+bert,{}'.format(test_dim, get_overlap(bert_errors, topic_errors)))
 
 
 
