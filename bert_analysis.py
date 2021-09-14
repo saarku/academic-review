@@ -3,6 +3,37 @@ import scipy.sparse as sp
 from sklearn.preprocessing import MinMaxScaler
 from cross_validation import learn_model
 
+
+def get_quarters(scores):
+    scores = [(scores[i], i) for i in range(len(scores))]
+    scores = sorted(scores, reverse=True)
+    q = len(scores) // 4
+    quarter_mapping = {(0, q): 1, (q, 2*q): 2, (2*q, 3*q): 3, (3*q, len(scores)): 4}
+
+    quarter_labels ={}
+    for i, label in enumerate(scores):
+        for tup in quarter_mapping:
+            if tup[1] > i >= tup[0]:
+                quarter_labels[label[1]] = quarter_mapping[tup]
+    return quarter_labels
+
+
+def grades_errors(predicted, labels):
+    label_quarters = get_quarters(labels)
+    predicted_quarters = get_quarters(predicted)
+    mistakes = []
+    for i in predicted_quarters:
+        if predicted_quarters[i] != label_quarters[i]:
+            mistakes.append(i)
+    return mistakes
+
+
+def get_overlap(error_1, error_2):
+    error_1 = set(error_1)
+    error_2 = set(error_2)
+    return len(error_1.intersection(error_2))/len(error_1.union(error_2))
+
+
 data_name = 'iclr17'  # sys.argv[1]
 
 bert_dir = {'iclr17': "dim.{}.algo.regression.uni.false.comb.feature_comb.model.bert.samedim.True.seed.1.samples.350.predict",
@@ -32,11 +63,17 @@ for test_dim in test_dimensions:
     topic_grades = [float(i.rstrip('\n')) for i in open(data_dir + '/models/' + topics_dir.format(test_dim)).readlines()]
     bert_grades = [float(i.rstrip('\n')) for i in open(data_dir + '/models/' + bert_dir.format(test_dim)).readlines()]
 
-    print('****************{}****************'.format(test_dim))
-    print(y_test)
-    print(unigram_grades)
-    print(topic_grades)
-    print(bert_grades)
+    unigram_errors = grades_errors(unigram_grades, y_test)
+    topic_errors = grades_errors(topic_grades, y_test)
+    bert_errors = grades_errors(bert_grades, y_test)
+
+    print('{},bert,uni,{}'.format(test_dim, get_overlap(bert_errors, unigram_errors)))
+    print('{},topic,uni,{}'.format(test_dim, get_overlap(topic_errors, unigram_errors)))
+    print('{},topic,bert,{}'.format(test_dim, get_overlap(bert_errors, topic_errors)))
+
+
+
+
 
 
 
