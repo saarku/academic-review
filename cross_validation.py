@@ -441,12 +441,12 @@ def run_embeddings_experiment():
 def run_bert_diagnose_experiment():
     data_name = 'iclr17' #sys.argv[1]
     data_dir = '/home/skuzi2/{}_dataset'.format(data_name)
-    test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [3]}[data_name] #[1, 2, 3, 5, 6]
+    test_dimensions = {'education': [0, 1, 2, 3, 4, 5, 6], 'iclr17': [1, 2, 3, 5, 6]}[data_name] #[1, 2, 3, 5, 6]
     output_file = open('report_bert_diagnose_{}.txt'.format(data_name), 'w+')
     output_lines, header = '', ''
 
-    for seed in [0]:
-        for num_samples in [300, 350]:
+    for seed in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
+        for num_samples in [50, 100, 150, 200, 250, 300, 350]:
             train_features, test_features, model_name = get_bert_vectors(data_dir, test_dimensions, num_samples,
                                                                          seed=seed)
             output, header = cv_experiment(test_dimensions, data_dir, False, 'feature_comb', train_features,
