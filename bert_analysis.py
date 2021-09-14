@@ -29,7 +29,6 @@ for test_dim in test_dimensions:
     unigram_grades = clf.predict(test_features)
 
     unigram_grades = unigram_grades.tolist()
-    y_test = y_test.tolist()
     topic_grades = [float(i.rstrip('\n')) for i in open(data_dir + '/models/' + topics_dir.format(test_dim)).readlines()]
     bert_grades = [float(i.rstrip('\n')) for i in open(data_dir + '/models/' + bert_dir.format(test_dim)).readlines()]
 
