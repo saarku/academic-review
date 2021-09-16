@@ -23,14 +23,14 @@ class FeatureBuilder:
         :param dimension_id: (int) id for the ranking dimension.
         :return: train/test features and labels.
         """
-        train_data, y_train = self.modify_data_to_dimension(self.train_lines, self.train_labels, dimension_id)
-        test_data, y_test = self.modify_data_to_dimension(self.test_lines, self.test_labels, dimension_id)
+        train_data, y_train, idx = self.modify_data_to_dimension(self.train_lines, self.train_labels, dimension_id)
+        test_data, y_test, _ = self.modify_data_to_dimension(self.test_lines, self.test_labels, dimension_id)
         x_train_counts = self.count_vector.fit_transform(train_data)
         x_test_counts = self.count_vector.transform(test_data)
         x_train_tf_idf = self.tf_idf_transformer.fit_transform(x_train_counts)
         x_test_tf_idf = self.tf_idf_transformer.transform(x_test_counts)
         y_train = np.asarray(y_train, dtype=float)
-        return x_train_tf_idf, y_train, x_test_tf_idf, y_test, self.count_vector.get_feature_names()
+        return x_train_tf_idf, y_train, x_test_tf_idf, y_test, self.count_vector.get_feature_names(), idx
 
     def build_topic_features(self, dimension_id, topics_train_dir, topics_test_dir, num_paragraphs, norm=False):
         x_test, y_test = get_topics_vec(topics_test_dir, self.test_labels, dimension_id, num_paragraphs, norm)
@@ -71,11 +71,13 @@ class FeatureBuilder:
         """
         modified_lines = []
         modified_grades = []
+        idx = []
         for i, line in enumerate(data_lines):
             grade = grades_matrix[i, dimension_id]
             if grade > 0:
                 modified_grades.append(grade)
                 modified_lines.append(line)
+                idx.append(i)
 
         if num_samples < len(modified_lines):
             random.seed(seed)
@@ -86,7 +88,7 @@ class FeatureBuilder:
                 modified_lines.append(pair[0])
                 modified_grades.append(pair[1])
 
-        return modified_lines, modified_grades
+        return modified_lines, modified_grades, idx
 
     @staticmethod
     def get_labels(data_dir, dimension_id):
